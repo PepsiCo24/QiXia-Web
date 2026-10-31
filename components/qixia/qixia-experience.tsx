@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { HeroMap } from './hero-map'
 import { PetDock } from './pet/pet-dock'
+import { SiteFooter } from './site-footer'
 import { POI_MAP, type PersonaId } from '@/lib/qixia-data'
 import { mapCommandSchema, type MapCommand } from '@/lib/pet/pet-actions'
 import { localReply } from '@/lib/pet/pet-knowledge'
@@ -46,6 +47,8 @@ export function QixiaExperience() {
   return <main className="qixia-viewport bg-background text-foreground">
     <HeroMap personaId={personaId} onPersonaChange={setPersonaId} onAsk={askFromMap} command={command} onPoiSelect={id => setMapNotice({ id: Date.now(), text: `这里是${POI_MAP[id].name}！想听听它的故事吗？` })} />
 
-    <PetDock open={open} onOpen={setOpen} messages={messages} status={status} error={error} onSend={send} onStop={() => { void stop() }} onReset={() => setMessages([])} personaId={personaId} onCommand={execute} mapNotice={mapNotice} />
+    <section id="ask" className="qixia-ask border-t border-border px-5 py-12 text-center"><p className="text-xs tracking-[0.35em] text-primary">ASK QIXIA</p><h2 className="my-3 font-serif text-3xl">让灵猫陪你游栖霞</h2><p className="mx-auto mb-5 max-w-lg text-sm leading-relaxed text-muted-foreground">问故事、看景点、选适合同行人的游览顺序。地图坐标与连线为示意，客流与红叶为演示数据。</p><button className="rounded-full bg-primary px-6 py-3 text-sm text-primary-foreground" onClick={() => setOpen(true)}>与栖霞灵猫聊聊</button></section>
+     <SiteFooter />
+     <PetDock open={open} onOpen={setOpen} messages={messages} status={status} error={error} onSend={send} onStop={() => { void stop() }} onReset={() => setMessages([])} personaId={personaId} onCommand={execute} mapNotice={mapNotice} />
   </main>
 }
