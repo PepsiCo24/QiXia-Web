@@ -215,15 +215,29 @@ export function MapView({
         minZoom: 12.5,
         maxZoom: 18.5,
         scrollZoom: true,
+        dragPan: true,
+        dragRotate: true,
+        touchZoomRotate: true,
+        touchPitch: true,
+        doubleClickZoom: true,
+        keyboard: true,
+        cooperativeGestures: false,
         attributionControl: { compact: true },
-      });
-      mapRef.current = map;
-      observer = new ResizeObserver(() => map?.resize());
-      observer.observe(containerRef.current);
-      overlayObserver = new MutationObserver(() => map?.resize());
-      const section = containerRef.current.closest("section");
-      if (section) overlayObserver.observe(section, { attributes: true });
-      containerRef.current.dataset.mapReady = "false";
+      })
+      mapRef.current = map
+      // Retain cursor-anchored wheel/trackpad zoom and give the canvas keyboard focus.
+      map.scrollZoom.setWheelZoomRate(1 / 350)
+      map.scrollZoom.setZoomRate(1 / 100)
+      const canvas = map.getCanvas()
+      canvas.tabIndex = 0
+      canvas.setAttribute('aria-label', '栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放')
+      map.on('mousedown', () => canvas.focus({ preventScroll: true }))
+      observer = new ResizeObserver(() => map?.resize())
+      observer.observe(containerRef.current)
+      overlayObserver = new MutationObserver(() => map?.resize())
+      const section = containerRef.current.closest('section')
+      if (section) overlayObserver.observe(section, { attributes: true })
+      containerRef.current.dataset.mapReady = 'false'
       const publish = () => {
         if (!map || !containerRef.current) return;
         containerRef.current.dataset.zoom = map.getZoom().toFixed(2);
@@ -589,20 +603,28 @@ export function MapView({
       ).matches;
       if (!reduceMotion) {
         const spin = () => {
-          if (!map) return;
-          map.setBearing(map.getBearing() + 0.025);
-          frame = requestAnimationFrame(spin);
-        };
-        const stop = () => cancelAnimationFrame(frame);
-        map.once("load", () => {
-          frame = requestAnimationFrame(spin);
-        });
-        map.on("mousedown", stop);
-        map.on("touchstart", stop);
-        map.on("movestart", (e) => {
-          if ((e as { originalEvent?: Event }).originalEvent) stop();
-        });
-        containerRef.current.addEventListener("stopspin", stop);
+          if (!map) return
+          map.setBearing(map.getBearing() + 0.025)
+          frame = requestAnimationFrame(spin)
+        }
+        let stopped = false
+        const stop = () => { stopped = true; cancelAnimationFrame(frame) }
+        map.once('load', () => {
+          if (!stopped) frame = requestAnimationFrame(spin)
+        })
+        // Stop before MapLibre's wheel animation starts, so rotation cannot cancel zoom.
+        map.getCanvas().addEventListener('wheel', stop, { passive: true })
+        map.getCanvas().addEventListener('keydown', stop)
+        map.on('zoomstart', stop)
+        map.on('rotatestart', (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop()
+        })
+        map.on('mousedown', stop)
+        map.on('touchstart', stop)
+        map.on('movestart', (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop()
+        })
+        containerRef.current.addEventListener('stopspin', stop)
       }
     });
 
@@ -831,12 +853,8 @@ export function MapView({
 
   return (
     <div className="absolute inset-0">
-      <div
-        ref={containerRef}
-        className="h-full w-full"
-        aria-label="栖霞山三维地形地图"
-        role="application"
-      />
+      <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
+      <div className="map-interaction-help glass-panel"><details><summary>地图操作</summary><p className="map-help-desktop">滚轮缩放 · 左键拖动平移<br />右键拖动旋转 / 倾斜 · 双击放大<br />点击地图后，方向键平移，+ / − 缩放</p><p className="map-help-touch">单指拖动平移 · 双指捏合缩放<br />双指旋转方向 · 双指上下滑动倾斜</p><p>面板内滚动浏览内容；在地图外滚动浏览页面。</p></details></div>
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
