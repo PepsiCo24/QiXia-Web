@@ -1,11 +1,5 @@
 import type { LngLat } from "./qixia-data";
 
-/**
- * 绕行比阈值：高德算出的路径长度 ÷ 直线距离。
- * 超过该值说明高德没覆盖景区内部步道，只能绕外围道路，此时用示意直线更贴近真实游览路径。
- */
-const DETOUR_THRESHOLD = 2.0;
-
 /** 步行速度（米/秒），用于估算示意段的时长 */
 const WALK_SPEED = 1.2;
 
@@ -84,49 +78,66 @@ export async function planWalkingSegment(
   url.searchParams.set("destination", `${destination[0]},${destination[1]}`);
   url.searchParams.set("key", key);
 
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    const data = await res.json();
-    if (data.status !== "1" || !data.route?.paths?.length)
-      return approxSegment(origin, destination);
-
-    const path = data.route.paths[0];
-    const rawSteps: Array<{
-      instruction?: string;
-      distance?: string;
-      polyline?: string;
-    }> = path.steps ?? [];
-
-    const steps: NavStep[] = rawSteps
-      .map((step) => ({
-        instruction: String(step.instruction ?? "").trim(),
-        distance: Number(step.distance) || 0,
-        coordinates: parsePolylineString(step.polyline),
-      }))
-      .filter((step) => step.coordinates.length >= 2);
-
-    const coordinates = steps.flatMap((step) => step.coordinates);
-    if (coordinates.length < 2) return approxSegment(origin, destination);
-
-    const straight = haversine(origin, destination);
-    const routed = Number(path.distance) || 0;
-    const detourRatio = straight > 0 && routed > 0 ? routed / straight : 1;
-
-    if (!routed || detourRatio > DETOUR_THRESHOLD) {
-      return approxSegment(origin, destination);
-    }
-
-    return {
-      mode: "real",
-      coordinates,
-      distance: Math.round(routed),
-      duration: Number(path.duration) || Math.round(routed / WALK_SPEED),
-      detourRatio,
-      steps,
+  // 高德偶发超时/限流：重试一次再兜底，减少不必要的示意段
+  let payload: {
+    status?: string;
+    route?: {
+      paths?: Array<{
+        distance?: string;
+        duration?: string;
+        steps?: Array<{
+          instruction?: string;
+          distance?: string;
+          polyline?: string;
+        }>;
+      }>;
     };
-  } catch {
+  } | null = null;
+
+  for (let attempt = 0; attempt < 2 && !payload; attempt += 1) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      const data = await res.json();
+      if (data.status === "1" && data.route?.paths?.length) payload = data;
+    } catch {
+      // 网络异常：进入下一轮重试
+    }
+  }
+
+  if (!payload) return approxSegment(origin, destination);
+
+  const path = payload.route!.paths![0];
+  const rawSteps = path.steps ?? [];
+
+  const steps: NavStep[] = rawSteps
+    .map((step) => ({
+      instruction: String(step.instruction ?? "").trim(),
+      distance: Number(step.distance) || 0,
+      coordinates: parsePolylineString(step.polyline),
+    }))
+    .filter((step) => step.coordinates.length >= 2);
+
+  const coordinates = steps.flatMap((step) => step.coordinates);
+  if (coordinates.length < 2) return approxSegment(origin, destination);
+
+  const straight = haversine(origin, destination);
+  const routed = Number(path.distance) || 0;
+  const detourRatio = straight > 0 && routed > 0 ? routed / straight : 1;
+
+  // 只要高德给了有效路径就用它：绕远也好过两点直线穿山体。
+  // 仅当高德确实没给出距离（无法成路）时才退回示意段。
+  if (!routed) {
     return approxSegment(origin, destination);
   }
+
+  return {
+    mode: "real",
+    coordinates,
+    distance: Math.round(routed),
+    duration: Number(path.duration) || Math.round(routed / WALK_SPEED),
+    detourRatio,
+    steps,
+  };
 }
 
 /** 逐段规划：相邻两个 POI 之间分别判定 real / approx */
@@ -145,13 +156,28 @@ export interface FlatNavStep extends NavStep {
   segmentIndex: number;
   stepIndex: number;
   mode: "real" | "approx";
+  /** 所属段的绕行比（高德路径 ÷ 直线距离），用于提示「这段其实可走近道」 */
+  detourRatio: number;
+  /** 所属段的直线距离（米） */
+  straightDistance: number;
 }
 
 export function flattenSteps(segments: RouteSegment[]): FlatNavStep[] {
   const flat: FlatNavStep[] = [];
   segments.forEach((segment, segmentIndex) => {
+    const straightDistance =
+      segment.detourRatio > 0
+        ? segment.distance / segment.detourRatio
+        : segment.distance;
     segment.steps.forEach((step, stepIndex) => {
-      flat.push({ ...step, segmentIndex, stepIndex, mode: segment.mode });
+      flat.push({
+        ...step,
+        segmentIndex,
+        stepIndex,
+        mode: segment.mode,
+        detourRatio: segment.detourRatio,
+        straightDistance: Math.round(straightDistance),
+      });
     });
   });
   return flat;

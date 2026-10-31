@@ -62,6 +62,21 @@ export function NavigationPanel({
               {formatDistance(remaining)} · {formatRemainingTime(remaining)}
               {progress?.isOffRoute ? " · 已偏离路线" : ""}
             </p>
+            {current?.mode === "approx" && (
+              <p className="mt-1 text-xs leading-relaxed text-[#e8a33c]">
+                这一段没有精确路网数据，图中橙色虚线为示意路径，请以现场步道标识为准
+              </p>
+            )}
+            {current?.mode === "real" && current.detourRatio > 3 && (
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                这段直线只有约 {formatDistance(current.straightDistance)}
+                ，但高德需绕行约{" "}
+                {formatDistance(
+                  Math.round(current.straightDistance * current.detourRatio),
+                )}
+                （该处未收录步道）。现场可能有更近的步道，请以标识为准
+              </p>
+            )}
             {error && (
               <p className="mt-1 text-xs leading-relaxed text-destructive">
                 {error}

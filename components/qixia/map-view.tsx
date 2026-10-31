@@ -419,15 +419,15 @@ export function MapView({
           },
         });
 
-        // 导航路线（当前位置 → 目的地）
-        map.addSource("nav-path", {
+        // 导航路线 - 真实路网段（蓝色实线）
+        map.addSource("nav-path-real", {
           type: "geojson",
           data: emptyFeatureCollection(),
         });
         map.addLayer({
-          id: "nav-path-glow",
+          id: "nav-path-real-glow",
           type: "line",
-          source: "nav-path",
+          source: "nav-path-real",
           layout: { "line-cap": "round", "line-join": "round" },
           paint: {
             "line-color": "#2b7fff",
@@ -437,11 +437,28 @@ export function MapView({
           },
         });
         map.addLayer({
-          id: "nav-path",
+          id: "nav-path-real",
           type: "line",
-          source: "nav-path",
+          source: "nav-path-real",
           layout: { "line-cap": "round", "line-join": "round" },
           paint: { "line-color": "#4d9dff", "line-width": 5 },
+        });
+
+        // 导航路线 - 无路网数据的示意段（橙色虚线，明确区别于真实路线）
+        map.addSource("nav-path-approx", {
+          type: "geojson",
+          data: emptyFeatureCollection(),
+        });
+        map.addLayer({
+          id: "nav-path-approx",
+          type: "line",
+          source: "nav-path-approx",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: {
+            "line-color": "#e8a33c",
+            "line-width": 4,
+            "line-dasharray": [2, 2],
+          },
         });
 
         map.addSource("devices", {
@@ -752,7 +769,10 @@ export function MapView({
       const navEl = navMarkerRef.current?.getElement();
       if (navEl) navEl.style.display = "none";
       lastNavKey.current = "";
-      (map.getSource("nav-path") as GeoJSONSource | undefined)?.setData(
+      (map.getSource("nav-path-real") as GeoJSONSource | undefined)?.setData(
+        emptyFeatureCollection(),
+      );
+      (map.getSource("nav-path-approx") as GeoJSONSource | undefined)?.setData(
         emptyFeatureCollection(),
       );
       map.setLayoutProperty("route-real", "visibility", "visible");
@@ -766,23 +786,19 @@ export function MapView({
     map.setLayoutProperty("route-real-glow", "visibility", "none");
     map.setLayoutProperty("route-approx", "visibility", "none");
 
-    // 1) 整条导航路线
-    const coordinates = navigation.session.segments.flatMap(
-      (segment) => segment.coordinates,
+    // 1) 导航路线：真实段（蓝色实线）与示意段（橙色虚线）分开画，避免兜底直线冒充真实路线
+    const realSegments = navigation.session.segments.filter(
+      (segment) => segment.mode === "real",
     );
-    (map.getSource("nav-path") as GeoJSONSource | undefined)?.setData({
-      type: "FeatureCollection",
-      features:
-        coordinates.length >= 2
-          ? [
-              {
-                type: "Feature" as const,
-                properties: {},
-                geometry: { type: "LineString" as const, coordinates },
-              },
-            ]
-          : [],
-    });
+    const approxSegments = navigation.session.segments.filter(
+      (segment) => segment.mode === "approx",
+    );
+    (map.getSource("nav-path-real") as GeoJSONSource | undefined)?.setData(
+      segmentsToFeatureCollection(realSegments),
+    );
+    (map.getSource("nav-path-approx") as GeoJSONSource | undefined)?.setData(
+      segmentsToFeatureCollection(approxSegments),
+    );
 
     // 2) 用户位置 + 跟随
     const position = navigation.position;
