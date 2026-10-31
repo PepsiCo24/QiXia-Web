@@ -279,6 +279,10 @@
   animation: poi-dot-twinkle 3.4s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
 }
+.poi-marker.is-default-twinkle .poi-thumb {
+  animation: poi-thumb-fade 3.4s ease-in-out infinite;
+  animation-delay: var(--poi-delay, 0s);
+}
 .poi-marker.is-default-twinkle .poi-dot::after {
   content: "";
   position: absolute;
@@ -289,6 +293,10 @@
   animation: poi-glow-breathe 3.4s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
 }
+@keyframes poi-thumb-fade {
+  0%, 100% { opacity: 0.68; filter: saturate(0.86); }
+  42% { opacity: 1; filter: saturate(1); }
+}
 @keyframes poi-dot-twinkle {
   0%, 100% { background: var(--foreground); box-shadow: 0 0 0 3px rgba(237, 230, 216, 0.2); }
   42% { background: #f3d88d; box-shadow: 0 0 0 4px rgba(225, 184, 94, 0.38), 0 0 10px rgba(225, 184, 94, 0.55); }
@@ -298,6 +306,7 @@
   42% { opacity: 0.85; transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .poi-marker.is-default-twinkle .poi-thumb,
   .poi-marker.is-default-twinkle .poi-dot,
   .poi-marker.is-default-twinkle .poi-dot::after { animation: none; }
 }
