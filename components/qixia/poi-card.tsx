@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { useState } from 'react'
 import { Leaf, MapPin, X } from 'lucide-react'
 import { POI_MAP, crowdLevel, poiLoad } from '@/lib/qixia-data'
 import { cn } from '@/lib/utils'
@@ -19,54 +19,44 @@ const TONE_CLASS = {
 }
 
 export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
+  const [collected, setCollected] = useState<string[]>([])
   const poi = POI_MAP[poiId]
   const load = poiLoad(poi, hour)
   const level = crowdLevel(load / poi.peakLoad)
 
   return (
-    <article aria-labelledby="poi-title" className="glass-panel w-full overflow-hidden">
-      <div className="relative aspect-[16/9] w-full bg-secondary">
-        <Image
-          key={poi.id}
-          src={`/images/poi/${poi.id}.jpg`}
-          alt={`${poi.name}风景`}
-          fill
-          sizes="(max-width: 768px) 100vw, 360px"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" aria-hidden="true" />
-
+    <article aria-labelledby="poi-title" className="glass-panel w-full p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <MapPin className="size-3" aria-hidden="true" />
+            {poi.category} · 海拔约 {poi.elevation} m · 坐标待核验
+          </p>
+          <h3 id="poi-title" className="mt-1 font-serif text-xl font-bold text-foreground">
+            {poi.name}
+          </h3>
+        </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="关闭景点卡片"
-          className="absolute right-2 top-2 rounded-md bg-black/40 p-1 text-white backdrop-blur-sm hover:bg-black/60"
+          className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
         >
           <X className="size-4" />
         </button>
-        <div className="absolute inset-x-3 bottom-2.5">
-          <p className="flex items-center gap-1.5 text-[11px] text-white/80">
-            <MapPin className="size-3" aria-hidden="true" />
-            {poi.category} · 海拔约 {poi.elevation} m
-          </p>
-          <h3 id="poi-title" className="mt-0.5 font-serif text-xl font-bold text-white">
-            {poi.name}
-          </h3>
-        </div>
       </div>
 
-      <div className="p-4 pt-3">
-      <p className=" text-sm leading-relaxed text-foreground/90">{poi.brief}</p>
+      <p className="mt-2 text-sm leading-relaxed text-foreground/90">{poi.brief}</p>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{poi.story}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
         <span className={cn('rounded-sm px-2 py-0.5', TONE_CLASS[level.tone])}>
           {String(hour).padStart(2, '0')}:00 · {level.label} · 约 {load} 人
         </span>
-        <span className="flex items-center gap-1 rounded-sm bg-secondary px-2 py-0.5 text-muted-foreground">
+        <button type="button" disabled={collected.includes(poiId)} onClick={() => { setCollected(prev => [...prev, poiId]); window.dispatchEvent(new CustomEvent('qixia-leaf-collected', { detail: { poiId } })) }} className="flex items-center gap-1 rounded-sm bg-secondary px-2 py-0.5 text-muted-foreground disabled:text-accent">
           <Leaf className="size-3 text-primary" aria-hidden="true" />
-          到达可解锁红枫叶章
-        </span>
+          {collected.includes(poiId) ? '已收集数字枫叶' : '收集数字枫叶纪念'}
+        </button>
       </div>
 
       <button
@@ -76,7 +66,6 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
       >
         继续追问 {poi.name}
       </button>
-      </div>
     </article>
   )
 }
