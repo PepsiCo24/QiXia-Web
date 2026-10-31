@@ -49,18 +49,12 @@ export function LayerToggles({ layers, onToggle, compact }: Pick<LayerPanelProps
   )
 }
 
-export function LayerPanel({ layers, onToggle, hour, onHourChange }: LayerPanelProps) {
+export function LayerPanel({ hour, onHourChange }: LayerPanelProps) {
   const s = snapshot(hour)
   const loadPct = Math.round(s.loadRatio * 100)
 
   return (
-    <section aria-labelledby="ops-title" className="glass-panel flex flex-col gap-4 p-4">
-      <div className="flex items-center justify-between">
-        <h2 id="ops-title" className="font-serif text-sm font-bold tracking-widest text-foreground">
-          今日栖霞 · 运行态势
-        </h2>
-        <span className="rounded-sm border border-accent/40 px-1.5 py-0.5 text-[10px] text-accent">模拟数据</span>
-      </div>
+    <section aria-label="运行数据" className="glass-panel flex flex-col gap-4 p-4">
 
       <div>
         <div className="flex items-end justify-between">
@@ -89,11 +83,6 @@ export function LayerPanel({ layers, onToggle, hour, onHourChange }: LayerPanelP
           <dd className="font-mono text-base tabular-nums text-accent">{s.parkingFree}</dd>
         </div>
       </dl>
-
-      <div>
-        <p className="mb-2 text-xs text-muted-foreground">地图图层</p>
-        <LayerToggles layers={layers} onToggle={onToggle} />
-      </div>
 
       <HourSlider hour={hour} onHourChange={onHourChange} />
     </section>
