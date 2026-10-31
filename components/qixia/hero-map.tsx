@@ -133,15 +133,7 @@ export function HeroMap({
         aria-hidden="true"
       />
       {!navigating && (
-        <TopBar
-          onAsk={() => onAsk()}
-          onExplore={() => {
-            setTool(null);
-            setRouteVisible(false);
-            setSelectedPoiId(null);
-          }}
-          onFoliage={() => setTool("foliage")}
-        />
+        <TopBar onFoliage={() => setTool("foliage")} />
       )}
       {!navigating && (
         <div className="map-intro pointer-events-none">
