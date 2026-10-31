@@ -16,7 +16,10 @@ export function QixiaExperience() {
   const [personaId, setPersonaId] = useState<PersonaId>('family')
   const { messages, sendMessage, status, error, stop, setMessages } = useChat()
 
-  const send = (text: string) => sendMessage({ text }, { body: { persona: personaId } })
+  const chatAvailable = process.env.NEXT_PUBLIC_GITHUB_PAGES !== 'true'
+  const send = (text: string) => {
+    if (chatAvailable) return sendMessage({ text }, { body: { persona: personaId } })
+  }
 
   const askFromMap = (question?: string) => {
     scrollToId('ask')
@@ -29,6 +32,7 @@ export function QixiaExperience() {
       <AskSection
         personaId={personaId}
         onPersonaChange={setPersonaId}
+        chatAvailable={chatAvailable}
         messages={messages}
         status={status}
         error={error}

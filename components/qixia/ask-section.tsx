@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 interface AskSectionProps {
   personaId: PersonaId
   onPersonaChange: (id: PersonaId) => void
+  chatAvailable: boolean
   messages: UIMessage[]
   status: 'ready' | 'submitted' | 'streaming' | 'error'
   error?: Error
@@ -17,7 +18,7 @@ interface AskSectionProps {
   onReset: () => void
 }
 
-export function AskSection({ personaId, onPersonaChange, messages, status, error, onSend, onStop, onReset }: AskSectionProps) {
+export function AskSection({ personaId, onPersonaChange, chatAvailable, messages, status, error, onSend, onStop, onReset }: AskSectionProps) {
   const [input, setInput] = useState('')
   const listRef = useRef<HTMLDivElement>(null)
   const persona = PERSONA_MAP[personaId]
@@ -29,7 +30,7 @@ export function AskSection({ personaId, onPersonaChange, messages, status, error
 
   const submit = (text: string) => {
     const value = text.trim()
-    if (!value || busy) return
+    if (!value || busy || !chatAvailable) return
     onSend(value)
     setInput('')
   }
@@ -79,7 +80,7 @@ export function AskSection({ personaId, onPersonaChange, messages, status, error
                   <button
                     type="button"
                     onClick={() => submit(q)}
-                    disabled={busy}
+                    disabled={busy || !chatAvailable}
                     className="w-full rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:opacity-50"
                   >
                     {q}
@@ -118,7 +119,9 @@ export function AskSection({ personaId, onPersonaChange, messages, status, error
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
                 <p className="font-serif text-2xl text-foreground">一客一景 · 一刻一路</p>
                 <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-                  问路线、问故事、问光线、问哪里能坐下歇脚。也可以在地图上点选景点，直接“继续追问”。
+                  {chatAvailable
+                    ? '问路线、问故事、问光线、问哪里能坐下歇脚。也可以在地图上点选景点，直接“继续追问”。'
+                    : '当前为公开静态游览版，AI 导游暂未开放。你可以在地图和下方来客推荐中查看景点、路线及游览建议。'}
                 </p>
               </div>
             ) : (
@@ -166,7 +169,8 @@ export function AskSection({ personaId, onPersonaChange, messages, status, error
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && (e.nativeEvent.isComposing || e.keyCode === 229)) e.preventDefault()
               }}
-              placeholder={`以${persona.name}的身份提问…`}
+              disabled={!chatAvailable}
+              placeholder={chatAvailable ? `以${persona.name}的身份提问…` : 'AI 导游暂未开放'}
               autoComplete="off"
               className="h-10 flex-1 rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
@@ -183,7 +187,7 @@ export function AskSection({ personaId, onPersonaChange, messages, status, error
               <button
                 type="submit"
                 aria-label="发送"
-                disabled={!input.trim()}
+                disabled={!chatAvailable || !input.trim()}
                 className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-40"
               >
                 <ArrowUp className="size-4" />

@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', var(--font-noto-sans), system-ui, sans-serif;
-  --font-serif: var(--font-noto-serif), 'Songti SC', 'STSong', serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, 'PingFang SC', 'Microsoft YaHei', var(--font-noto-sans), monospace;
+  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', monospace;
   --color-jade: var(--jade);
   --color-ring: var(--ring);
   --color-input: var(--input);
