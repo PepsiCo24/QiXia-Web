@@ -33,24 +33,26 @@ export function TopBar() {
         ))}
       </nav>
 
-      <dl className="hidden items-center gap-4 rounded-full border border-border bg-card/70 px-4 py-1.5 text-xs backdrop-blur-md sm:flex">
-        <div className="flex items-center gap-2">
+      <dl className="hidden items-center gap-4 rounded-2xl border border-border bg-card/70 py-2 pl-3 pr-4 text-xs backdrop-blur-md sm:flex">
+        <div className="flex items-center gap-2.5">
           <dt className="sr-only">红叶</dt>
-          <FoliageLeaf rate={FOLIAGE.colorRate} className="size-6 shrink-0 drop-shadow-sm" />
-          <dd className="flex items-baseline gap-1.5 text-foreground">
-            <span>红叶 {FOLIAGE.stage}</span>
-            <span className="font-serif text-sm font-bold tabular-nums text-primary">{FOLIAGE.colorRate}%</span>
+          <FoliageLeaf rate={FOLIAGE.colorRate} className="size-11 shrink-0 drop-shadow-sm" />
+          <dd className="flex flex-col leading-tight text-foreground">
+            <span className="font-serif text-xl font-bold tabular-nums text-primary">{FOLIAGE.colorRate}%</span>
+            <span className="text-muted-foreground">红叶 {FOLIAGE.stage}</span>
           </dd>
         </div>
-        <div className="flex items-center gap-1.5">
-          <dt className="sr-only">天气</dt>
-          <Sun className="size-3.5 text-accent" aria-hidden="true" />
-          <dd className="text-muted-foreground">{FOLIAGE.weather}</dd>
-        </div>
-        <div className="hidden items-center gap-1.5 xl:flex">
-          <dt className="sr-only">日落</dt>
-          <Sunset className="size-3.5 text-accent" aria-hidden="true" />
-          <dd className="text-muted-foreground">日落 {FOLIAGE.sunset}</dd>
+        <div className="flex flex-col gap-1 border-l border-border pl-4">
+          <div className="flex items-center gap-1.5">
+            <dt className="sr-only">天气</dt>
+            <Sun className="size-3.5 text-accent" aria-hidden="true" />
+            <dd className="text-muted-foreground">{FOLIAGE.weather}</dd>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <dt className="sr-only">日落</dt>
+            <Sunset className="size-3.5 text-accent" aria-hidden="true" />
+            <dd className="text-muted-foreground">日落 {FOLIAGE.sunset}</dd>
+          </div>
         </div>
       </dl>
     </header>
