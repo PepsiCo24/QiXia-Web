@@ -13,8 +13,6 @@ export interface Poi {
   elevation: number
   peakLoad: number
   hourlyCurve: 'morning' | 'midday' | 'afternoon' | 'sunset'
-  image: string
-  imageCredit?: string
 }
 
 export type PersonaId = 'family' | 'youth' | 'culture' | 'elder' | 'photo'
@@ -74,7 +72,6 @@ export const POIS: Poi[] = [
     elevation: 18,
     peakLoad: 900,
     hourlyCurve: 'morning',
-    image: '/images/poi/gate.jpg',
   },
   {
     id: 'mirror-lake',
@@ -86,8 +83,6 @@ export const POIS: Poi[] = [
     elevation: 22,
     peakLoad: 700,
     hourlyCurve: 'midday',
-    image: '/images/poi/kb-mirror-lake.jpg',
-    imageCredit: 'Leiem · CC0 · 维基共享资源',
   },
   {
     id: 'temple',
@@ -99,8 +94,6 @@ export const POIS: Poi[] = [
     elevation: 35,
     peakLoad: 1200,
     hourlyCurve: 'midday',
-    image: '/images/poi/kb-temple.jpg',
-    imageCredit: 'Bt4wang · CC BY-SA 3.0 · 维基共享资源',
   },
   {
     id: 'stele',
@@ -112,8 +105,6 @@ export const POIS: Poi[] = [
     elevation: 30,
     peakLoad: 300,
     hourlyCurve: 'midday',
-    image: '/images/poi/kb-stele.jpg',
-    imageCredit: 'Siyuwj · CC BY-SA 4.0 · 维基共享资源',
   },
   {
     id: 'pagoda',
@@ -125,8 +116,6 @@ export const POIS: Poi[] = [
     elevation: 42,
     peakLoad: 600,
     hourlyCurve: 'midday',
-    image: '/images/poi/kb-pagoda.jpg',
-    imageCredit: '西安兵马俑 · CC BY-SA 4.0 · 维基共享资源',
   },
   {
     id: 'grottoes',
@@ -138,8 +127,6 @@ export const POIS: Poi[] = [
     elevation: 55,
     peakLoad: 1000,
     hourlyCurve: 'midday',
-    image: '/images/poi/kb-grottoes.jpg',
-    imageCredit: 'Farm · CC BY-SA 3.0 · 维基共享资源',
   },
   {
     id: 'palace',
@@ -151,8 +138,6 @@ export const POIS: Poi[] = [
     elevation: 70,
     peakLoad: 400,
     hourlyCurve: 'afternoon',
-    image: '/images/poi/kb-palace.jpg',
-    imageCredit: 'Remixia · CC0 · 维基共享资源',
   },
   {
     id: 'peach-creek',
@@ -164,7 +149,6 @@ export const POIS: Poi[] = [
     elevation: 48,
     peakLoad: 350,
     hourlyCurve: 'afternoon',
-    image: '/images/poi/peach-creek.jpg',
   },
   {
     id: 'tiankai',
@@ -176,7 +160,6 @@ export const POIS: Poi[] = [
     elevation: 95,
     peakLoad: 300,
     hourlyCurve: 'afternoon',
-    image: '/images/poi/tiankai.jpg',
   },
   {
     id: 'dielang',
@@ -188,7 +171,6 @@ export const POIS: Poi[] = [
     elevation: 130,
     peakLoad: 500,
     hourlyCurve: 'afternoon',
-    image: '/images/poi/dielang.jpg',
   },
   {
     id: 'maple-ridge',
@@ -200,7 +182,6 @@ export const POIS: Poi[] = [
     elevation: 160,
     peakLoad: 900,
     hourlyCurve: 'afternoon',
-    image: '/images/poi/maple-ridge.jpg',
   },
   {
     id: 'summit',
@@ -212,7 +193,6 @@ export const POIS: Poi[] = [
     elevation: 286,
     peakLoad: 450,
     hourlyCurve: 'sunset',
-    image: '/images/poi/summit.jpg',
   },
   {
     id: 'biyun',
@@ -224,7 +204,6 @@ export const POIS: Poi[] = [
     elevation: 240,
     peakLoad: 260,
     hourlyCurve: 'sunset',
-    image: '/images/poi/biyun.jpg',
   },
 ]
 
