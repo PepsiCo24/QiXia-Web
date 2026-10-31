@@ -4,6 +4,7 @@ import { executeMapCommand, mapCommandSchema, type MapCommand } from '@/lib/pet/
 import { buildPetSystemPrompt, localReply, validPersona } from '@/lib/pet/pet-knowledge'
 import { kbExcerptReply, kbGroundingContext, retrieveKb, type KbSourcesData } from '@/lib/pet/kb-client'
 import { PERSONAS, POIS } from '@/lib/qixia-data'
+import { planPetResponse, PET_OUTPUT_POLICY } from '@/lib/pet/pet-response'
 
 export const maxDuration = 30
 const MAX_BODY = 64_000
@@ -103,6 +104,7 @@ async function chat(req: Request) {
   const text = last.parts.filter(p => p.type === 'text').map(p => p.text).join('\n')
   const persona = validPersona(body.persona)
   const fallback = localReply(text, persona)
+  const plan = planPetResponse(text)
   const controller = new AbortController()
   const abort = () => controller.abort()
   req.signal.addEventListener('abort', abort, { once: true })
@@ -110,7 +112,14 @@ async function chat(req: Request) {
   const stream = createUIMessageStream<PetMessage>({
     onError: () => '导览暂时不可用，请稍后重试。',
     execute: async ({ writer }) => {
-      const emitCommand = (command: MapCommand) => writer.write({ type: 'data-map-command', data: mapCommandSchema.parse(command) })
+      const sentCommands = new Set<string>()
+      const emitCommand = (command: MapCommand) => {
+        const data = mapCommandSchema.parse(command)
+        const key = JSON.stringify(data)
+        if (sentCommands.has(key)) return
+        sentCommands.add(key)
+        writer.write({ type: 'data-map-command', data })
+      }
       const emitText = (value: string) => {
         const id = crypto.randomUUID()
         writer.write({ type: 'text-start', id })
@@ -119,17 +128,18 @@ async function chat(req: Request) {
       }
       writer.write({ type: 'start', messageId: crypto.randomUUID() })
       let failed = false
+      if (!body.demo) for (const command of plan.commands) emitCommand(command)
       const appliedCommands: MapCommand[] = []
       let kb: KbSourcesData = { query: text.slice(0, 300), status: 'unavailable', results: [] }
       try {
         // Mandatory pre-retrieval, before either model path or any non-demo factual fallback.
         kb = body.demo
           ? { query: text.slice(0, 300), status: 'demo', results: [] }
-          : await retrieveKb(text, controller.signal)
+          : await retrieveKb(plan.query, controller.signal)
         writer.write({ type: 'data-kb-sources', data: kb })
         // Exclude local historical stories entirely from production model input.
         const mapSystem = buildPetSystemPrompt(persona).replace(/知识来源：[\s\S]*?示意路线/, '示意路线')
-        const groundedSystem = mapSystem + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb)
+        const groundedSystem = mapSystem + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb) + PET_OUTPUT_POLICY + '\n本轮意图：' + plan.instruction + '\n已执行操作：' + JSON.stringify(plan.commands)
         const searchPlacesSchema = z.object({ query: z.string().max(100) }).strict()
         const routesSchema = z.object({ personaId: z.enum(['family', 'youth', 'culture', 'elder', 'photo']).optional() }).strict()
         const searchPlaces = (input: z.infer<typeof searchPlacesSchema>) => ({ demo: true, verified: false, places: POIS.filter(p => !input.query || p.name.includes(input.query) || p.id.includes(input.query)).map(p => ({ id: p.id, name: p.name })) })
@@ -151,9 +161,6 @@ async function chat(req: Request) {
         const apiKey = process.env.OPENAI_COMPATIBLE_API_KEY || process.env.OPENAI_API_KEY
         if (body.demo) {
           failed = true
-        } else if (kb.status !== 'ok') {
-          // Fail closed for every question: never let demo/local history fill missing evidence.
-          emitText(kbExcerptReply(kb))
         } else if (endpoint && apiKey) {
           const url = new URL(endpoint)
           if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))) throw new Error('invalid endpoint')
@@ -296,7 +303,7 @@ async function chat(req: Request) {
             tools, stopWhen: stepCountIs(3), maxOutputTokens: 700, maxRetries: 0, abortSignal: controller.signal,
           })
           const uiStream = toUIMessageStream({ stream: result.stream, tools, sendStart: false, sendFinish: false,
-            onError: () => { failed = true; return '在线讲解暂不可用，将展示知识库原文摘录。' },
+            onError: () => { failed = true; return '在线讲解暂不可用，可展开知识库来源查看资料。' },
           })
           // Drain inside execute so async failures can fall back before stream completion.
           const reader = uiStream.getReader()
@@ -322,7 +329,7 @@ async function chat(req: Request) {
           emitText('已启用本地演示。\n' + fallback.text)
           for (const command of fallback.commands) emitCommand(command)
         } else {
-          emitText(kbExcerptReply(kb))
+          emitText([plan.acknowledgement, kbExcerptReply(kb)].filter(Boolean).join('\n'))
         }
       }
       writer.write({ type: 'finish' })
