@@ -1,6 +1,6 @@
 import { Sun, Sunset } from 'lucide-react'
 import { FOLIAGE } from '@/lib/qixia-data'
-import { FoliageLeaf } from './foliage-leaf'
+import { FoliageStatus } from './foliage-leaf'
 
 const NAV = [
   { href: '#map', label: '立体看山' },
@@ -34,14 +34,7 @@ export function TopBar() {
       </nav>
 
       <dl className="hidden items-center gap-4 rounded-2xl border border-border bg-card/70 py-2 pl-3 pr-4 text-xs backdrop-blur-md sm:flex">
-        <div className="flex items-center gap-2.5">
-          <dt className="sr-only">红叶</dt>
-          <FoliageLeaf rate={FOLIAGE.colorRate} className="size-11 shrink-0 drop-shadow-sm" />
-          <dd className="flex flex-col leading-tight text-foreground">
-            <span className="font-serif text-xl font-bold tabular-nums text-primary">{FOLIAGE.colorRate}%</span>
-            <span className="text-muted-foreground">红叶 {FOLIAGE.stage}</span>
-          </dd>
-        </div>
+        <FoliageStatus rate={FOLIAGE.colorRate} stage={FOLIAGE.stage} />
         <div className="flex flex-col gap-1 border-l border-border pl-4">
           <div className="flex items-center gap-1.5">
             <dt className="sr-only">天气</dt>
