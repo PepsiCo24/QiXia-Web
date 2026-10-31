@@ -1,49 +1,54 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { HeroMap } from './hero-map'
-import { AskSection } from './ask-section'
-import { VisitorsSection } from './visitors-section'
+import { PetDock } from './pet/pet-dock'
 import { SiteFooter } from './site-footer'
-import type { PersonaId } from '@/lib/qixia-data'
+import { POI_MAP, type PersonaId } from '@/lib/qixia-data'
+import { mapCommandSchema, type MapCommand } from '@/lib/pet/pet-actions'
+import { localReply } from '@/lib/pet/pet-knowledge'
 
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
+function scrollToMap() { document.getElementById('map')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 
 export function QixiaExperience() {
   const [personaId, setPersonaId] = useState<PersonaId>('family')
-  const { messages, sendMessage, status, error, stop, setMessages } = useChat()
-
-  const send = (text: string) => sendMessage({ text }, { body: { persona: personaId } })
-
-  const askFromMap = (question?: string) => {
-    scrollToId('ask')
-    if (question) send(question)
+  const [open, setOpen] = useState(false)
+  const [command, setCommand] = useState<{ id: number; action: MapCommand } | null>(null)
+  const commandId = useRef(0)
+  const [mapNotice, setMapNotice] = useState<{ id: number; text: string } | null>(null)
+  const agentBase = process.env.NEXT_PUBLIC_AGENT_API_BASE_URL?.replace(/\/$/, '')
+  const staticWithoutAgent = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true' && !agentBase
+  const [transport] = useState(() => new DefaultChatTransport({ api: agentBase ? `${agentBase}/api/chat` : '/api/chat' }))
+  const { messages, sendMessage, status, error, stop, setMessages } = useChat({ transport })
+  const execute = (value: MapCommand) => {
+    const parsed = mapCommandSchema.safeParse(value)
+    if (!parsed.success) return
+    const action = parsed.data
+    if (action.type === 'select_persona' || action.type === 'show_route') setPersonaId(action.personaId)
+    setCommand({ id: ++commandId.current, action })
+    if (action.type !== 'play_animation') scrollToMap()
   }
+  const send = (text: string, demo = false) => {
+    setOpen(true)
+    if (staticWithoutAgent) {
+      const reply = demo ? localReply(text, personaId) : null
+      setMessages(prev => [...prev,
+        { id: crypto.randomUUID(), role: 'user', parts: [{ type: 'text', text }] },
+        { id: crypto.randomUUID(), role: 'assistant', parts: [
+          { type: 'text', text: reply ? `已启用本地演示。\n${reply.text}` : '在线导览尚未配置外部 Agent 服务，资料暂时无法查询。你仍可使用地图上的景点、同行方式与图层。' },
+          ...(reply?.commands.map(data => ({ type: 'data-map-command' as const, data })) || []),
+        ] },
+      ])
+    } else void sendMessage({ text }, { body: { persona: personaId, demo } })
+  }
+  const askFromMap = (question?: string) => { setOpen(true); if (question) send(question) }
+  return <main className="qixia-viewport bg-background text-foreground">
+    <HeroMap personaId={personaId} onPersonaChange={setPersonaId} onAsk={askFromMap} command={command} onPoiSelect={id => setMapNotice({ id: Date.now(), text: `这里是${POI_MAP[id].name}！想听听它的故事吗？` })} />
 
-  return (
-    <main className="bg-background text-foreground">
-      <HeroMap personaId={personaId} onPersonaChange={setPersonaId} onAsk={askFromMap} />
-      <AskSection
-        personaId={personaId}
-        onPersonaChange={setPersonaId}
-        messages={messages}
-        status={status}
-        error={error}
-        onSend={send}
-        onStop={stop}
-        onReset={() => setMessages([])}
-      />
-      <VisitorsSection
-        personaId={personaId}
-        onPick={(id) => {
-          setPersonaId(id)
-          scrollToId('map')
-        }}
-      />
-      <SiteFooter />
-    </main>
-  )
+    <section id="ask" className="qixia-ask border-t border-border px-5 py-12 text-center"><p className="text-xs tracking-[0.35em] text-primary">ASK QIXIA</p><h2 className="my-3 font-serif text-3xl">让灵猫陪你游栖霞</h2><p className="mx-auto mb-5 max-w-lg text-sm leading-relaxed text-muted-foreground">问故事、看景点、选适合同行人的游览顺序。地图坐标与连线为示意，客流与红叶为演示数据。</p><button className="rounded-full bg-primary px-6 py-3 text-sm text-primary-foreground" onClick={() => setOpen(true)}>与栖霞灵猫聊聊</button></section>
+     <SiteFooter />
+     <PetDock open={open} onOpen={setOpen} messages={messages} status={status} error={error} onSend={send} onStop={() => { void stop() }} onReset={() => setMessages([])} personaId={personaId} onCommand={execute} mapNotice={mapNotice} />
+  </main>
 }

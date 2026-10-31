@@ -1,0 +1,538 @@
+{
+  "version": 1,
+  "anchor": {
+    "x": 0.5,
+    "y": 1
+  },
+  "animations": {
+    "idle": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/idle-0.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-1.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-2.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-3.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-4.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-5.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-6.png",
+          "duration": 190
+        },
+        {
+          "src": "frames/idle-7.png",
+          "duration": 190
+        }
+      ]
+    },
+    "walk-right": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/walk-right-0.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-1.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-2.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-3.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-4.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-5.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-6.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-right-7.png",
+          "duration": 110
+        }
+      ]
+    },
+    "walk-left": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/walk-left-0.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-1.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-2.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-3.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-4.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-5.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-6.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/walk-left-7.png",
+          "duration": 110
+        }
+      ]
+    },
+    "wave": {
+      "loop": false,
+      "frames": [
+        {
+          "src": "frames/wave-0.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-1.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-2.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-3.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-4.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-5.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-6.png",
+          "duration": 140
+        },
+        {
+          "src": "frames/wave-7.png",
+          "duration": 140
+        }
+      ]
+    },
+    "jump": {
+      "loop": false,
+      "frames": [
+        {
+          "src": "frames/jump-0.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-2.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-3.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-4.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-5.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-6.png",
+          "duration": 95
+        },
+        {
+          "src": "frames/jump-7.png",
+          "duration": 95
+        }
+      ]
+    },
+    "sleep": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/sleep-0.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-1.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-2.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-3.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-4.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-5.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-6.png",
+          "duration": 260
+        },
+        {
+          "src": "frames/sleep-7.png",
+          "duration": 260
+        }
+      ]
+    },
+    "curious": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/curious-0.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-1.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-2.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-3.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-4.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-5.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-6.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-7.png",
+          "duration": 170
+        }
+      ]
+    },
+    "thinking": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/thinking-0.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-1.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-2.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-3.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-4.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-5.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-6.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-7.png",
+          "duration": 150
+        }
+      ]
+    },
+    "happy": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/happy-0.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-1.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-2.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-3.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-4.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-5.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-6.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/happy-7.png",
+          "duration": 150
+        }
+      ]
+    },
+    "dragged": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/jump-2.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/jump-3.png",
+          "duration": 110
+        },
+        {
+          "src": "frames/jump-4.png",
+          "duration": 110
+        }
+      ]
+    },
+    "landing": {
+      "loop": false,
+      "frames": [
+        {
+          "src": "frames/jump-6.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/jump-7.png",
+          "duration": 120
+        }
+      ]
+    },
+    "guide": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/wave-2.png",
+          "duration": 160
+        },
+        {
+          "src": "frames/wave-4.png",
+          "duration": 160
+        },
+        {
+          "src": "frames/wave-6.png",
+          "duration": 160
+        }
+      ]
+    },
+    "talking": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/idle-1.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-3.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-5.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-7.png",
+          "duration": 130
+        }
+      ]
+    },
+    "celebrate": {
+      "loop": false,
+      "frames": [
+        {
+          "src": "frames/happy-0.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-1.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-2.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-3.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-4.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-5.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-6.png",
+          "duration": 120
+        },
+        {
+          "src": "frames/happy-7.png",
+          "duration": 120
+        }
+      ]
+    },
+    "listen": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/curious-0.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-1.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-2.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-3.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-4.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-5.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-6.png",
+          "duration": 170
+        },
+        {
+          "src": "frames/curious-7.png",
+          "duration": 170
+        }
+      ]
+    },
+    "think": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/thinking-0.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-1.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-2.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-3.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-4.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-5.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-6.png",
+          "duration": 150
+        },
+        {
+          "src": "frames/thinking-7.png",
+          "duration": 150
+        }
+      ]
+    },
+    "talk": {
+      "loop": true,
+      "frames": [
+        {
+          "src": "frames/idle-1.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-3.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-5.png",
+          "duration": 130
+        },
+        {
+          "src": "frames/idle-7.png",
+          "duration": 130
+        }
+      ]
+    }
+  }
+}

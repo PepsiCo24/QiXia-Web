@@ -149,6 +149,30 @@ type FoliageStatusProps = {
   stage: string
 }
 
+export function AnimatedMaple({ rate, className = 'size-11' }: { rate: number; className?: string }) {
+  const displayRate = useTweenedRate(rate)
+  const swayRef = useSway()
+  const [lifted, setLifted] = useState(false)
+
+  return (
+    <span
+      className="relative inline-flex shrink-0"
+      style={{
+        transform: lifted ? 'translateY(-3px) scale(1.06)' : 'translateY(0) scale(1)',
+        transition: `transform ${LIFT_MS}ms cubic-bezier(0.34, 1.4, 0.64, 1)`,
+      }}
+      onPointerEnter={() => setLifted(true)}
+      onPointerLeave={() => setLifted(false)}
+      aria-hidden="true"
+    >
+      <span ref={swayRef} className="inline-flex will-change-transform" style={{ transformOrigin: '50% 94%' }}>
+        <MapleSvg rate={displayRate} className={`${className} drop-shadow-sm`} />
+      </span>
+      <FallingLeaf />
+    </span>
+  )
+}
+
 export function FoliageStatus({ rate, stage }: FoliageStatusProps) {
   const displayRate = useTweenedRate(rate)
   const swayRef = useSway()

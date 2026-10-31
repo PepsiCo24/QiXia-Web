@@ -1,23 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Noto_Sans_SC, Noto_Serif_SC } from 'next/font/google'
 import './globals.css'
+import './immersive.css'
 
-const notoSerif = Noto_Serif_SC({
-  weight: ['500', '700'],
-  subsets: ['latin'],
-  preload: false,
-  display: 'swap',
-  variable: '--font-noto-serif',
-})
-
-const notoSans = Noto_Sans_SC({
-  weight: ['400', '500', '700'],
-  subsets: ['latin'],
-  preload: false,
-  display: 'swap',
-  variable: '--font-noto-sans',
-})
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 export const metadata: Metadata = {
   title: '栖霞山 · 数字游览 | 一客一景 · 一刻一路',
@@ -25,11 +11,11 @@ export const metadata: Metadata = {
   generator: 'v0.app',
   icons: {
     icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: `${basePath}/icon-light-32x32.png`, media: '(prefers-color-scheme: light)' },
+      { url: `${basePath}/icon-dark-32x32.png`, media: '(prefers-color-scheme: dark)' },
+      { url: `${basePath}/icon.svg`, type: 'image/svg+xml' },
     ],
-    apple: '/apple-icon.png',
+    apple: `${basePath}/apple-icon.png`,
   },
 }
 
@@ -46,10 +32,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" className={`${notoSerif.variable} ${notoSans.variable}`}>
+    <html lang="zh-CN">
       <body className="antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_GITHUB_PAGES !== 'true' && <Analytics />}
       </body>
     </html>
   )
