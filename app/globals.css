@@ -1,13 +1,17 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
-  --font-serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', monospace;
+  --font-sans:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-mono:
+    ui-monospace, "SF Mono", Menlo, "PingFang SC", "Microsoft YaHei",
+    "Noto Sans SC", monospace;
   --color-jade: var(--jade);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -85,31 +89,148 @@
 }
 
 /* Floating guide: keep map controls and route cards accessible. */
-.pet-dock { position: fixed; z-index: 40; width: 112px; pointer-events: none; }
-.pet-character { display: block; width: 112px; height: 132px; cursor: grab; touch-action: none; pointer-events: auto; filter: drop-shadow(0 8px 14px #0009); }
-.pet-character:active { cursor: grabbing; }
-.pet-character canvas { width: 112px; height: 112px; }
-.pet-name { display: block; border: 1px solid #c9a35b55; border-radius: 999px; padding: 3px 8px; background: #101a16ee; color: var(--accent); font-size: 11px; }
-.pet-panel-host { position: fixed; z-index: 41; inset: 0; pointer-events: none; }
-.pet-chat { position: absolute; right: 132px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; width: 360px; max-height: min(640px, 85dvh); overflow: hidden; pointer-events: auto; background: #101a16f2; }
-.pet-panel-left .pet-chat { right: auto; left: 132px; }
-.pet-messages { overflow-y: auto; overscroll-behavior: contain; min-height: 150px; padding: 18px 16px; flex: 1; }
-.pet-icon { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; min-height: 34px; border-radius: 9px; cursor: pointer; }
-.pet-icon:hover { background-color: #c9a35b22; }
-.pet-welcome { position: absolute; right: 0; bottom: 145px; width: 240px; padding: 14px; font-size: 13px; line-height: 1.7; pointer-events: auto; }
-.pet-left .pet-welcome { right: auto; left: 0; }
-.pet-subtitle { position: absolute; bottom: 136px; right: 0; width: 230px; border-radius: 12px; padding: 8px 12px; background: #101a16ed; font-size: 12px; line-height: 1.6; }
-.pet-large .pet-messages p, .pet-large .pet-messages span { font-size: 17px; line-height: 1.8; }
+.pet-dock {
+  position: fixed;
+  z-index: 40;
+  width: 112px;
+  pointer-events: none;
+}
+.pet-character {
+  display: block;
+  width: 112px;
+  height: 132px;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+  filter: drop-shadow(0 8px 14px #0009);
+}
+.pet-character:active {
+  cursor: grabbing;
+}
+.pet-character canvas {
+  width: 112px;
+  height: 112px;
+}
+.pet-name {
+  display: block;
+  border: 1px solid #c9a35b55;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #101a16ee;
+  color: var(--accent);
+  font-size: 11px;
+}
+.pet-panel-host {
+  position: fixed;
+  z-index: 41;
+  inset: 0;
+  pointer-events: none;
+}
+.pet-chat {
+  position: absolute;
+  right: 132px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  max-height: min(640px, 85dvh);
+  overflow: hidden;
+  pointer-events: auto;
+  background: #101a16f2;
+}
+.pet-panel-left .pet-chat {
+  right: auto;
+  left: 132px;
+}
+.pet-messages {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 150px;
+  padding: 18px 16px;
+  flex: 1;
+}
+.pet-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 34px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.pet-icon:hover {
+  background-color: #c9a35b22;
+}
+.pet-welcome {
+  position: absolute;
+  right: 0;
+  bottom: 145px;
+  width: 240px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  pointer-events: auto;
+}
+.pet-left .pet-welcome {
+  right: auto;
+  left: 0;
+}
+.pet-subtitle {
+  position: absolute;
+  bottom: 136px;
+  right: 0;
+  width: 230px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  background: #101a16ed;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.pet-large .pet-messages p,
+.pet-large .pet-messages span {
+  font-size: 17px;
+  line-height: 1.8;
+}
 @media (max-width: 600px) {
-  .pet-dock { width: 76px; }
-  .pet-character { width: 76px; height: 100px; }
-  .pet-character canvas { width: 76px; height: 76px; }
-  .pet-name { font-size: 9px; padding: 2px; }
-  .pet-chat, .pet-panel-left .pet-chat { position: fixed; left: 8px; right: 8px; top: auto; bottom: 0; width: calc(100vw - 16px); max-height: 66dvh; transform: none; border-radius: 20px 20px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+  .pet-dock {
+    width: 76px;
+  }
+  .pet-character {
+    width: 76px;
+    height: 100px;
+  }
+  .pet-character canvas {
+    width: 76px;
+    height: 76px;
+  }
+  .pet-name {
+    font-size: 9px;
+    padding: 2px;
+  }
+  .pet-chat,
+  .pet-panel-left .pet-chat {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    top: auto;
+    bottom: 0;
+    width: calc(100vw - 16px);
+    max-height: 66dvh;
+    transform: none;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
   /* Fixed drawer must use the viewport, independent of the movable dock. */
-  .pet-dock:has(.pet-chat) { width: 0; }
-  .pet-dock:has(.pet-chat) .pet-character { display: none; }
-  .pet-subtitle { display: none; }
+  .pet-dock:has(.pet-chat) {
+    width: 0;
+  }
+  .pet-dock:has(.pet-chat) .pet-character {
+    display: none;
+  }
+  .pet-subtitle {
+    display: none;
+  }
 }
 
 /* POI markers */
@@ -295,7 +416,13 @@
   appearance: none;
   height: 4px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, var(--jade), var(--accent), var(--primary), var(--accent));
+  background: linear-gradient(
+    90deg,
+    var(--jade),
+    var(--accent),
+    var(--primary),
+    var(--accent)
+  );
 }
 .hour-range::-webkit-slider-thumb {
   appearance: none;
@@ -335,6 +462,50 @@
 }
 .maplibregl-ctrl-attrib a {
   color: var(--muted-foreground);
+}
+/* 隐藏右下角 attribution 折叠图标，让位给重置按钮 */
+.maplibregl-ctrl-attrib {
+  display: none !important;
+}
+
+/* 地图重置视角按钮：作为 MapLibre 控件，排在缩放/视角控件下方 */
+.reset-view-btn {
+  clear: both;
+  float: right;
+  margin: 10px 10px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #e8603c;
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
+}
+
+.reset-view-btn:hover {
+  background: #d9503a;
+}
+
+.reset-view-btn:active {
+  transform: scale(0.95);
+}
+
+.reset-view-btn:focus-visible {
+  outline: 2px solid #f6d7a7;
+  outline-offset: 2px;
+}
+
+/* 导航时的用户位置标记（尺寸由内联 SVG 决定，这里只加投影） */
+.nav-user-marker {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
