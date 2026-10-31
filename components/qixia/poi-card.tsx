@@ -47,7 +47,7 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
         <div>
           <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <MapPin className="size-3" aria-hidden="true" />
-            {poi.category} · 海拔约 {poi.elevation} m
+            {poi.category} · 海拔约 {poi.elevation} m · 坐标待核验
           </p>
           <h3 id="poi-title" className="mt-1 font-serif text-xl font-bold text-foreground">
             {poi.name}
