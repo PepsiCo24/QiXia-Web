@@ -484,6 +484,11 @@
   color: #fff;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
   cursor: pointer;
+  /* MapLibre 角容器是 pointer-events:none，只有带 .maplibregl-ctrl 的控件才可点；
+     自定义按钮没带那个类，必须自己把交互和层级恢复回来 */
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
   transition:
     background 0.15s ease,
     transform 0.1s ease;
