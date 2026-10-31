@@ -29,7 +29,7 @@ export interface PetAnimationController {
 
 export function getPetAnimationLane(animation: PetControllerAnimation): PetAnimationLane | null {
   if (animation === 'idle') return null
-  if (animation === 'dragged' || animation === 'landing') return 'interaction'
+  if (animation === 'dragged' || animation === 'landing' || animation === 'walk-left' || animation === 'walk-right') return 'interaction'
   if (animation === 'thinking' || animation === 'talking') return 'conversation'
   if (animation === 'wave') return 'wave'
   return 'tool'
