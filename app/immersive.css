@@ -1,5 +1,7 @@
 :root{--background:#101b17;--forest-panel:#263a30;--panel-surface:rgba(25,42,33,.88);--maple:#d96645;--route-gold:#d9af69;--foreground:#ede8da;--muted-foreground:#a9b5ab;--accent:#d9af69;--primary:#d96645}
 /* Immersive visitor layer; business components and map remain mounted. */
+.maplibregl-ctrl-group button.qixia-view-toggle{width:44px;height:36px;font-size:12px;font-weight:600;color:var(--foreground)}
+.maplibregl-ctrl-bottom-right{z-index:45!important;bottom:65px;right:18px}
 .qixia-viewport{min-height:100dvh;height:auto;overflow-y:auto;overflow-x:hidden}.immersive-map{position:relative;height:100dvh;min-height:0;overflow:hidden;background:var(--background)}
 .glass-panel{background:var(--panel-surface);border:1px solid #ede8da24;border-radius:18px;box-shadow:0 12px 36px #0003;backdrop-filter:blur(20px)}
 button,a,input{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--route-gold);outline-offset:4px}button{transition:background .18s,color .18s,border-color .18s}button:disabled{cursor:default}
