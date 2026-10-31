@@ -23,12 +23,7 @@ function corsHeaders(req: Request): Headers | null {
   const origin = req.headers.get('origin')
   if (!origin) return headers
   const allowlist = (process.env.AGENT_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean)
-  const requestUrl = new URL(req.url)
-  // Next's internal URL may use localhost while the visitor uses 127.0.0.1.
-  // Host is the actual HTTP authority; never trust arbitrary forwarded origins.
-  const authority = req.headers.get('host')
-  const sameOrigin = origin === requestUrl.origin || (!!authority && origin === `${requestUrl.protocol}//${authority}`)
-  if (!sameOrigin && !allowlist.includes(origin)) return null
+  if (origin !== new URL(req.url).origin && !allowlist.includes(origin)) return null
   headers.set('Access-Control-Allow-Origin', origin)
   headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
   headers.set('Access-Control-Allow-Headers', 'Content-Type')
@@ -119,7 +114,6 @@ async function chat(req: Request) {
       }
       writer.write({ type: 'start', messageId: crypto.randomUUID() })
       let failed = false
-      const appliedCommands: MapCommand[] = []
       let kb: KbSourcesData = { query: text.slice(0, 300), status: 'unavailable', results: [] }
       try {
         // Mandatory pre-retrieval, before either model path or any non-demo factual fallback.
@@ -129,7 +123,7 @@ async function chat(req: Request) {
         writer.write({ type: 'data-kb-sources', data: kb })
         // Exclude local historical stories entirely from production model input.
         const mapSystem = buildPetSystemPrompt(persona).replace(/知识来源：[\s\S]*?示意路线/, '示意路线')
-        const groundedSystem = mapSystem + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb)
+        const groundedSystem = mapSystem + kbGroundingContext(kb)
         const searchPlacesSchema = z.object({ query: z.string().max(100) }).strict()
         const routesSchema = z.object({ personaId: z.enum(['family', 'youth', 'culture', 'elder', 'photo']).optional() }).strict()
         const searchPlaces = (input: z.infer<typeof searchPlacesSchema>) => ({ demo: true, verified: false, places: POIS.filter(p => !input.query || p.name.includes(input.query) || p.id.includes(input.query)).map(p => ({ id: p.id, name: p.name })) })
@@ -168,7 +162,7 @@ async function chat(req: Request) {
             const response = await fetch(url, {
               method: 'POST', signal: controller.signal,
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-              body: JSON.stringify({ model, messages: conversation, max_tokens: 1600, stream: true,
+              body: JSON.stringify({ model, messages: conversation, max_tokens: 700, stream: true,
                 ...(step < 2 ? { tools: [
                   { type: 'function', function: { name: 'map_action', description: '执行已知地图操作', parameters: z.toJSONSchema(toolInputSchema) } },
                   { type: 'function', function: { name: 'search_places', description: '搜索演示点位ID和名称', parameters: z.toJSONSchema(searchPlacesSchema) } },
@@ -204,17 +198,8 @@ async function chat(req: Request) {
               }
               if (delta.tool_calls !== undefined && !Array.isArray(delta.tool_calls)) throw new Error('invalid tool delta')
               for (const fragment of delta.tool_calls || []) {
-                // Some compatible providers emit complete calls without an index.
-                // Accept only self-contained calls; fragmented calls still need an index.
-                let index = fragment.index
-                if (index === undefined && typeof fragment.id === 'string' && fragment.id &&
-                    typeof fragment.function?.name === 'string' && fragment.function.name &&
-                    typeof fragment.function?.arguments === 'string') {
-                  JSON.parse(fragment.function.arguments)
-                  index = calls.size
-                }
-                if (!Number.isInteger(index) || index < 0 || index >= 8) throw new Error('invalid tool index')
-                const call = calls.get(index) || { id: '', type: 'function' as const, function: { name: '', arguments: '' } }
+                if (!Number.isInteger(fragment.index) || fragment.index < 0 || fragment.index >= 8) throw new Error('invalid tool index')
+                const call = calls.get(fragment.index) || { id: '', type: 'function' as const, function: { name: '', arguments: '' } }
                 if (fragment.type !== undefined && fragment.type !== 'function') throw new Error('invalid tool type')
                 if (fragment.id !== undefined) {
                   if (typeof fragment.id !== 'string') throw new Error('invalid tool id')
@@ -229,7 +214,7 @@ async function chat(req: Request) {
                   call.function.arguments += fragment.function.arguments
                 }
                 if (call.id.length > 200 || call.function.name.length > 100 || call.function.arguments.length > 8000) throw new Error('tool too large')
-                calls.set(index, call)
+                calls.set(fragment.index, call)
               }
             }
             const consumeLines = (eof = false) => {

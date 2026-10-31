@@ -20,7 +20,7 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const [welcome, setWelcome] = useState(false)
   const [systemMotion, setSystemMotion] = useState(false)
   const { animation, play } = usePetAnimationController({ thinking: status === 'submitted', talking: status === 'streaming' })
-  const dragController = usePetDragController({ storageKey: 'qixia-pet-position', initialPosition: { x: preferences.side === 'left' ? 0 : 1, y: preferences.top / 100, side: preferences.side }, onAnimation: state => play(state as PetControllerAnimation) })
+  const dragController = usePetDragController({ storageKey: 'qixia-pet-position', initialPosition: { x: preferences.side === 'left' ? 0 : 1, y: preferences.top / 100, side: preferences.side }, onAnimation: play, onPositionCommit: position => setPreferences(p => ({ ...p, side: position.side, top: position.y * 100 })) })
   const consumed = useRef(new Set<string>())
   const spoken = useRef('')
   const button = useRef<HTMLButtonElement>(null)
@@ -50,6 +50,11 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
     if (consumed.current.size > 1000) consumed.current = new Set(Array.from(consumed.current).slice(-500))
   }, [messages, status, play])
   useEffect(() => { if (mapNotice && preferences.proactive && !open) play('curious', 2000) }, [mapNotice, preferences.proactive, open, play])
+  useEffect(() => {
+    if (open || !preferences.proactive || preferences.reducedMotion || systemMotion) return
+    const timer = setInterval(() => { if (!document.hidden) play(Math.random() > 0.5 ? 'curious' : 'sleep', 4000) }, 65000)
+    return () => clearInterval(timer)
+  }, [open, preferences.proactive, preferences.reducedMotion, systemMotion, play])
   useEffect(() => {
     const celebrate = () => play('celebrate', 3200)
     window.addEventListener('qixia-leaf-collected', celebrate)

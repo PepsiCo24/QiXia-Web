@@ -15,7 +15,7 @@ export interface PetDragControllerOptions {
   /** Viewport inset in CSS pixels (default 12). Shrinks in very small viewports. */
   edgePadding?: number
   disabled?: boolean
-  onAnimation?: (animation: 'walk-left' | 'walk-right' | 'landing') => void
+  onAnimation?: (animation: 'dragged' | 'landing') => void
   onPositionCommit?: (position: PetNormalizedPosition) => void
   onFacingChange?: (facing: PetFacing) => void
 }
@@ -39,7 +39,7 @@ export interface PetDragController {
   side: PetDockSide
   facing: PetFacing
   isDragging: boolean
-  /** Restore/reset a free two-axis normalized position and persist it. */
+  /** Restore/reset a normalized position; snap to its side and persist it. */
   setPosition: (position: PetNormalizedPosition) => void
 }
 interface Bounds { left: number; top: number; width: number; height: number }
@@ -119,11 +119,10 @@ export function usePetDragController(options: PetDragControllerOptions = {}): Pe
     const bounds = getBounds()
     const clamped = clampPetPoint(next, bounds)
     const side: PetDockSide = clamped.x < bounds.left + bounds.width / 2 ? 'left' : 'right'
+    clamped.x = bounds.left + (side === 'right' ? bounds.width : 0)
     writePoint(clamped)
-    const value: PetNormalizedPosition = {
-      x: bounds.width ? unit((clamped.x - bounds.left) / bounds.width) : 0.5,
-      y: bounds.height ? unit((clamped.y - bounds.top) / bounds.height) : normalized.current.y, side,
-    }
+    const value: PetNormalizedPosition = { x: side === 'left' ? 0 : 1,
+      y: bounds.height ? unit((clamped.y - bounds.top) / bounds.height) : normalized.current.y, side }
     normalized.current = value
     updatePosition(value)
     face(side === 'left' ? 'right' : 'left')
@@ -156,7 +155,7 @@ export function usePetDragController(options: PetDragControllerOptions = {}): Pe
     const next = normalizePetPosition(value)
     normalized.current = next
     const bounds = getBounds()
-    commit({ x: bounds.left + next.x * bounds.width, y: bounds.top + next.y * bounds.height }, notify)
+    commit({ x: bounds.left + (next.side === 'right' ? bounds.width : 0), y: bounds.top + next.y * bounds.height }, notify)
   }, [commit, getBounds])
 
   const ref = useCallback((node: HTMLElement | null) => {
@@ -231,15 +230,11 @@ export function usePetDragController(options: PetDragControllerOptions = {}): Pe
       if (!active.moved) {
         active.moved = true
         setDragging(true)
-        optionsRef.current.onAnimation?.(facingRef.current === 'left' ? 'walk-left' : 'walk-right')
+        optionsRef.current.onAnimation?.('dragged')
       }
       event.preventDefault()
       const next = clampPetPoint({ x: active.origin.x + dx, y: active.origin.y + dy }, getBounds())
-      if (next.x !== point.current.x) {
-        const direction = next.x > point.current.x ? 'right' : 'left'
-        face(direction)
-        optionsRef.current.onAnimation?.(direction === 'left' ? 'walk-left' : 'walk-right')
-      }
+      if (next.x !== point.current.x) face(next.x > point.current.x ? 'right' : 'left')
       writePoint(next)
     },
     onPointerUp(event) { finish(event.pointerId) },

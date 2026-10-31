@@ -1,6 +1,5 @@
 :root{--background:#101b17;--forest-panel:#263a30;--panel-surface:rgba(25,42,33,.88);--maple:#d96645;--route-gold:#d9af69;--foreground:#ede8da;--muted-foreground:#a9b5ab;--accent:#d9af69;--primary:#d96645}
 /* Immersive visitor layer; business components and map remain mounted. */
-.map-interaction-help{position:absolute;left:110px;bottom:22px;z-index:21;padding:8px 12px;max-width:calc(100% - 140px);font-size:12px;color:var(--muted-foreground)}.map-interaction-help summary{cursor:pointer;color:var(--foreground);min-height:24px}.map-interaction-help p{margin-top:8px;line-height:1.8}.map-help-touch{display:none}.route-host,.tool-popover,.poi-card-host{overscroll-behavior:contain}.maplibregl-canvas:focus-visible{outline:2px solid var(--route-gold);outline-offset:-2px}@media(pointer:coarse){.map-help-desktop{display:none}.map-help-touch{display:block}}@media(max-width:800px){.map-interaction-help{left:12px;bottom:10px;max-width:calc(100% - 90px)}}
 .maplibregl-ctrl-group button.qixia-view-toggle{width:44px;height:36px;font-size:12px;font-weight:600;color:var(--foreground)}
 .maplibregl-ctrl-bottom-right{z-index:45!important;bottom:65px;right:18px}
 .qixia-viewport{min-height:100dvh;height:auto;overflow-y:auto;overflow-x:hidden}.immersive-map{position:relative;height:100dvh;min-height:0;overflow:hidden;background:var(--background)}

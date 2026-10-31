@@ -20,7 +20,7 @@ interface SpriteAnimatorProps {
 
 const WIDTH = 160
 const HEIGHT = 160
-const LOW_FPS_INTERVAL = 1000 / 24
+const LOW_FPS_INTERVAL = 1000 / 12
 const ASSET_ROOT = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/pet/qixia-cat`.replace(/\/$/, "")
 
 interface LoadedAssets {
@@ -187,7 +187,6 @@ export default function SpriteAnimator({ state, reducedMotion, className, onComp
     let visible = false
     let pageVisible = document.visibilityState === "visible"
     let raf = 0
-    let quietTimer: ReturnType<typeof setTimeout> | null = null
     let elapsed = 0
     let previousTime = 0
     let lastPaint = 0
@@ -201,24 +200,20 @@ export default function SpriteAnimator({ state, reducedMotion, className, onComp
     canvas.height = HEIGHT * pixelRatio
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
     const isReduced = reducedMotion ?? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    // Resting uses a very slow, low-amplitude loop; reactive states remain lively.
-    const isQuietRest = state === "idle"
 
     const stop = () => {
       if (raf) cancelAnimationFrame(raf)
-      if (quietTimer) clearTimeout(quietTimer)
       raf = 0
-      quietTimer = null
       previousTime = 0
     }
-    const canAnimate = () => visible && pageVisible && !isReduced && !isQuietRest && (loop || !staticDrawn)
+    const canAnimate = () => visible && pageVisible && !isReduced && (loop || !staticDrawn)
     const draw = (now: number) => {
       raf = 0
       if (disposed || !visible || !pageVisible) return
       if (previousTime) elapsed += Math.min(now - previousTime, 100)
       previousTime = now
-      if (isQuietRest && lastPaint) return
-      if (!isQuietRest && lastPaint && now - lastPaint < LOW_FPS_INTERVAL) {
+      const shouldAnimate = canAnimate()
+      if (shouldAnimate && lastPaint && now - lastPaint < LOW_FPS_INTERVAL) {
         raf = requestAnimationFrame(draw)
         return
       }
@@ -228,9 +223,7 @@ export default function SpriteAnimator({ state, reducedMotion, className, onComp
       const totalDuration = frames.reduce((sum, frame) => sum + frame.duration, 0)
       let frameIndex = 0
       if (frames.length && totalDuration > 0) {
-        if (isQuietRest) {
-          frameIndex = 0
-        } else if (isReduced) {
+        if (isReduced) {
           frameIndex = loop ? 0 : frames.length - 1
         } else if (!loop && elapsed >= totalDuration) {
           frameIndex = frames.length - 1
@@ -304,5 +297,5 @@ export default function SpriteAnimator({ state, reducedMotion, className, onComp
     }
   }, [state, reducedMotion])
 
-  return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} role="img" aria-label={`Cat pet: ${state}`} className={`${className ?? ""} ${state === "idle" ? "pet-resting" : ""}`.trim()} />
+  return <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} role="img" aria-label={`Cat pet: ${state}`} className={className} />
 }
