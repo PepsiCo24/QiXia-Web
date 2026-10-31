@@ -13,6 +13,7 @@ import type { NavProgress } from "@/lib/navigation";
 import type { NavigationSession } from "@/lib/use-navigation";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
+  DEFAULT_POI_IDS,
   DEVICES,
   POIS,
   POI_MAP,
@@ -134,6 +135,7 @@ const STATUS_COLOR = [
 ] as const;
 
 function routeGeoJSON(personaId: PersonaId): Feature<LineString> {
+  if (personaId === 'default') return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
   return {
     type: "Feature",
     properties: {},
@@ -679,7 +681,7 @@ export function MapView({
     const map = mapRef.current;
     if (!ready || !map) return;
 
-    const stops = PERSONA_MAP[personaId].stops;
+    const stops = personaId === 'default' ? [...DEFAULT_POI_IDS] : PERSONA_MAP[personaId].stops;
     const coords = stops.map((id) => POI_MAP[id].coordinates);
 
     (map.getSource("route-approx") as GeoJSONSource | undefined)?.setData(
@@ -707,6 +709,8 @@ export function MapView({
         el.dataset.order,
       );
     });
+
+    if (personaId === 'default') return;
 
     let cancelled = false;
     fetch("/api/route/walking", {
