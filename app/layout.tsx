@@ -1,7 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import './immersive.css'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 

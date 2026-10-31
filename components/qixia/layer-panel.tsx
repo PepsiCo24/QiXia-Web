@@ -1,6 +1,6 @@
 'use client'
 
-import { Bus, Flame, Radio } from 'lucide-react'
+import { AlertTriangle, Bus, Flame, Radio } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { CLOSE_HOUR, OPEN_HOUR, snapshot } from '@/lib/qixia-data'
 import type { LayerState } from './map-view'
@@ -10,6 +10,7 @@ const LAYER_META: { key: keyof LayerState; label: string; icon: LucideIcon; tone
   { key: 'heat', label: '客流热力', icon: Flame, tone: 'text-primary' },
   { key: 'devices', label: '设备状态', icon: Radio, tone: 'text-jade' },
   { key: 'traffic', label: '交通运力', icon: Bus, tone: 'text-accent' },
+  { key: 'alerts', label: '安全预警', icon: AlertTriangle, tone: 'text-destructive' },
 ]
 
 interface LayerPanelProps {
@@ -22,7 +23,7 @@ interface LayerPanelProps {
 
 export function LayerToggles({ layers, onToggle, compact }: Pick<LayerPanelProps, 'layers' | 'onToggle' | 'compact'>) {
   return (
-    <ul className={cn('grid gap-1.5', compact ? 'grid-cols-3' : 'grid-cols-2')}>
+    <ul className={cn('grid gap-1.5', compact ? 'grid-cols-4' : 'grid-cols-2')}>
       {LAYER_META.map(({ key, label, icon: Icon, tone }) => {
         const active = layers[key]
         return (
@@ -79,7 +80,7 @@ export function LayerPanel({ layers, onToggle, hour, onHourChange }: LayerPanelP
         </div>
       </div>
 
-      <dl className="grid grid-cols-2 gap-2 text-center">
+      <dl className="grid grid-cols-3 gap-2 text-center">
         <div className="rounded-md bg-secondary/60 px-1 py-2">
           <dt className="text-[10px] text-muted-foreground">设备在线</dt>
           <dd className="font-mono text-base tabular-nums text-jade">{Math.round(s.deviceOnlineRate * 100)}%</dd>
@@ -87,6 +88,10 @@ export function LayerPanel({ layers, onToggle, hour, onHourChange }: LayerPanelP
         <div className="rounded-md bg-secondary/60 px-1 py-2">
           <dt className="text-[10px] text-muted-foreground">停车余位</dt>
           <dd className="font-mono text-base tabular-nums text-accent">{s.parkingFree}</dd>
+        </div>
+        <div className="rounded-md bg-secondary/60 px-1 py-2">
+          <dt className="text-[10px] text-muted-foreground">安全预警</dt>
+          <dd className="font-mono text-base tabular-nums text-destructive">{s.alerts}</dd>
         </div>
       </dl>
 
