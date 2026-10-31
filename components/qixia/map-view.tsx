@@ -9,7 +9,6 @@ import {
   POIS,
   POI_MAP,
   QIXIA_CENTER,
-  SAFETY_ALERTS,
   TRAFFIC_NODES,
   buildHeatFeatures,
   type PersonaId,
@@ -102,7 +101,6 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
   const mapRef = useRef<MapLibreMap | null>(null)
   const poiElements = useRef<Map<string, HTMLElement>>(new Map())
   const trafficElements = useRef<HTMLElement[]>([])
-  const alertElements = useRef<HTMLElement[]>([])
   const onSelectRef = useRef(onSelectPoi)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -165,9 +163,9 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           source: 'heat',
           paint: {
             'heatmap-weight': ['get', 'w'],
-            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 13, 0.7, 17, 2.2],
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 13, 1.0, 17, 2.6],
             'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 13, 12, 15, 26, 17, 60],
-            'heatmap-opacity': 0.34,
+            'heatmap-opacity': 0.8,
             'heatmap-color': [
               'interpolate',
               ['linear'],
@@ -251,16 +249,6 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           new ml.Marker({ element: el, anchor: 'left' }).setLngLat(node.coordinates).addTo(map!)
         })
 
-        SAFETY_ALERTS.forEach((alert) => {
-          const el = document.createElement('div')
-          el.className = `alert-marker level-${alert.level === '预警' ? 'high' : alert.level === '关注' ? 'mid' : 'low'}`
-          el.setAttribute('role', 'img')
-          el.setAttribute('aria-label', `${alert.level}：${alert.title}`)
-          el.innerHTML = '<span class="alert-ring"></span><span class="alert-core">!</span>'
-          alertElements.current.push(el)
-          new ml.Marker({ element: el, anchor: 'center', offset: [0, -34] }).setLngLat(alert.coordinates).addTo(map!)
-        })
-
         const declutter = () => {
           if (!map) return
           const occupied: {x:number;y:number;w:number}[] = []
@@ -314,7 +302,6 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
       mapRef.current = null
       elementsAtMount.clear()
       trafficElements.current = []
-      alertElements.current = []
     }
     // Map is created once; later prop changes are applied by the effects below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -327,7 +314,6 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     map.setLayoutProperty('devices', 'visibility', layers.devices ? 'visible' : 'none')
     map.setLayoutProperty('devices-halo', 'visibility', layers.devices ? 'visible' : 'none')
     trafficElements.current.forEach((el) => (el.style.display = layers.traffic ? '' : 'none'))
-    alertElements.current.forEach((el) => (el.style.display = layers.alerts ? '' : 'none'))
   }, [ready, layers])
 
   useEffect(() => {
