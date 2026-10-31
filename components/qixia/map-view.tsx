@@ -9,6 +9,7 @@ import {
   POIS,
   POI_MAP,
   QIXIA_CENTER,
+  SAFETY_ALERTS,
   TRAFFIC_NODES,
   buildHeatFeatures,
   type PersonaId,
@@ -51,7 +52,7 @@ const MAP_STYLE: StyleSpecification = {
       id: 'satellite',
       type: 'raster',
       source: 'satellite',
-      paint: { 'raster-saturation': -0.18, 'raster-brightness-min': 0.08, 'raster-brightness-max': 0.95, 'raster-contrast': 0.08 },
+      paint: { 'raster-saturation': -0.35, 'raster-brightness-max': 0.78, 'raster-contrast': 0.12 },
     },
     {
       id: 'hillshade',
@@ -61,7 +62,7 @@ const MAP_STYLE: StyleSpecification = {
         'hillshade-shadow-color': '#05100b',
         'hillshade-highlight-color': '#f3d9a4',
         'hillshade-accent-color': '#2a3a30',
-        'hillshade-exaggeration': 0.22,
+        'hillshade-exaggeration': 0.35,
       },
     },
   ],
@@ -91,9 +92,8 @@ function routeGeoJSON(personaId: PersonaId): Feature<LineString> {
 }
 
 function overlayPadding(width: number) {
-  if (width < 801) return { top: 155, bottom: 350, left: 55, right: 45 }
-  if (width < 1024) return { top: 140, bottom: 120, left: 90, right: 320 }
-  return { top: 120, bottom: 160, left: 110, right: 360 }
+  if (width < 1024) return { top: 140, bottom: 220, left: 40, right: 40 }
+  return { top: 120, bottom: 160, left: 360, right: 420 }
 }
 
 export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }: MapViewProps) {
@@ -101,6 +101,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
   const mapRef = useRef<MapLibreMap | null>(null)
   const poiElements = useRef<Map<string, HTMLElement>>(new Map())
   const trafficElements = useRef<HTMLElement[]>([])
+  const alertElements = useRef<HTMLElement[]>([])
   const onSelectRef = useRef(onSelectPoi)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -113,8 +114,6 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     let cancelled = false
     let map: MapLibreMap | null = null
     let frame = 0
-    let observer: ResizeObserver | undefined
-    let overlayObserver: MutationObserver | undefined
 
     import('maplibre-gl').then((ml) => {
       if (cancelled || !containerRef.current) return
@@ -129,57 +128,11 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
         maxPitch: 80,
         minZoom: 12.5,
         maxZoom: 18.5,
-        scrollZoom: true,
+        scrollZoom: false,
         attributionControl: { compact: true },
       })
       mapRef.current = map
-      observer = new ResizeObserver(() => map?.resize())
-      observer.observe(containerRef.current)
-      overlayObserver = new MutationObserver(() => map?.resize())
-      const section = containerRef.current.closest('section')
-      if (section) overlayObserver.observe(section, { attributes: true })
-      containerRef.current.dataset.mapReady = 'false'
-      const publish = () => {
-        if (!map || !containerRef.current) return
-        containerRef.current.dataset.zoom = map.getZoom().toFixed(2)
-        containerRef.current.dataset.bearing = map.getBearing().toFixed(2)
-        containerRef.current.dataset.pitch = map.getPitch().toFixed(2)
-        containerRef.current.dataset.center = map.getCenter().toArray().join(',')
-      }
-      map.on('moveend', publish)
-      map.on('load', () => { if (containerRef.current) containerRef.current.dataset.mapReady = 'true'; publish() })
       map.addControl(new ml.NavigationControl({ visualizePitch: true }), 'bottom-right')
-      // The compass resets north; provide a separate, reversible pitch control.
-      map.addControl({
-        onAdd(controlMap) {
-          const group = document.createElement('div')
-          group.className = 'maplibregl-ctrl maplibregl-ctrl-group'
-          const button = document.createElement('button')
-          button.type = 'button'
-          button.className = 'qixia-view-toggle'
-          const sync = () => {
-            const overhead = controlMap.getPitch() < 10
-            button.textContent = overhead ? '三维' : '俯视'
-            button.title = overhead ? '切换三维视角' : '切换俯视视角'
-            button.setAttribute('aria-label', button.title)
-            button.setAttribute('aria-pressed', String(overhead))
-          }
-          button.onclick = () => {
-            containerRef.current?.dispatchEvent(new Event('stopspin'))
-            const overhead = controlMap.getPitch() < 10
-            controlMap.stop()
-            controlMap.easeTo({
-              pitch: overhead ? 64 : 0,
-              duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700,
-            })
-          }
-          group.append(button)
-          controlMap.on('pitch', sync)
-          sync()
-          return group
-        },
-        onRemove() {},
-      }, 'bottom-right')
 
       map.on('error', (e) => {
         console.error('Map error:', e.error?.message)
@@ -195,9 +148,9 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           source: 'heat',
           paint: {
             'heatmap-weight': ['get', 'w'],
-            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 13, 1.0, 17, 2.6],
+            'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 13, 0.7, 17, 2.2],
             'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 13, 12, 15, 26, 17, 60],
-            'heatmap-opacity': 0.8,
+            'heatmap-opacity': 0.78,
             'heatmap-color': [
               'interpolate',
               ['linear'],
@@ -206,7 +159,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
               0.2, 'rgba(70,140,120,0.45)',
               0.45, 'rgba(201,163,91,0.7)',
               0.7, 'rgba(222,110,52,0.85)',
-              1, 'rgba(217,102,69,0.65)',
+              1, 'rgba(214,52,38,0.95)',
             ],
           },
         })
@@ -217,14 +170,14 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           type: 'line',
           source: 'route',
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#d9af69', 'line-width': 10, 'line-blur': 8, 'line-opacity': 0.55 },
+          paint: { 'line-color': '#e8603c', 'line-width': 10, 'line-blur': 8, 'line-opacity': 0.55 },
         })
         map.addLayer({
           id: 'route',
           type: 'line',
           source: 'route',
           layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#d9af69', 'line-width': 3.5, 'line-dasharray': [2, 1.5] },
+          paint: { 'line-color': '#f6d7a7', 'line-width': 2.5, 'line-dasharray': [2, 1.5] },
         })
 
         map.addSource('devices', {
@@ -281,24 +234,16 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           new ml.Marker({ element: el, anchor: 'left' }).setLngLat(node.coordinates).addTo(map!)
         })
 
-        const declutter = () => {
-          if (!map) return
-          const occupied: {x:number;y:number;w:number}[] = []
-          const entries = [...poiElements.current.entries()].sort((a,b) => Number(b[1].classList.contains('is-selected'))-Number(a[1].classList.contains('is-selected')) || Number(b[1].classList.contains('is-on-route'))-Number(a[1].classList.contains('is-on-route')))
-          entries.forEach(([id, el]) => {
-            const selected = el.classList.contains('is-selected')
-            const major = ['gate','temple','grottoes','maple-ridge','summit'].includes(id)
-            const point = map!.project(POI_MAP[id].coordinates)
-            const width = POI_MAP[id].name.length * 15 + 44
-            const collide = occupied.some(p => Math.abs(p.x-point.x)<(p.w+width)/2 && Math.abs(p.y-point.y)<46)
-            const show = selected || ((major || el.classList.contains('is-on-route') || map!.getZoom()>=16.1) && !collide)
-            el.classList.toggle('label-muted', !show)
-            if (show) occupied.push({x:point.x,y:point.y,w:width})
-          })
-        }
-        map.on('move', declutter)
-        map.on('idle', declutter)
-        declutter()
+        SAFETY_ALERTS.forEach((alert) => {
+          const el = document.createElement('div')
+          el.className = `alert-marker level-${alert.level === '预警' ? 'high' : alert.level === '关注' ? 'mid' : 'low'}`
+          el.setAttribute('role', 'img')
+          el.setAttribute('aria-label', `${alert.level}：${alert.title}`)
+          el.innerHTML = '<span class="alert-ring"></span><span class="alert-core">!</span>'
+          alertElements.current.push(el)
+          new ml.Marker({ element: el, anchor: 'center', offset: [0, -34] }).setLngLat(alert.coordinates).addTo(map!)
+        })
+
         setReady(true)
       }
       if (map.isStyleLoaded()) initLayers()
@@ -328,12 +273,11 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     return () => {
       cancelled = true
       cancelAnimationFrame(frame)
-      observer?.disconnect()
-      overlayObserver?.disconnect()
       map?.remove()
       mapRef.current = null
       elementsAtMount.clear()
       trafficElements.current = []
+      alertElements.current = []
     }
     // Map is created once; later prop changes are applied by the effects below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,6 +290,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     map.setLayoutProperty('devices', 'visibility', layers.devices ? 'visible' : 'none')
     map.setLayoutProperty('devices-halo', 'visibility', layers.devices ? 'visible' : 'none')
     trafficElements.current.forEach((el) => (el.style.display = layers.traffic ? '' : 'none'))
+    alertElements.current.forEach((el) => (el.style.display = layers.alerts ? '' : 'none'))
   }, [ready, layers])
 
   useEffect(() => {
@@ -362,8 +307,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     poiElements.current.forEach((el, id) => {
       const index = stops.indexOf(id)
       el.classList.toggle('is-on-route', index >= 0)
-      el.dataset.order = index === 0 ? '起' : index === stops.length-1 ? '终' : index >= 0 ? String(index + 1) : ''
-      el.querySelector('.poi-label')?.setAttribute('data-order', el.dataset.order)
+      el.dataset.order = index >= 0 ? String(index + 1) : ''
     })
   }, [ready, personaId])
 
@@ -394,7 +338,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
     poiElements.current.forEach((el, id) => el.classList.toggle('is-selected', id === selectedPoiId))
     if (!selectedPoiId) return
     containerRef.current?.dispatchEvent(new Event('stopspin'))
-    map.flyTo({ center: POI_MAP[selectedPoiId].coordinates, zoom: 16.6, pitch: 66, duration: 1400, essential: false })
+    map.flyTo({ center: POI_MAP[selectedPoiId].coordinates, zoom: 16.6, pitch: 66, duration: 1400, essential: true })
   }, [ready, selectedPoiId])
 
   return (

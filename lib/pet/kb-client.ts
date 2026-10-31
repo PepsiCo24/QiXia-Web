@@ -32,7 +32,7 @@ async function load(query: string): Promise<KbSourcesData> {
   if (requests.length >= 55) throw new Error('KB request budget exhausted')
   requests.push(now)
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 4500)
+  const timeout = setTimeout(() => controller.abort(), 7000)
   try {
     const url = new URL(SEARCH_URL)
     url.searchParams.set('q', query)
