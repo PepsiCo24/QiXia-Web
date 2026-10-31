@@ -94,8 +94,9 @@ export function useNavigation() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ stops: [origin, destination] }),
         });
-        if (!res.ok) throw new Error("路线规划失败，请稍后重试");
-        const data = (await res.json()) as { segments?: RouteSegment[] };
+        const data = (await res.json().catch(() => null)) as { segments?: RouteSegment[]; error?: string } | null;
+        if (!res.ok) throw new Error(data?.error || (res.status === 404 ? "当前站点不支持在线路线规划，请使用部署了导航 API 的站点" : "路线服务暂时不可用，请稍后重试"));
+        if (!data) throw new Error("路线服务返回格式异常，请稍后重试");
         if (!data.segments?.length) throw new Error("没有可用路线");
 
         const steps = flattenSteps(data.segments);

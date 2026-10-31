@@ -96,7 +96,7 @@ export async function planWalkingSegment(
 
   for (let attempt = 0; attempt < 2 && !payload; attempt += 1) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
       const data = await res.json();
       if (data.status === "1" && data.route?.paths?.length) payload = data;
     } catch {
