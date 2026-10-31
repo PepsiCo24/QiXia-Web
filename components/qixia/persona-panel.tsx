@@ -1,25 +1,116 @@
 'use client'
 
-import { ChevronDown, ChevronUp, X, ArrowUpRight, Route } from 'lucide-react'
+import { Clock, Footprints, MessageCircleQuestion, Mountain } from 'lucide-react'
 import { PERSONAS, PERSONA_MAP, POI_MAP, formatDuration, type PersonaId } from '@/lib/qixia-data'
 import { cn } from '@/lib/utils'
+
 interface PersonaPanelProps {
- personaId: PersonaId; onPersonaChange: (id: PersonaId) => void; onSelectPoi: (id: string) => void; onAsk: () => void
- expanded?: boolean; onExpandedChange?: (open: boolean) => void; onClose?: () => void
+  personaId: PersonaId
+  onPersonaChange: (id: PersonaId) => void
+  onSelectPoi: (id: string) => void
+  onAsk: () => void
 }
-export function PersonaTabs({personaId,onPersonaChange,className}: Pick<PersonaPanelProps,'personaId'|'onPersonaChange'> & {className?:string}) {
- return <div role="radiogroup" aria-label="选择同行方式" className={cn('persona-tabs',className)}>{PERSONAS.map(p=><button key={p.id} type="button" role="radio" aria-checked={p.id===personaId} title={p.name} onClick={()=>onPersonaChange(p.id)}>{p.short}</button>)}</div>
+
+export function PersonaTabs({
+  personaId,
+  onPersonaChange,
+  className,
+}: Pick<PersonaPanelProps, 'personaId' | 'onPersonaChange'> & { className?: string }) {
+  return (
+    <div role="radiogroup" aria-label="选择同行方式" className={cn('flex gap-1', className)}>
+      {PERSONAS.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          role="radio"
+          aria-checked={p.id === personaId}
+          onClick={() => onPersonaChange(p.id)}
+          className={cn(
+            'flex-1 whitespace-nowrap rounded-md px-2 py-1.5 text-xs transition-colors',
+            p.id === personaId
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+          )}
+        >
+          {p.short}
+        </button>
+      ))}
+    </div>
+  )
 }
-export function PersonaPanel({personaId,onPersonaChange,onSelectPoi,onAsk,expanded=false,onExpandedChange,onClose}: PersonaPanelProps) {
- const p=PERSONA_MAP[personaId]
- return <section className="route-card glass-panel" aria-labelledby="persona-title">
-  <header className="route-heading"><span><Route size={16}/> 为你推荐 · {p.name}</span><button className="icon-button" aria-label="收起路线卡" onClick={onClose}><X size={17}/></button></header>
-  <PersonaTabs personaId={personaId} onPersonaChange={onPersonaChange}/>
-  <div className="route-title"><p className="eyebrow">YOUR WAY TO EXPLORE</p><h2 id="persona-title">{p.routeName}</h2></div>
-  <dl className="route-metrics"><div><dt>预计游玩</dt><dd>{formatDuration(p.durationMin)}</dd></div><div><dt>距离示意</dt><dd>{p.distanceKm} <small>km</small></dd></div><div><dt>体力消耗</dt><dd>{p.intensity}</dd></div></dl>
-  {!expanded && <p className="route-preview">{p.stops.slice(0,4).map(id=>POI_MAP[id].name).join(' → ')}{p.stops.length>4?' …':''}</p>}
-  {expanded && <div id="route-details" className="route-details"><p>{p.cares}</p><ol>{p.stops.map((id,i)=><li key={id}><button onClick={()=>onSelectPoi(id)} aria-label={`聚焦${POI_MAP[id].name}`}><span className="stop-order">{i===0?'起':i===p.stops.length-1?'终':i+1}</span><span><strong>{POI_MAP[id].name}</strong><small>{POI_MAP[id].brief}</small></span><ArrowUpRight size={16}/></button></li>)}</ol><div className="route-note"><strong>台阶与体力提示</strong><p>{p.stairs}</p><p>时间预算：约 {formatDuration(p.durationMin)}，请根据停留与体力调整。</p></div><div className="route-note"><strong>为什么推荐</strong><p>{p.highlights.join(' · ')}</p></div><button className="outline-button" onClick={onAsk}>让灵猫帮我调整行程 <ArrowUpRight size={16}/></button></div>}
-  <button className="route-expand" aria-expanded={expanded} aria-controls="route-details" onClick={()=>onExpandedChange?.(!expanded)}>{expanded?'收起路线详情':'查看完整路线'}{expanded?<ChevronUp size={17}/>:<ChevronDown size={17}/>}</button>
-  <p className="route-source">推荐游览顺序 · 连线示意，非逐段导航<br/>坐标、距离与设施待实地核验，请以现场为准。</p>
- </section>
+
+export function PersonaPanel({ personaId, onPersonaChange, onSelectPoi, onAsk }: PersonaPanelProps) {
+  const persona = PERSONA_MAP[personaId]
+
+  return (
+    <section aria-labelledby="persona-title" className="glass-panel flex flex-col gap-4 p-4">
+      <div>
+        <p className="mb-2 text-xs text-muted-foreground">我是 · 一客一景</p>
+        <PersonaTabs personaId={personaId} onPersonaChange={onPersonaChange} className="rounded-lg bg-secondary/60 p-1" />
+      </div>
+
+      <div>
+        <h2 id="persona-title" className="font-serif text-lg font-bold text-foreground">
+          {persona.routeName}
+        </h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{persona.cares}</p>
+      </div>
+
+      <dl className="grid grid-cols-3 gap-2 text-xs">
+        <div className="flex flex-col gap-1 rounded-md bg-secondary/60 p-2">
+          <dt className="flex items-center gap-1 text-muted-foreground">
+            <Clock className="size-3" aria-hidden="true" />
+            时长
+          </dt>
+          <dd className="text-foreground">{formatDuration(persona.durationMin)}</dd>
+        </div>
+        <div className="flex flex-col gap-1 rounded-md bg-secondary/60 p-2">
+          <dt className="flex items-center gap-1 text-muted-foreground">
+            <Footprints className="size-3" aria-hidden="true" />
+            步行
+          </dt>
+          <dd className="text-foreground">{persona.distanceKm} km</dd>
+        </div>
+        <div className="flex flex-col gap-1 rounded-md bg-secondary/60 p-2">
+          <dt className="flex items-center gap-1 text-muted-foreground">
+            <Mountain className="size-3" aria-hidden="true" />
+            强度
+          </dt>
+          <dd className="text-foreground">{persona.intensity}</dd>
+        </div>
+      </dl>
+
+      <ol className="relative flex flex-col gap-0.5 before:absolute before:top-3 before:bottom-3 before:left-[11px] before:w-px before:bg-border">
+        {persona.stops.map((id, i) => (
+          <li key={id}>
+            <button
+              type="button"
+              onClick={() => onSelectPoi(id)}
+              className="group relative flex w-full items-center gap-3 rounded-md px-0 py-1.5 text-left"
+            >
+              <span className="z-10 flex size-6 shrink-0 items-center justify-center rounded-full border border-primary/60 bg-background font-mono text-[11px] text-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                {i + 1}
+              </span>
+              <span className="text-sm text-foreground group-hover:text-primary">{POI_MAP[id].name}</span>
+              <span className="ml-auto text-[10px] text-muted-foreground">{POI_MAP[id].category}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      <p className="rounded-md border border-border px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+        <span className="text-accent">台阶：</span>
+        {persona.stairs}
+      </p>
+
+      <button
+        type="button"
+        onClick={onAsk}
+        className="flex items-center justify-center gap-2 rounded-md bg-foreground px-3 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+      >
+        <MessageCircleQuestion className="size-4" aria-hidden="true" />
+        按“{persona.name}”问栖霞
+      </button>
+    </section>
+  )
 }
