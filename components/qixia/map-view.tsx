@@ -694,8 +694,11 @@ export function MapView({
     poiElements.current.forEach((el, id) => {
       const index = stops.indexOf(id);
       const isOnRoute = index >= 0;
+      const isDefaultMode = personaId === "default";
       el.style.display = isOnRoute ? "" : "none";
-      el.classList.toggle("is-on-route", isOnRoute);
+      el.style.setProperty("--poi-delay", isDefaultMode ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s` : "0s");
+      el.classList.toggle("is-on-route", isOnRoute && !isDefaultMode);
+      el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
       el.dataset.order =
         index === 0
           ? "起"

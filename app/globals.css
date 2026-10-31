@@ -268,11 +268,38 @@
   transition: all 0.2s ease;
 }
 .poi-marker .poi-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 9999px;
   background: var(--foreground);
   box-shadow: 0 0 0 3px rgba(237, 230, 216, 0.2);
+}
+.poi-marker.is-default-twinkle .poi-dot {
+  animation: poi-dot-twinkle 3.4s ease-in-out infinite;
+  animation-delay: var(--poi-delay, 0s);
+}
+.poi-marker.is-default-twinkle .poi-dot::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: inherit;
+  border: 1px solid rgba(225, 184, 94, 0.25);
+  box-shadow: 0 0 8px rgba(225, 184, 94, 0.28);
+  animation: poi-glow-breathe 3.4s ease-in-out infinite;
+  animation-delay: var(--poi-delay, 0s);
+}
+@keyframes poi-dot-twinkle {
+  0%, 100% { background: var(--foreground); box-shadow: 0 0 0 3px rgba(237, 230, 216, 0.2); }
+  42% { background: #f3d88d; box-shadow: 0 0 0 4px rgba(225, 184, 94, 0.38), 0 0 10px rgba(225, 184, 94, 0.55); }
+}
+@keyframes poi-glow-breathe {
+  0%, 100% { opacity: 0.18; transform: scale(0.72); }
+  42% { opacity: 0.85; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .poi-marker.is-default-twinkle .poi-dot,
+  .poi-marker.is-default-twinkle .poi-dot::after { animation: none; }
 }
 .poi-marker.is-on-route .poi-label {
   border-color: rgba(217, 81, 47, 0.7);
@@ -294,6 +321,9 @@
 .poi-marker.is-on-route .poi-dot {
   background: var(--primary);
   box-shadow: 0 0 0 4px rgba(217, 81, 47, 0.3);
+}
+.poi-marker.is-on-route .poi-dot::after {
+  display: none;
 }
 .poi-marker:hover .poi-label,
 .poi-marker:focus-visible .poi-label,
