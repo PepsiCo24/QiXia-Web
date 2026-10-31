@@ -29,15 +29,13 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
         <Image
           key={poi.id}
           src={`/images/poi/${poi.id}.jpg`}
-          alt={`${poi.name}实景示意图`}
+          alt={`${poi.name}风景`}
           fill
           sizes="(max-width: 768px) 100vw, 360px"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" aria-hidden="true" />
-        <span className="absolute left-3 top-3 rounded-sm bg-black/50 px-1.5 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
-          AI 示意图
-        </span>
+
         <button
           type="button"
           onClick={onClose}
@@ -49,7 +47,7 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
         <div className="absolute inset-x-3 bottom-2.5">
           <p className="flex items-center gap-1.5 text-[11px] text-white/80">
             <MapPin className="size-3" aria-hidden="true" />
-            {poi.category} · 海拔约 {poi.elevation} m · 坐标待核验
+            {poi.category} · 海拔约 {poi.elevation} m
           </p>
           <h3 id="poi-title" className="mt-0.5 font-serif text-xl font-bold text-white">
             {poi.name}
