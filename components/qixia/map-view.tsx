@@ -261,7 +261,7 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
           el.type = 'button'
           el.className = 'poi-marker'
           el.setAttribute('aria-label', `查看${poi.name}`)
-          el.innerHTML = `<span class="poi-dot"></span><span class="poi-label">${poi.name}</span>`
+          el.innerHTML = `<img class="poi-thumb" src="${poi.image}" alt="${poi.name}缩略图" loading="lazy" decoding="async" /><span class="poi-dot"></span><span class="poi-label">${poi.name}</span>`
           el.addEventListener('click', (ev) => {
             ev.stopPropagation()
             onSelectRef.current(poi.id)
