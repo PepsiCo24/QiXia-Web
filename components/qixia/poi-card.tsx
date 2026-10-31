@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Leaf, MapPin, X } from 'lucide-react'
 import { POI_MAP, crowdLevel, poiLoad } from '@/lib/qixia-data'
 import { cn } from '@/lib/utils'
@@ -23,28 +24,41 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
   const level = crowdLevel(load / poi.peakLoad)
 
   return (
-    <article aria-labelledby="poi-title" className="glass-panel w-full p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <MapPin className="size-3" aria-hidden="true" />
-            {poi.category} · 海拔约 {poi.elevation} m · 坐标待核验
-          </p>
-          <h3 id="poi-title" className="mt-1 font-serif text-xl font-bold text-foreground">
-            {poi.name}
-          </h3>
-        </div>
+    <article aria-labelledby="poi-title" className="glass-panel w-full overflow-hidden">
+      <div className="relative aspect-[16/9] w-full bg-secondary">
+        <Image
+          key={poi.id}
+          src={`/images/poi/${poi.id}.jpg`}
+          alt={`${poi.name}实景示意图`}
+          fill
+          sizes="(max-width: 768px) 100vw, 360px"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" aria-hidden="true" />
+        <span className="absolute left-3 top-3 rounded-sm bg-black/50 px-1.5 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
+          AI 示意图
+        </span>
         <button
           type="button"
           onClick={onClose}
           aria-label="关闭景点卡片"
-          className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          className="absolute right-2 top-2 rounded-md bg-black/40 p-1 text-white backdrop-blur-sm hover:bg-black/60"
         >
           <X className="size-4" />
         </button>
+        <div className="absolute inset-x-3 bottom-2.5">
+          <p className="flex items-center gap-1.5 text-[11px] text-white/80">
+            <MapPin className="size-3" aria-hidden="true" />
+            {poi.category} · 海拔约 {poi.elevation} m · 坐标待核验
+          </p>
+          <h3 id="poi-title" className="mt-0.5 font-serif text-xl font-bold text-white">
+            {poi.name}
+          </h3>
+        </div>
       </div>
 
-      <p className="mt-2 text-sm leading-relaxed text-foreground/90">{poi.brief}</p>
+      <div className="p-4 pt-3">
+      <p className=" text-sm leading-relaxed text-foreground/90">{poi.brief}</p>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{poi.story}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
@@ -64,6 +78,7 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
       >
         继续追问 {poi.name}
       </button>
+      </div>
     </article>
   )
 }
