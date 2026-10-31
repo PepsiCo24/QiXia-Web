@@ -24,6 +24,47 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const consumed = useRef(new Set<string>())
   const spoken = useRef('')
   const button = useRef<HTMLButtonElement>(null)
+  const gaze = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    if (preferences.hidden || dragController.isDragging || animation !== 'idle') return
+    let frame = 0
+    let pointer: { x: number; y: number } | null = null
+    const reset = () => {
+      pointer = null
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+      gaze.current?.style.setProperty('--pet-eye-x', '0px')
+      gaze.current?.style.setProperty('--pet-eye-y', '0px')
+      gaze.current?.style.removeProperty('transform')
+    }
+    const move = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
+      pointer = { x: event.clientX, y: event.clientY }
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const node = gaze.current
+        const rect = button.current?.getBoundingClientRect()
+        if (!node || !rect || !pointer) return
+        const dx = pointer.x - (rect.left + rect.width / 2)
+        const dy = pointer.y - (rect.top + rect.height * 0.36)
+        const x = Math.max(-1, Math.min(1, dx / 240))
+        const y = Math.max(-1, Math.min(1, dy / 200))
+        node.style.setProperty('--pet-eye-x', `${x * 1.5}px`)
+        node.style.setProperty('--pet-eye-y', `${y * 1.2}px`)
+        node.style.transform = preferences.reducedMotion || systemMotion ? 'none' : `rotate(${x * 0.35}deg) translateY(${y * 0.3}px)`
+      })
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    window.addEventListener('blur', reset)
+    document.documentElement.addEventListener('pointerleave', reset)
+    return () => {
+      reset()
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('blur', reset)
+      document.documentElement.removeEventListener('pointerleave', reset)
+    }
+  }, [preferences.hidden, preferences.reducedMotion, systemMotion, animation, dragController.isDragging])
   const commandRef = useRef(onCommand)
   commandRef.current = onCommand
   useEffect(() => {
@@ -67,7 +108,7 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
     {!open && !welcome && mapNotice && preferences.proactive && <button className="pet-welcome glass-panel text-left" onClick={() => onOpen(true)}>{mapNotice.text}</button>}
     {open && subtitle && <p className="pet-subtitle" aria-hidden="true">{subtitle}</p>}
     <button ref={button} type="button" className="pet-character" aria-label="栖霞灵猫，打开对话，可拖动" aria-expanded={open} aria-controls="pet-chat" onPointerEnter={() => { if (status === 'ready') play('curious', 1200) }} {...dragController.handlers} onClick={() => { dismissWelcome(); play('wave', 2000); onOpen(!open) }}>
-      <SpriteAnimator state={spriteAnimation} reducedMotion={preferences.reducedMotion || systemMotion} className="h-full w-full" /><span className="pet-name">栖霞灵猫 <span aria-hidden="true">✦</span></span>
+      <span ref={gaze} className="pet-gaze" style={{ display: 'block', transformOrigin: '50% 80%', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 180ms ease-out' }}>{spriteAnimation === 'idle' ? <span style={{ display: 'block', position: 'relative', width: '100%', aspectRatio: '1', animation: preferences.reducedMotion || systemMotion ? 'none' : 'pet-resting-sway 4.8s ease-in-out infinite' }}><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-base.png`} alt="栖霞灵猫" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-eyes.png`} alt="" aria-hidden="true" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', transform: 'translate(var(--pet-eye-x, 0px), var(--pet-eye-y, 0px))', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 120ms ease-out', pointerEvents: 'none' }} /></span> : <SpriteAnimator state={spriteAnimation} reducedMotion={preferences.reducedMotion || systemMotion} className="h-full w-full" />}</span><span className="pet-name">栖霞灵猫 <span aria-hidden="true">✦</span></span>
     </button>
     </aside>}
     {preferences.hidden && <button type="button" className="pet-welcome glass-panel" aria-label="恢复显示栖霞灵猫" onClick={() => setPreferences(p => ({ ...p, hidden: false }))}>恢复灵猫</button>}
