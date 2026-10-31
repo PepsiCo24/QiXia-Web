@@ -17,5 +17,3 @@ out/
 .pages-api/
 *.tsbuildinfo
 .DS_Store
-test-results/
-playwright-report/
