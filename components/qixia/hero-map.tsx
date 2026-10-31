@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { MapCommand } from '@/lib/pet/pet-actions'
 import { MapView, type LayerState } from './map-view'
 import { TopBar } from './top-bar'
 import { HourSlider, LayerPanel, LayerToggles } from './layer-panel'
@@ -13,13 +14,22 @@ interface HeroMapProps {
   personaId: PersonaId
   onPersonaChange: (id: PersonaId) => void
   onAsk: (question?: string) => void
+  command: { id: number; action: MapCommand } | null
+  onPoiSelect: (id: string) => void
 }
 
-export function HeroMap({ personaId, onPersonaChange, onAsk }: HeroMapProps) {
+export function HeroMap({ personaId, onPersonaChange, onAsk, command, onPoiSelect }: HeroMapProps) {
   const [layers, setLayers] = useState<LayerState>({ heat: true, devices: false, traffic: true, alerts: true })
   const [hour, setHour] = useState(11)
   const [selectedPoiId, setSelectedPoiId] = useState<string | null>(null)
 
+  const selectPoi = (id: string) => { setSelectedPoiId(id); onPoiSelect(id) }
+  useEffect(() => {
+    if (!command) return
+    const action = command.action
+    if (action.type === 'focus_place' || action.type === 'show_poi_card') setSelectedPoiId(action.poiId)
+    if (action.type === 'toggle_layer') setLayers(prev => ({ ...prev, [action.layer]: action.visible }))
+  }, [command])
   const toggleLayer = (key: keyof LayerState) => setLayers((prev) => ({ ...prev, [key]: !prev[key] }))
 
   return (
@@ -29,7 +39,7 @@ export function HeroMap({ personaId, onPersonaChange, onAsk }: HeroMapProps) {
         hour={hour}
         personaId={personaId}
         selectedPoiId={selectedPoiId}
-        onSelectPoi={setSelectedPoiId}
+        onSelectPoi={selectPoi}
       />
 
       <div className="map-vignette pointer-events-none absolute inset-0" aria-hidden="true" />
@@ -51,7 +61,7 @@ export function HeroMap({ personaId, onPersonaChange, onAsk }: HeroMapProps) {
         <PersonaPanel
           personaId={personaId}
           onPersonaChange={onPersonaChange}
-          onSelectPoi={setSelectedPoiId}
+          onSelectPoi={selectPoi}
           onAsk={() => onAsk()}
         />
       </div>

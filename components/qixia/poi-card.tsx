@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Leaf, MapPin, X } from 'lucide-react'
 import { POI_MAP, crowdLevel, poiLoad } from '@/lib/qixia-data'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ const TONE_CLASS = {
 }
 
 export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
+  const [collected, setCollected] = useState<string[]>([])
   const poi = POI_MAP[poiId]
   const load = poiLoad(poi, hour)
   const level = crowdLevel(load / poi.peakLoad)
@@ -51,10 +53,10 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
         <span className={cn('rounded-sm px-2 py-0.5', TONE_CLASS[level.tone])}>
           {String(hour).padStart(2, '0')}:00 · {level.label} · 约 {load} 人
         </span>
-        <span className="flex items-center gap-1 rounded-sm bg-secondary px-2 py-0.5 text-muted-foreground">
+        <button type="button" disabled={collected.includes(poiId)} onClick={() => { setCollected(prev => [...prev, poiId]); window.dispatchEvent(new CustomEvent('qixia-leaf-collected', { detail: { poiId } })) }} className="flex items-center gap-1 rounded-sm bg-secondary px-2 py-0.5 text-muted-foreground disabled:text-accent">
           <Leaf className="size-3 text-primary" aria-hidden="true" />
-          到达可解锁红枫叶章
-        </span>
+          {collected.includes(poiId) ? '已收集数字枫叶' : '收集数字枫叶纪念'}
+        </button>
       </div>
 
       <button
