@@ -12,6 +12,8 @@ interface PoiCardProps {
   onAsk: (question: string) => void
 }
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
 const TONE_CLASS = {
   low: 'bg-jade/15 text-jade',
   mid: 'bg-accent/15 text-accent',
@@ -25,7 +27,11 @@ export function PoiCard({ poiId, hour, onClose, onAsk }: PoiCardProps) {
   const level = crowdLevel(load / poi.peakLoad)
 
   return (
-    <article aria-labelledby="poi-title" className="glass-panel w-full p-4">
+    <article aria-labelledby="poi-title" className="glass-panel w-full overflow-hidden p-4">
+      <figure className="relative -mx-4 -mt-4 mb-3 aspect-[16/9] overflow-hidden bg-secondary">
+        <img src={`${BASE_PATH}${poi.image}`} alt={`${poi.name}景观`} loading="lazy" decoding="async" className="size-full object-cover" />
+        {poi.imageCredit && <figcaption className="absolute bottom-1 right-1.5 rounded-sm bg-black/45 px-1.5 py-0.5 text-[10px] text-white/85">{poi.imageCredit}</figcaption>}
+      </figure>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">

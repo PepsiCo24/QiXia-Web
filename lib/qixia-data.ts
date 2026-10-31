@@ -13,6 +13,8 @@ export interface Poi {
   elevation: number
   peakLoad: number
   hourlyCurve: 'morning' | 'midday' | 'afternoon' | 'sunset'
+  image: string
+  imageCredit?: string
 }
 
 export type PersonaId = 'family' | 'youth' | 'culture' | 'elder' | 'photo'
@@ -64,6 +66,7 @@ export const QIXIA_CENTER: LngLat = [118.9575, 32.1545]
 export const POIS: Poi[] = [
   {
     id: 'gate',
+    image: '/images/poi/gate.jpg',
     name: '南门游客中心',
     category: '服务',
     coordinates: [118.952, 32.1495],
@@ -75,6 +78,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'mirror-lake',
+    image: '/images/poi/mirror-lake.jpg',
     name: '明镜湖',
     category: '山水',
     coordinates: [118.9538, 32.1514],
@@ -86,6 +90,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'temple',
+    image: '/images/poi/temple.jpg',
     name: '栖霞寺',
     category: '寺院',
     coordinates: [118.9552, 32.153],
@@ -97,6 +102,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'stele',
+    image: '/images/poi/stele.jpg',
     name: '明征君碑',
     category: '古迹',
     coordinates: [118.9546, 32.1524],
@@ -108,6 +114,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'pagoda',
+    image: '/images/poi/pagoda.jpg',
     name: '舍利塔',
     category: '古迹',
     coordinates: [118.9566, 32.1534],
@@ -119,6 +126,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'grottoes',
+    image: '/images/poi/grottoes.jpg',
     name: '千佛岩',
     category: '石刻',
     coordinates: [118.9574, 32.154],
@@ -130,6 +138,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'palace',
+    image: '/images/poi/palace.jpg',
     name: '乾隆行宫遗址',
     category: '古迹',
     coordinates: [118.9592, 32.1548],
@@ -141,6 +150,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'peach-creek',
+    image: '/images/poi/peach-creek.jpg',
     name: '桃花涧',
     category: '山水',
     coordinates: [118.9606, 32.1531],
@@ -152,6 +162,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'tiankai',
+    image: '/images/poi/tiankai.jpg',
     name: '天开岩',
     category: '石刻',
     coordinates: [118.9548, 32.1566],
@@ -163,6 +174,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'dielang',
+    image: '/images/poi/dielang.jpg',
     name: '叠浪崖',
     category: '观景',
     coordinates: [118.9576, 32.1573],
@@ -174,6 +186,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'maple-ridge',
+    image: '/images/poi/maple-ridge.jpg',
     name: '枫岭',
     category: '观景',
     coordinates: [118.9618, 32.156],
@@ -185,6 +198,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'summit',
+    image: '/images/poi/summit.jpg',
     name: '凤翔峰',
     category: '观景',
     coordinates: [118.962, 32.1589],
@@ -196,6 +210,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'biyun',
+    image: '/images/poi/biyun.jpg',
     name: '碧云亭观景台',
     category: '观景',
     coordinates: [118.959, 32.16],
@@ -204,6 +219,78 @@ export const POIS: Poi[] = [
     elevation: 240,
     peakLoad: 260,
     hourlyCurve: 'sunset',
+  },
+  {
+    id: 'shamao-peak', image: '/images/poi/summit.jpg', name: '纱帽峰', category: '观景', coordinates: [118.9578, 32.1552],
+    brief: '位于千佛岩之巅，因峰形与纱帽相似得名，乾隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'banruo-platform', image: '/images/poi/temple.jpg', name: '般若台', category: '古迹', coordinates: [118.9558, 32.1548],
+    brief: '位于西峰的古代石刻台地，与四十二章经善本和慧光法师有关。', story: '这里保留了栖霞山佛教文化与碑刻传统的线索，适合文化路线停留。', elevation: 78, peakLoad: 220, hourlyCurve: 'midday',
+  },
+  {
+    id: 'lingfeng-pond', image: '/images/poi/peach-creek.jpg', name: '玲峰池', category: '山水', coordinates: [118.9586, 32.1558],
+    brief: '位于中峰一侧、乾隆行宫内的历史水景，旧称水面清澈可鉴。', story: '玲峰池与行宫遗址、石梁相望，是山中人文水景节点。', elevation: 92, peakLoad: 180, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'shihuang-riverside', image: '/images/poi/biyun.jpg', name: '始皇临江处', category: '观景', coordinates: [118.9626, 32.161],
+    brief: '观光车线路中的临江观景点，可远望长江与山下平原。', story: '适合与碧云亭、凤翔峰串联游览，具体视野受天气影响。', elevation: 220, peakLoad: 380, hourlyCurve: 'sunset',
+  },
+  {
+    id: 'middle-creek', image: '/images/poi/peach-creek.jpg', name: '中峰涧', category: '山水', coordinates: [118.9598, 32.1565],
+    brief: '山中涧水汇入明镜湖的自然水系节点。', story: '雨后水声更明显，沿涧行走请注意湿滑路面。', elevation: 80, peakLoad: 260, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'one-line-sky', image: '/images/poi/tiankai.jpg', name: '一线天', category: '石刻', coordinates: [118.9562, 32.156],
+    brief: '两块巨石夹立，中间仅留一线天光的天然石景。', story: '狭窄岩隙是栖霞山自然奇观之一，通行时请听从现场指引。', elevation: 110, peakLoad: 300, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'tiger-mountain', image: '/images/poi/maple-ridge.jpg', name: '虎山', category: '观景', coordinates: [118.9508, 32.158],
+    brief: '栖霞山西北侧山体，适合从山林视角观察栖霞山地形。', story: '虎山属于山体地名节点，路线与开放情况以景区现场信息为准。', elevation: 170, peakLoad: 180, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'dragon-mountain', image: '/images/poi/maple-ridge.jpg', name: '龙山', category: '观景', coordinates: [118.964, 32.158],
+    brief: '栖霞山东北侧山体，连接林地与远眺视线。', story: '龙山适合作为山林地理知识点查看，不代表当前开放登山线路。', elevation: 190, peakLoad: 180, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'red-leaf-valley', image: '/images/poi/maple-ridge.jpg', name: '红叶谷', category: '观景', coordinates: [118.9535, 32.157],
+    brief: '成片枫叶形成的山谷，秋季空气清新、视线开阔。', story: '红叶谷是栖霞山秋季观景的重要区域，最佳效果受当年转色进度影响。', elevation: 100, peakLoad: 750, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'qixia-flying', image: '/images/poi/grottoes.jpg', name: '栖霞飞天', category: '石刻', coordinates: [118.957, 32.1542],
+    brief: '千佛岩内发现的保存较完整的壁画遗存。', story: '栖霞飞天补充了千佛岩石刻之外的壁画线索，参观范围以现场保护安排为准。', elevation: 58, peakLoad: 220, hourlyCurve: 'midday',
+  },
+  {
+    id: 'peach-lake', image: '/images/poi/peach-creek.jpg', name: '桃花湖', category: '山水', coordinates: [118.961, 32.154],
+    brief: '桃花涧中游的水景区域，春季桃花沿涧盛开。', story: '桃花湖与桃花涧共同构成山中休憩与赏花节点。', elevation: 60, peakLoad: 320, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'hengha-hall', image: '/images/poi/temple.jpg', name: '哼哈殿', category: '寺院', coordinates: [118.9548, 32.1528],
+    brief: '栖霞寺山门，也称金刚殿，供奉哼哈二将。', story: '哼哈殿是进入寺院核心建筑群前的门殿节点。', elevation: 38, peakLoad: 520, hourlyCurve: 'midday',
+  },
+  {
+    id: 'lingyun-platform', image: '/images/poi/palace.jpg', name: '有凌云意观景平台', category: '观景', coordinates: [118.9602, 32.1552],
+    brief: '乾隆行宫中的观景建筑，可作为行宫遗址游览的一部分。', story: '名称取自登高临远的意境，具体遗址展示以现场说明为准。', elevation: 86, peakLoad: 220, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'qianlong-garden', image: '/images/poi/palace.jpg', name: '乾隆御花园', category: '古迹', coordinates: [118.9598, 32.1548],
+    brief: '乾隆行宫相关园林遗址，记录清代皇家行幸栖霞的痕迹。', story: '可与乾隆行宫遗址、玲峰池一并了解栖霞山的清代历史。', elevation: 74, peakLoad: 260, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'liaofan-qiuxin', image: '/images/poi/temple.jpg', name: '了凡问道', category: '古迹', coordinates: [118.9578, 32.1578],
+    brief: '讲述袁了凡与云谷禅师问道故事的文化景点。', story: '这个节点适合结合《了凡四训》了解明代人物与栖霞山的文化关联。', elevation: 135, peakLoad: 160, hourlyCurve: 'afternoon',
+  },
+  {
+    id: 'bell-drum-towers', image: '/images/poi/temple.jpg', name: '钟鼓楼', category: '寺院', coordinates: [118.9558, 32.1534],
+    brief: '栖霞寺内的钟楼与鼓楼，早晚叩钟相传为一百零八响。', story: '钟鼓楼是寺院礼仪与时间秩序的重要空间，开放和活动以现场安排为准。', elevation: 43, peakLoad: 420, hourlyCurve: 'midday',
+  },
+  {
+    id: 'wolun-pavilion', image: '/images/poi/maple-ridge.jpg', name: '卧云亭', category: '观景', coordinates: [118.963, 32.162],
+    brief: '卧云景区内恢复的明代意境景观节点。', story: '卧云亭以山林、亭台与云气意象为特色，具体路线以景区开放信息为准。', elevation: 210, peakLoad: 200, hourlyCurve: 'sunset',
+  },
+  {
+    id: 'middle-road-maple', image: '/images/poi/maple-ridge.jpg', name: '中大路赏枫段', category: '观景', coordinates: [118.9528, 32.156],
+    brief: '中大路沿线的红枫观赏路段，秋季进入全盛期时色彩集中。', story: '适合把它当作连续赏枫路段浏览，而非单一建筑景点。', elevation: 92, peakLoad: 680, hourlyCurve: 'afternoon',
   },
 ]
 
