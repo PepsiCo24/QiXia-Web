@@ -13,7 +13,7 @@ import { localReply } from '@/lib/pet/pet-knowledge'
 function scrollToMap() { document.getElementById('map')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 
 export function QixiaExperience() {
-  const [personaId, setPersonaId] = useState<PersonaId>('family')
+  const [personaId, setPersonaId] = useState<PersonaId>('default')
   const [open, setOpen] = useState(false)
   const [command, setCommand] = useState<{ id: number; action: MapCommand } | null>(null)
   const commandId = useRef(0)
@@ -31,6 +31,7 @@ export function QixiaExperience() {
     if (action.type !== 'play_animation') scrollToMap()
   }
   const send = (text: string, demo = false) => {
+    const agentPersona = personaId === 'default' ? 'family' : personaId;
     setOpen(true)
     if (staticWithoutAgent) {
       const reply = demo ? localReply(text, personaId) : null
@@ -41,7 +42,7 @@ export function QixiaExperience() {
           ...(reply?.commands.map(data => ({ type: 'data-map-command' as const, data })) || []),
         ] },
       ])
-    } else void sendMessage({ text }, { body: { persona: personaId, demo } })
+    } else void sendMessage({ text }, { body: { persona: agentPersona, demo } })
   }
   const askFromMap = (question?: string) => { setOpen(true); if (question) send(question) }
   return <main className="qixia-viewport bg-background text-foreground">

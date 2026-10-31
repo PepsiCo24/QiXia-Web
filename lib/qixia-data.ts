@@ -17,7 +17,9 @@ export interface Poi {
   imageCredit?: string
 }
 
-export type PersonaId = 'family' | 'youth' | 'culture' | 'elder' | 'photo'
+export type PersonaId = 'default' | 'family' | 'youth' | 'culture' | 'elder' | 'photo'
+
+export const DEFAULT_POI_IDS = ['mirror-lake', 'temple', 'pagoda', 'grottoes', 'red-leaf-valley', 'shihuang-riverside', 'peach-lake', 'biyun'] as const
 
 export interface Persona {
   id: PersonaId

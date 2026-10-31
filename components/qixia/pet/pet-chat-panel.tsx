@@ -36,7 +36,7 @@ export function PetChatPanel(p: PetChatProps) {
   useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'instant' }) }, [p.messages, p.status])
   const submit = (text: string) => { if (text.trim() && !busy) { p.onSend(text.trim()); p.onInput('') } }
   return <section id="pet-chat" role="dialog" aria-modal="false" aria-labelledby="pet-title" className={`pet-chat glass-panel ${p.personaId === 'elder' ? 'pet-large' : ''}`} onKeyDown={e => { if (e.key === 'Escape') p.onClose() }}>
-    <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3"><div><h2 id="pet-title" className="font-serif text-lg text-accent">栖霞灵猫</h2><p className="text-xs text-muted-foreground">山间向导 · {PERSONA_MAP[p.personaId].name}</p></div><div className="flex gap-1">
+    <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3"><div><h2 id="pet-title" className="font-serif text-lg text-accent">栖霞灵猫</h2><p className="text-xs text-muted-foreground">山间向导 · {PERSONA_MAP[p.personaId === 'default' ? 'family' : p.personaId].name}</p></div><div className="flex gap-1">
       <button aria-label="灵猫设置" aria-expanded={settings} onClick={() => setSettings(!settings)} className="pet-icon"><Settings size={17} /></button>
       <button aria-label="最小化对话" onClick={p.onClose} className="pet-icon"><Minus size={17} /></button>
       <button aria-label="关闭对话" onClick={p.onClose} className="pet-icon"><X size={17} /></button>

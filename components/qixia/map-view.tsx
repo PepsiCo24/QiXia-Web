@@ -13,6 +13,7 @@ import type { NavProgress } from "@/lib/navigation";
 import type { NavigationSession } from "@/lib/use-navigation";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
+  DEFAULT_POI_IDS,
   DEVICES,
   POIS,
   POI_MAP,
@@ -134,6 +135,7 @@ const STATUS_COLOR = [
 ] as const;
 
 function routeGeoJSON(personaId: PersonaId): Feature<LineString> {
+  if (personaId === 'default') return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
   return {
     type: "Feature",
     properties: {},
@@ -679,7 +681,7 @@ export function MapView({
     const map = mapRef.current;
     if (!ready || !map) return;
 
-    const stops = PERSONA_MAP[personaId].stops;
+    const stops = personaId === 'default' ? [...DEFAULT_POI_IDS] : PERSONA_MAP[personaId].stops;
     const coords = stops.map((id) => POI_MAP[id].coordinates);
 
     (map.getSource("route-approx") as GeoJSONSource | undefined)?.setData(
@@ -691,7 +693,12 @@ export function MapView({
 
     poiElements.current.forEach((el, id) => {
       const index = stops.indexOf(id);
-      el.classList.toggle("is-on-route", index >= 0);
+      const isOnRoute = index >= 0;
+      const isDefaultMode = personaId === "default";
+      el.style.display = isOnRoute ? "" : "none";
+      el.style.setProperty("--poi-delay", isDefaultMode ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s` : "0s");
+      el.classList.toggle("is-on-route", isOnRoute && !isDefaultMode);
+      el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
       el.dataset.order =
         index === 0
           ? "起"
@@ -705,6 +712,8 @@ export function MapView({
         el.dataset.order,
       );
     });
+
+    if (personaId === 'default') return;
 
     let cancelled = false;
     fetch("/api/route/walking", {
