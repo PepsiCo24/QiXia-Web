@@ -143,11 +143,43 @@ export function MapView({ layers, hour, personaId, selectedPoiId, onSelectPoi }:
         if (!map || !containerRef.current) return
         containerRef.current.dataset.zoom = map.getZoom().toFixed(2)
         containerRef.current.dataset.bearing = map.getBearing().toFixed(2)
+        containerRef.current.dataset.pitch = map.getPitch().toFixed(2)
         containerRef.current.dataset.center = map.getCenter().toArray().join(',')
       }
       map.on('moveend', publish)
       map.on('load', () => { if (containerRef.current) containerRef.current.dataset.mapReady = 'true'; publish() })
       map.addControl(new ml.NavigationControl({ visualizePitch: true }), 'bottom-right')
+      // The compass resets north; provide a separate, reversible pitch control.
+      map.addControl({
+        onAdd(controlMap) {
+          const group = document.createElement('div')
+          group.className = 'maplibregl-ctrl maplibregl-ctrl-group'
+          const button = document.createElement('button')
+          button.type = 'button'
+          button.className = 'qixia-view-toggle'
+          const sync = () => {
+            const overhead = controlMap.getPitch() < 10
+            button.textContent = overhead ? '三维' : '俯视'
+            button.title = overhead ? '切换三维视角' : '切换俯视视角'
+            button.setAttribute('aria-label', button.title)
+            button.setAttribute('aria-pressed', String(overhead))
+          }
+          button.onclick = () => {
+            containerRef.current?.dispatchEvent(new Event('stopspin'))
+            const overhead = controlMap.getPitch() < 10
+            controlMap.stop()
+            controlMap.easeTo({
+              pitch: overhead ? 64 : 0,
+              duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700,
+            })
+          }
+          group.append(button)
+          controlMap.on('pitch', sync)
+          sync()
+          return group
+        },
+        onRemove() {},
+      }, 'bottom-right')
 
       map.on('error', (e) => {
         console.error('Map error:', e.error?.message)
