@@ -347,3 +347,8 @@
     scroll-behavior: auto;
   }
 }
+
+.pet-character canvas.pet-resting { animation: pet-resting-sway 4.8s ease-in-out infinite; transform-origin: 50% 92%; }
+@keyframes pet-resting-sway { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-1px) rotate(0.35deg); } }
+
+@media (prefers-reduced-motion: reduce) { .pet-character canvas.pet-resting { animation: none; } }
