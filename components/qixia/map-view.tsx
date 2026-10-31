@@ -691,7 +691,9 @@ export function MapView({
 
     poiElements.current.forEach((el, id) => {
       const index = stops.indexOf(id);
-      el.classList.toggle("is-on-route", index >= 0);
+      const isOnRoute = index >= 0;
+      el.style.display = isOnRoute ? "" : "none";
+      el.classList.toggle("is-on-route", isOnRoute);
       el.dataset.order =
         index === 0
           ? "起"
