@@ -217,13 +217,13 @@ export const POIS: Poi[] = [
     category: '观景',
     coordinates: [118.959, 32.16],
     brief: '朝西开阔的观景平台，是摄影爱好者拍摄日落与江景的首选位置。',
-    story: '10 月底日落约 17:20，最佳光线窗口在 16:30–17:15。平台面积有限，高峰时段请���峰停留。',
+    story: '10 月底日落约 17:20，最佳光线窗口在 16:30–17:15。平台面积有限，高峰时段请勿长时间停留。',
     elevation: 240,
     peakLoad: 260,
     hourlyCurve: 'sunset',
   },
   {
-    id: 'shamao-peak', image: '/images/poi/kb-14.jpg', name: '纱帽峰', category: '观景', coordinates: [118.9578, 32.1552],
+    id: 'shamao-peak', image: '/images/poi/kb-14.jpg', name: '纱��峰', category: '观景', coordinates: [118.9578, 32.1552],
     brief: '位于千佛岩之巅，因峰形与纱帽相似得名，���隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
   },
   {
