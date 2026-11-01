@@ -26,6 +26,12 @@ pnpm start --hostname 0.0.0.0 --port 3000
 
 开发模式：`pnpm dev`。
 
+## 栖小猫 · 栖霞留影
+
+地图下方点击「开始留影」，或访问 `/photo`。支持四款相框、摄像头三秒倒计时、本机上传、自然滤镜、裁切与高清下载，以及公共大屏超时清理。摄像头需 HTTPS 或 localhost；不上传照片、不生成假领取二维码。
+
+使用、架构、待替换相框设计稿、隐私和后续服务接入说明见 [留影模块说明](docs/photo-studio.md)。回归测试运行 `pnpm exec playwright test tests/photo.spec.ts`（先在 3001 端口启动站点）。
+
 ## 外部服务
 
 - AI 导游通过 Vercel AI Gateway 调用 `google/gemini-3.8-flash`，需要有效的 `AI_GATEWAY_API_KEY`。未配置时，浏览页面可以运行，但 AI 对话不可用。
