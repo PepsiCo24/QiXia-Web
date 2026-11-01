@@ -134,20 +134,6 @@ const STATUS_COLOR = [
   "#d9503a",
 ] as const;
 
-function routeGeoJSON(personaId: PersonaId): Feature<LineString> {
-  if (personaId === 'default') return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
-  return {
-    type: "Feature",
-    properties: {},
-    geometry: {
-      type: "LineString",
-      coordinates: PERSONA_MAP[personaId].stops.map(
-        (id) => POI_MAP[id].coordinates,
-      ),
-    },
-  };
-}
-
 function emptyFeatureCollection(): FeatureCollection {
   return { type: "FeatureCollection", features: [] };
 }
@@ -225,21 +211,24 @@ export function MapView({
         keyboard: true,
         cooperativeGestures: false,
         attributionControl: { compact: true },
-      })
-      mapRef.current = map
+      });
+      mapRef.current = map;
       // Retain cursor-anchored wheel/trackpad zoom and give the canvas keyboard focus.
-      map.scrollZoom.setWheelZoomRate(1 / 350)
-      map.scrollZoom.setZoomRate(1 / 100)
-      const canvas = map.getCanvas()
-      canvas.tabIndex = 0
-      canvas.setAttribute('aria-label', '栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放')
-      map.on('mousedown', () => canvas.focus({ preventScroll: true }))
-      observer = new ResizeObserver(() => map?.resize())
-      observer.observe(containerRef.current)
-      overlayObserver = new MutationObserver(() => map?.resize())
-      const section = containerRef.current.closest('section')
-      if (section) overlayObserver.observe(section, { attributes: true })
-      containerRef.current.dataset.mapReady = 'false'
+      map.scrollZoom.setWheelZoomRate(1 / 350);
+      map.scrollZoom.setZoomRate(1 / 100);
+      const canvas = map.getCanvas();
+      canvas.tabIndex = 0;
+      canvas.setAttribute(
+        "aria-label",
+        "栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放",
+      );
+      map.on("mousedown", () => canvas.focus({ preventScroll: true }));
+      observer = new ResizeObserver(() => map?.resize());
+      observer.observe(containerRef.current);
+      overlayObserver = new MutationObserver(() => map?.resize());
+      const section = containerRef.current.closest("section");
+      if (section) overlayObserver.observe(section, { attributes: true });
+      containerRef.current.dataset.mapReady = "false";
       const publish = () => {
         if (!map || !containerRef.current) return;
         containerRef.current.dataset.zoom = map.getZoom().toFixed(2);
@@ -418,24 +407,9 @@ export function MapView({
           paint: { "line-color": "#d9af69", "line-width": 3.5 },
         });
 
-        // 示意路线段（景区内部步道无路网数据）：虚线
-        map.addSource("route-approx", {
-          type: "geojson",
-          data: routeGeoJSON(personaId),
-        });
-        map.addLayer({
-          id: "route-approx",
-          type: "line",
-          source: "route-approx",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": "#d9af69",
-            "line-width": 3.5,
-            "line-dasharray": [2, 1.5],
-          },
-        });
-
         // 导航路线 - 真实路网段（蓝色实线）
+        // 注意：产品要求「绝不允许出现两点直连线」——高德无路网/请求失败的段一律不画，
+        // 服务端会多次重试尽量保证全部段都是真实路网。
         map.addSource("nav-path-real", {
           type: "geojson",
           data: emptyFeatureCollection(),
@@ -458,23 +432,6 @@ export function MapView({
           source: "nav-path-real",
           layout: { "line-cap": "round", "line-join": "round" },
           paint: { "line-color": "#4d9dff", "line-width": 5 },
-        });
-
-        // 导航路线 - 无路网数据的示意段（橙色虚线，明确区别于真实路线）
-        map.addSource("nav-path-approx", {
-          type: "geojson",
-          data: emptyFeatureCollection(),
-        });
-        map.addLayer({
-          id: "nav-path-approx",
-          type: "line",
-          source: "nav-path-approx",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": "#e8a33c",
-            "line-width": 4,
-            "line-dasharray": [2, 2],
-          },
         });
 
         map.addSource("devices", {
@@ -521,7 +478,12 @@ export function MapView({
             onSelectRef.current(poi.id);
           });
           poiElements.current.set(poi.id, el);
-          new ml.Marker({ element: el, anchor: "bottom", opacity: "1", opacityWhenCovered: "1" })
+          new ml.Marker({
+            element: el,
+            anchor: "bottom",
+            opacity: "1",
+            opacityWhenCovered: "1",
+          })
             .setLngLat(poi.coordinates)
             .addTo(map!);
         });
@@ -606,28 +568,31 @@ export function MapView({
       ).matches;
       if (!reduceMotion) {
         const spin = () => {
-          if (!map) return
-          map.setBearing(map.getBearing() + 0.025)
-          frame = requestAnimationFrame(spin)
-        }
-        let stopped = false
-        const stop = () => { stopped = true; cancelAnimationFrame(frame) }
-        map.once('load', () => {
-          if (!stopped) frame = requestAnimationFrame(spin)
-        })
+          if (!map) return;
+          map.setBearing(map.getBearing() + 0.025);
+          frame = requestAnimationFrame(spin);
+        };
+        let stopped = false;
+        const stop = () => {
+          stopped = true;
+          cancelAnimationFrame(frame);
+        };
+        map.once("load", () => {
+          if (!stopped) frame = requestAnimationFrame(spin);
+        });
         // Stop before MapLibre's wheel animation starts, so rotation cannot cancel zoom.
-        map.getCanvas().addEventListener('wheel', stop, { passive: true })
-        map.getCanvas().addEventListener('keydown', stop)
-        map.on('zoomstart', stop)
-        map.on('rotatestart', (e) => {
-          if ((e as { originalEvent?: Event }).originalEvent) stop()
-        })
-        map.on('mousedown', stop)
-        map.on('touchstart', stop)
-        map.on('movestart', (e) => {
-          if ((e as { originalEvent?: Event }).originalEvent) stop()
-        })
-        containerRef.current.addEventListener('stopspin', stop)
+        map.getCanvas().addEventListener("wheel", stop, { passive: true });
+        map.getCanvas().addEventListener("keydown", stop);
+        map.on("zoomstart", stop);
+        map.on("rotatestart", (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop();
+        });
+        map.on("mousedown", stop);
+        map.on("touchstart", stop);
+        map.on("movestart", (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop();
+        });
+        containerRef.current.addEventListener("stopspin", stop);
       }
     });
 
@@ -682,12 +647,12 @@ export function MapView({
     const map = mapRef.current;
     if (!ready || !map) return;
 
-    const stops = personaId === 'default' ? [...DEFAULT_POI_IDS] : PERSONA_MAP[personaId].stops;
+    const stops =
+      personaId === "default"
+        ? [...DEFAULT_POI_IDS]
+        : PERSONA_MAP[personaId].stops;
     const coords = stops.map((id) => POI_MAP[id].coordinates);
 
-    (map.getSource("route-approx") as GeoJSONSource | undefined)?.setData(
-      routeGeoJSON(personaId),
-    );
     (map.getSource("route-real") as GeoJSONSource | undefined)?.setData(
       emptyFeatureCollection(),
     );
@@ -697,7 +662,12 @@ export function MapView({
       const isOnRoute = index >= 0;
       const isDefaultMode = personaId === "default";
       el.style.display = isOnRoute ? "" : "none";
-      el.style.setProperty("--poi-delay", isDefaultMode ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s` : "0s");
+      el.style.setProperty(
+        "--poi-delay",
+        isDefaultMode
+          ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s`
+          : "0s",
+      );
       el.classList.toggle("is-on-route", isOnRoute && !isDefaultMode);
       el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
       el.dataset.order =
@@ -714,7 +684,7 @@ export function MapView({
       );
     });
 
-    if (personaId === 'default') return;
+    if (personaId === "default") return;
 
     let cancelled = false;
     fetch("/api/route/walking", {
@@ -727,17 +697,14 @@ export function MapView({
         if (cancelled || !data?.segments) return;
         const current = mapRef.current;
         if (!current) return;
+        // 只画真实路网段；无路网/失败的段不画（产品要求：绝不允许出现两点直连线）
         const real = data.segments.filter((s) => s.mode === "real");
-        const approx = data.segments.filter((s) => s.mode === "approx");
         (current.getSource("route-real") as GeoJSONSource | undefined)?.setData(
           segmentsToFeatureCollection(real),
         );
-        (
-          current.getSource("route-approx") as GeoJSONSource | undefined
-        )?.setData(segmentsToFeatureCollection(approx));
       })
       .catch(() => {
-        // 接口不可用时保留示意虚线兜底
+        // 接口不可用时不画任何兜底直线，等服务端重试成功后再上屏
       });
 
     return () => {
@@ -804,32 +771,21 @@ export function MapView({
       (map.getSource("nav-path-real") as GeoJSONSource | undefined)?.setData(
         emptyFeatureCollection(),
       );
-      (map.getSource("nav-path-approx") as GeoJSONSource | undefined)?.setData(
-        emptyFeatureCollection(),
-      );
       map.setLayoutProperty("route-real", "visibility", "visible");
       map.setLayoutProperty("route-real-glow", "visibility", "visible");
-      map.setLayoutProperty("route-approx", "visibility", "visible");
       return;
     }
 
     // 导航中隐藏常规路线，只保留导航路线
     map.setLayoutProperty("route-real", "visibility", "none");
     map.setLayoutProperty("route-real-glow", "visibility", "none");
-    map.setLayoutProperty("route-approx", "visibility", "none");
 
-    // 1) 导航路线：真实段（蓝色实线）与示意段（橙色虚线）分开画，避免兜底直线冒充真实路线
+    // 1) 导航路线：只画真实路网段（蓝色实线）；无路网/失败段不画（绝不允许直连线）
     const realSegments = navigation.session.segments.filter(
       (segment) => segment.mode === "real",
     );
-    const approxSegments = navigation.session.segments.filter(
-      (segment) => segment.mode === "approx",
-    );
     (map.getSource("nav-path-real") as GeoJSONSource | undefined)?.setData(
       segmentsToFeatureCollection(realSegments),
-    );
-    (map.getSource("nav-path-approx") as GeoJSONSource | undefined)?.setData(
-      segmentsToFeatureCollection(approxSegments),
     );
 
     // 2) 用户位置 + 跟随
@@ -863,8 +819,30 @@ export function MapView({
 
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
-      <div className="map-interaction-help glass-panel"><details><summary>地图操作</summary><p className="map-help-desktop">滚轮缩放 · 左键拖动平移<br />右键拖动旋转 / 倾斜 · 双击放大<br />点击地图后，方向键平移，+ / − 缩放</p><p className="map-help-touch">单指拖动平移 · 双指捏合缩放<br />双指旋转方向 · 双指上下滑动倾斜</p><p>面板内滚动浏览内容；在地图外滚动浏览页面。</p></details></div>
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        aria-label="栖霞山三维地形地图"
+        role="application"
+      />
+      <div className="map-interaction-help glass-panel">
+        <details>
+          <summary>地图操作</summary>
+          <p className="map-help-desktop">
+            滚轮缩放 · 左键拖动平移
+            <br />
+            右键拖动旋转 / 倾斜 · 双击放大
+            <br />
+            点击地图后，方向键平移，+ / − 缩放
+          </p>
+          <p className="map-help-touch">
+            单指拖动平移 · 双指捏合缩放
+            <br />
+            双指旋转方向 · 双指上下滑动倾斜
+          </p>
+          <p>面板内滚动浏览内容；在地图外滚动浏览页面。</p>
+        </details>
+      </div>
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">

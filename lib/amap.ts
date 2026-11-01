@@ -123,11 +123,7 @@ async function requestWalkingSegment(
   url.searchParams.set("destination", `${destination[0]},${destination[1]}`);
   url.searchParams.set("key", key);
 
-  // 高德偶发超时/限流：重试一次再兜底，减少不必要的示意段
-  const isQpsLimited = (data: { info?: string; infocode?: string }) =>
-    (data.info ?? "").includes("CUQPS_HAS_EXCEEDED_THE_LIMIT") ||
-    data.infocode === "10021";
-
+  // 高德偶发超时/限流：重试三次（退避递增）再兜底，尽量不让临时故障漏出直线
   let payload: {
     status?: string;
     route?: {
@@ -143,7 +139,7 @@ async function requestWalkingSegment(
     };
   } | null = null;
 
-  for (let attempt = 0; attempt < 2 && !payload; attempt += 1) {
+  for (let attempt = 0; attempt < 3 && !payload; attempt += 1) {
     try {
       const res = await fetch(url, {
         cache: "no-store",
@@ -152,9 +148,11 @@ async function requestWalkingSegment(
       const data = await res.json();
       if (data.status === "1" && data.route?.paths?.length) {
         payload = data;
-      } else if (isQpsLimited(data) && attempt === 0) {
-        // 高德 QPS 限流：稍等片刻重试，而不是直接退化成示意段
-        await new Promise((resolve) => setTimeout(resolve, QPS_RETRY_DELAY));
+      } else if (attempt < 2) {
+        // 高德 QPS 限流 / 瞬时故障：退避递增后重试，绝不轻易退化成直线
+        await new Promise((resolve) =>
+          setTimeout(resolve, QPS_RETRY_DELAY * (attempt + 1)),
+        );
       }
     } catch {
       // 网络异常：进入下一轮重试
@@ -201,28 +199,48 @@ async function requestWalkingSegment(
 const ROUTE_CONCURRENCY = 2;
 
 /** 逐段规划：相邻两个 POI 之间分别判定 real / approx。
- *  用并发 2 的工作池代替串行 await——串行在 4s 超时 × 2 次重试下，
- *  5 停靠点最坏要 32 秒，线上 serverless 函数会先被平台超时掐死。 */
+ *  用并发 2 的工作池代替串行 await——串行在 4s 超时 × 重试下，
+ *  5 停靠点最坏要几十秒，线上 serverless 函数会先被平台超时掐死。
+ *  首轮算完后，对仍然退化为示意的段再补算一轮：临时限流/超时
+ *  不该在界面上留下两点直连线（此时其余段已进缓存，重试无 QPS 压力）。 */
 export async function planWalkingRoute(
   stops: LngLat[],
 ): Promise<RouteSegment[]> {
   const segmentCount = Math.max(stops.length - 1, 0);
-  const segments: RouteSegment[] = new Array(segmentCount);
+  const segments = await planSegments(stops, segmentCount);
+
+  const pending = segments
+    .map((segment, index) => (segment.mode === "approx" ? index : -1))
+    .filter((index) => index >= 0);
+  if (pending.length) {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const retried = await planSegments(stops, segmentCount, pending);
+    pending.forEach((index, i) => {
+      if (retried[i].mode === "real") segments[index] = retried[i];
+    });
+  }
+  return segments;
+}
+
+function planSegments(
+  stops: LngLat[],
+  segmentCount: number,
+  only?: number[],
+): Promise<RouteSegment[]> {
+  const targets = only ?? Array.from({ length: segmentCount }, (_, i) => i);
+  const segments: RouteSegment[] = new Array(targets.length);
 
   let cursor = 0;
-  const workerCount = Math.min(ROUTE_CONCURRENCY, segmentCount) || 1;
+  const workerCount = Math.min(ROUTE_CONCURRENCY, targets.length) || 1;
   const workers = Array.from({ length: workerCount }, async () => {
-    while (cursor < segmentCount) {
-      const index = cursor;
+    while (cursor < targets.length) {
+      const slot = cursor;
       cursor += 1;
-      segments[index] = await planWalkingSegment(
-        stops[index],
-        stops[index + 1],
-      );
+      const index = targets[slot];
+      segments[slot] = await planWalkingSegment(stops[index], stops[index + 1]);
     }
   });
-  await Promise.all(workers);
-  return segments;
+  return Promise.all(workers).then(() => segments);
 }
 
 /** 把整条路线的 steps 展平成一维指令序列，并标注所属 segment */
