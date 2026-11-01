@@ -864,7 +864,6 @@ export function MapView({
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
-      <div className="map-interaction-help glass-panel"><details><summary>地图操作</summary><p className="map-help-desktop">滚轮缩放 · 左键拖动平移<br />右键拖动旋转 / 倾斜 · 双击放大<br />点击地图后，方向键平移，+ / − 缩放</p><p className="map-help-touch">单指拖动平移 · 双指捏合缩放<br />双指旋转方向 · 双指上下滑动倾斜</p><p>面板内滚动浏览内容；在地图外滚动浏览页面。</p></details></div>
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
