@@ -1,0 +1,14 @@
+.qixia-amap-view .amap-container { background: #0b100e; font-family: inherit; }
+.qixia-amap-view [role="application"]:focus-visible { outline: 2px solid var(--route-gold); outline-offset: -2px; }
+.qixia-amap-controls { position: absolute; right: 18px; bottom: 65px; z-index: 45; display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; }
+.qixia-amap-controls button { width: 40px; height: 40px; color: var(--foreground); cursor: pointer; font-size: 14px; font-weight: 600; }
+.qixia-amap-controls button + button { border-top: 1px solid var(--border); }
+.qixia-amap-controls button:hover { background: rgba(255,255,255,.12); }
+.qixia-amap-controls button:focus-visible { outline: 2px solid var(--route-gold); outline-offset: -3px; }
+.qixia-device-dot { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--device-color); border: 1.5px solid #0b100e; box-shadow: 0 0 0 7px color-mix(in srgb, var(--device-color) 18%, transparent); }
+.qixia-amap-view .poi-marker.label-muted:not(:hover):not(:focus-visible):not(.is-selected) .poi-thumb { visibility: hidden; }
+.qixia-amap-view .poi-marker.label-muted { pointer-events: none; }
+.qixia-amap-view .poi-marker.label-muted .poi-dot { pointer-events: auto; }
+/* Keep AMap's native logo and copyright visible and clickable. */
+.qixia-amap-view .amap-logo, .qixia-amap-view .amap-copyright { z-index: 46; }
+@media (max-width:800px) { .qixia-amap-controls { right: 12px; bottom: 390px; } }

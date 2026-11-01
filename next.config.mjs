@@ -5,6 +5,11 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 const nextConfig = {
   ...(githubPages ? { output: 'export', trailingSlash: true } : {}),
   basePath,
+  // Browser JS API credentials from .env.local; retain the existing public aliases.
+  env: {
+    NEXT_PUBLIC_AMAP_KEY: process.env.AMAP_KEY || process.env.NEXT_PUBLIC_AMAP_KEY || '',
+    NEXT_PUBLIC_AMAP_SECURITY_JS_CODE: process.env.AMAP_SECURITY_JS_CODE || process.env.NEXT_PUBLIC_AMAP_SECURITY_JS_CODE || '',
+  },
   images: {
     unoptimized: true,
   },
