@@ -91,8 +91,8 @@ export const POIS: Poi[] = [
     hourlyCurve: 'midday',
   },
   {
-    id: 'temple',
-    image: '/images/poi/kb-3.jpg',
+id: 'temple',
+ image: '/images/poi/qixia-temple-upload.png',
     name: '栖霞寺',
     category: '寺院',
     coordinates: [118.9552, 32.153],
@@ -224,7 +224,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'shamao-peak', image: '/images/poi/kb-14.jpg', name: '纱帽峰', category: '观景', coordinates: [118.9578, 32.1552],
-    brief: '位于千佛岩之巅，因峰形与纱帽相似得名，乾隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
+    brief: '位于千佛岩之巅，因峰形与纱帽相似得名，���隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
   },
   {
     id: 'banruo-platform', image: '/images/poi/kb-15.jpg', name: '般若台', category: '古迹', coordinates: [118.9558, 32.1548],
@@ -323,7 +323,7 @@ export const PERSONAS: Persona[] = [
     durationMin: 210,
     distanceKm: 4.6,
     intensity: '适中',
-    stairs: '叠浪崖至凤翔峰为连续石阶',
+    stairs: '叠浪崖至凤翔峰��连续石阶',
     highlights: ['叠浪崖红枫岩壁机位', '凤翔峰望���打卡', '同伴叶章合成纪念卡'],
     questions: ['栖霞山有哪些冷门但好玩的故事？', '叠浪崖几点去光线最好？', '三小时轻徒步怎么走？'],
   },
@@ -331,7 +331,7 @@ export const PERSONAS: Persona[] = [
     id: 'culture',
     name: '文化爱好者',
     short: '文化',
-    cares: '人物、诗文、题刻、建筑与地方历史，也愿意停下来继续追问。',
+    cares: '人物、诗文���题刻、建筑与地方历史，也愿意停下来继续追问。',
     routeName: '六朝至清 · 碑刻诗文线',
     stops: ['temple', 'stele', 'pagoda', 'grottoes', 'palace', 'tiankai'],
     durationMin: 180,
