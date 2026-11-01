@@ -298,8 +298,16 @@
   max-height: 28px;
   object-fit: cover;
   object-position: center;
-  animation: poi-thumb-flicker 2.4s ease-in-out infinite;
-  animation-delay: var(--poi-delay, 0s);
+  opacity: 1;
+  animation: poi-thumb-flicker 3.6s ease-in-out infinite;
+  animation-delay: 0s;
+}
+.poi-marker.is-default-twinkle .poi-label {
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: var(--foreground);
+  background: rgba(11, 16, 14, 0.88);
+  border-color: rgba(237, 230, 216, 0.24);
 }
 .poi-marker.is-default-twinkle .poi-dot::after {
   content: "";
@@ -313,10 +321,9 @@
 }
 @keyframes poi-thumb-flicker {
   0%, 100% { opacity: 1; filter: brightness(1) saturate(1); }
-  12% { opacity: 0.35; filter: brightness(0.8) saturate(0.8); }
-  24% { opacity: 1; filter: brightness(1.12) saturate(1.05); }
-  36% { opacity: 0.5; filter: brightness(0.86) saturate(0.85); }
-  50% { opacity: 1; filter: brightness(1.08) saturate(1); }
+  25% { opacity: 0.45; filter: brightness(0.85) saturate(0.85); }
+  50% { opacity: 1; filter: brightness(1.1) saturate(1.05); }
+  75% { opacity: 0.6; filter: brightness(0.9) saturate(0.9); }
 }
 @keyframes poi-dot-twinkle {
   0%, 100% { background: var(--foreground); box-shadow: 0 0 0 3px rgba(237, 230, 216, 0.2); }

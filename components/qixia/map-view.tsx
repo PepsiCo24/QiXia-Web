@@ -521,7 +521,7 @@ export function MapView({
             onSelectRef.current(poi.id);
           });
           poiElements.current.set(poi.id, el);
-          new ml.Marker({ element: el, anchor: "bottom" })
+          new ml.Marker({ element: el, anchor: "bottom", opacity: "1", opacityWhenCovered: "1" })
             .setLngLat(poi.coordinates)
             .addTo(map!);
         });
@@ -584,6 +584,7 @@ export function MapView({
             );
             const show =
               selected ||
+              el.classList.contains("is-default-twinkle") ||
               ((major ||
                 el.classList.contains("is-on-route") ||
                 map!.getZoom() >= 16.1) &&
