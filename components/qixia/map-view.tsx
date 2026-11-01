@@ -435,6 +435,14 @@ export function MapView({
           },
         });
 
+        // 游览顺序示意：与真实导航路径分开，服务不可用时仍展示点位关系。
+        map.addSource("route-approx", { type: "geojson", data: emptyFeatureCollection() });
+        map.addLayer({
+          id: "route-approx", type: "line", source: "route-approx",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": "#f4cf88", "line-width": 3, "line-dasharray": [2, 2], "line-opacity": 0.85 },
+        });
+
         // 真实路线段（高德路网覆盖）：实线
         map.addSource("route-real", {
           type: "geojson",
@@ -810,6 +818,14 @@ export function MapView({
         ? [...DEFAULT_POI_IDS]
         : PERSONA_MAP[personaId].stops;
     const coords = stops.map((id) => POI_MAP[id].coordinates);
+    const previewSegments = coords.slice(1).map((coordinate, index) => ({
+      type: "Feature" as const,
+      properties: { index },
+      geometry: { type: "LineString" as const, coordinates: [coords[index], coordinate] },
+    }));
+    (map.getSource("route-approx") as GeoJSONSource | undefined)?.setData({
+      type: "FeatureCollection", features: previewSegments,
+    });
 
     (map.getSource("route-real") as GeoJSONSource | undefined)?.setData(
       emptyFeatureCollection(),
@@ -862,14 +878,18 @@ export function MapView({
         if (cancelled || !data?.segments) return;
         const current = mapRef.current;
         if (!current) return;
-        // 只画真实路网段；无路网/失败的段不画（产品要求：绝不允许出现两点直连线）
+        // 真实路网覆盖的段替换示意线；示意线从不用于导航。
+        (current.getSource("route-approx") as GeoJSONSource | undefined)?.setData({
+          type: "FeatureCollection",
+          features: previewSegments.filter((_, index) => data.segments?.[index]?.mode !== "real"),
+        });
         const real = data.segments.filter((s) => s.mode === "real");
         (current.getSource("route-real") as GeoJSONSource | undefined)?.setData(
           segmentsToFeatureCollection(real),
         );
       })
       .catch(() => {
-        // 接口不可用时不画任何兜底直线，等服务端重试成功后再上屏
+        // 保留游览顺序示意连线，导航仍由真实步行路网独立校验。
       });
 
     return () => {
@@ -938,12 +958,14 @@ export function MapView({
       (map.getSource("nav-path-real") as GeoJSONSource | undefined)?.setData(
         emptyFeatureCollection(),
       );
+      map.setLayoutProperty("route-approx", "visibility", kbMode ? "none" : "visible");
       map.setLayoutProperty("route-real", "visibility", "visible");
       map.setLayoutProperty("route-real-glow", "visibility", "visible");
       return;
     }
 
     // 导航中隐藏常规路线，只保留导航路线
+    map.setLayoutProperty("route-approx", "visibility", "none");
     map.setLayoutProperty("route-real", "visibility", "none");
     map.setLayoutProperty("route-real-glow", "visibility", "none");
 
@@ -1154,6 +1176,12 @@ export function MapView({
         aria-label={t("栖霞山三维地形地图", "Qixia Mountain 3D terrain map")}
         role="application"
       />
+      {ready && !kbMode && !navigation && (
+        <div className="pointer-events-none absolute bottom-4 left-4 rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-xs text-white/85" role="note">
+          <span aria-hidden="true" className="mr-2 inline-block w-6 border-t-2 border-dashed border-[#f4cf88] align-middle" />
+          {t("游览顺序示意连线 · 实际通行以步道为准", "Visit order preview · Follow actual trails")}
+        </div>
+      )}
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
