@@ -66,7 +66,52 @@ function parsePolylineString(polyline?: string): LngLat[] {
   return coordinates;
 }
 
+/** 触发高德 QPS 限流后的等待时间（毫秒），免费 key 限 3 次/秒 */
+const QPS_RETRY_DELAY = 350;
+
+/** 路线段缓存：相同起终点 10 分钟内直接复用，避免重复消耗高德配额 */
+const SEGMENT_CACHE_TTL = 10 * 60 * 1000;
+const SEGMENT_CACHE_MAX = 50;
+const segmentCache = new Map<string, { at: number; segment: RouteSegment }>();
+
+function segmentCacheKey(a: LngLat, b: LngLat): string {
+  const round = (v: number) => v.toFixed(5);
+  return `${round(a[0])},${round(a[1])}|${round(b[0])},${round(b[1])}`;
+}
+
+function readSegmentCache(key: string): RouteSegment | null {
+  const hit = segmentCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > SEGMENT_CACHE_TTL) {
+    segmentCache.delete(key);
+    return null;
+  }
+  return hit.segment;
+}
+
+function writeSegmentCache(key: string, segment: RouteSegment): void {
+  if (segmentCache.size >= SEGMENT_CACHE_MAX) {
+    const oldest = segmentCache.keys().next().value;
+    if (oldest !== undefined) segmentCache.delete(oldest);
+  }
+  segmentCache.set(key, { at: Date.now(), segment });
+}
+
 export async function planWalkingSegment(
+  origin: LngLat,
+  destination: LngLat,
+): Promise<RouteSegment> {
+  const cacheKey = segmentCacheKey(origin, destination);
+  const cached = readSegmentCache(cacheKey);
+  if (cached) return cached;
+
+  const segment = await requestWalkingSegment(origin, destination);
+  // 只缓存真实路网结果：approx 多为限流/超时的临时退化，下次应重试而不是吃缓存
+  if (segment.mode === "real") writeSegmentCache(cacheKey, segment);
+  return segment;
+}
+
+async function requestWalkingSegment(
   origin: LngLat,
   destination: LngLat,
 ): Promise<RouteSegment> {
@@ -79,6 +124,10 @@ export async function planWalkingSegment(
   url.searchParams.set("key", key);
 
   // 高德偶发超时/限流：重试一次再兜底，减少不必要的示意段
+  const isQpsLimited = (data: { info?: string; infocode?: string }) =>
+    (data.info ?? "").includes("CUQPS_HAS_EXCEEDED_THE_LIMIT") ||
+    data.infocode === "10021";
+
   let payload: {
     status?: string;
     route?: {
@@ -96,9 +145,17 @@ export async function planWalkingSegment(
 
   for (let attempt = 0; attempt < 2 && !payload; attempt += 1) {
     try {
-      const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
+      const res = await fetch(url, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(4000),
+      });
       const data = await res.json();
-      if (data.status === "1" && data.route?.paths?.length) payload = data;
+      if (data.status === "1" && data.route?.paths?.length) {
+        payload = data;
+      } else if (isQpsLimited(data) && attempt === 0) {
+        // 高德 QPS 限流：稍等片刻重试，而不是直接退化成示意段
+        await new Promise((resolve) => setTimeout(resolve, QPS_RETRY_DELAY));
+      }
     } catch {
       // 网络异常：进入下一轮重试
     }
@@ -140,14 +197,31 @@ export async function planWalkingSegment(
   };
 }
 
-/** 逐段规划：相邻两个 POI 之间分别判定 real / approx */
+/** 同时打高德的段数上限：免费 key 限 3 QPS，留出余量给其他请求 */
+const ROUTE_CONCURRENCY = 2;
+
+/** 逐段规划：相邻两个 POI 之间分别判定 real / approx。
+ *  用并发 2 的工作池代替串行 await——串行在 4s 超时 × 2 次重试下，
+ *  5 停靠点最坏要 32 秒，线上 serverless 函数会先被平台超时掐死。 */
 export async function planWalkingRoute(
   stops: LngLat[],
 ): Promise<RouteSegment[]> {
-  const segments: RouteSegment[] = [];
-  for (let i = 0; i < stops.length - 1; i++) {
-    segments.push(await planWalkingSegment(stops[i], stops[i + 1]));
-  }
+  const segmentCount = Math.max(stops.length - 1, 0);
+  const segments: RouteSegment[] = new Array(segmentCount);
+
+  let cursor = 0;
+  const workerCount = Math.min(ROUTE_CONCURRENCY, segmentCount) || 1;
+  const workers = Array.from({ length: workerCount }, async () => {
+    while (cursor < segmentCount) {
+      const index = cursor;
+      cursor += 1;
+      segments[index] = await planWalkingSegment(
+        stops[index],
+        stops[index + 1],
+      );
+    }
+  });
+  await Promise.all(workers);
   return segments;
 }
 
