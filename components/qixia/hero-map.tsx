@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Layers,
   Leaf,
@@ -9,6 +9,7 @@ import {
   X,
   Maximize2,
   Route,
+  BookOpen,
 } from "lucide-react";
 import type { MapCommand } from "@/lib/pet/pet-actions";
 import { MapView, type LayerState } from "./map-view";
@@ -17,8 +18,19 @@ import { HourSlider, LayerPanel, LayerToggles } from "./layer-panel";
 import { PersonaPanel } from "./persona-panel";
 import { PoiCard } from "./poi-card";
 import { NavigationPanel } from "./navigation-panel";
+import { KbPanel } from "./kb-panel";
+import { KbSpotCard } from "./kb-spot-card";
 import { FOLIAGE, POI_MAP, snapshot, type PersonaId } from "@/lib/qixia-data";
 import { useNavigation } from "@/lib/use-navigation";
+import {
+  buildAmapNavigationUri,
+  coordText,
+  getKbSpot,
+  getLocatableSpotsForTab,
+  isStaticDeployment,
+  type KbSpot,
+  type KbTabKey,
+} from "@/lib/kb-data";
 
 interface HeroMapProps {
   personaId: PersonaId;
@@ -52,11 +64,19 @@ export function HeroMap({
   const [routeVisible, setRouteVisible] = useState(true);
   const [routeExpanded, setRouteExpanded] = useState(false);
   const [voiceOn, setVoiceOn] = useState(true);
+  /** 栖霞资料（新增板块）状态 */
+  const [kbOpen, setKbOpen] = useState(false);
+  const [kbTab, setKbTab] = useState<KbTabKey>("attractions");
+  const [selectedKbId, setSelectedKbId] = useState<string | null>(null);
+  const [kbNotice, setKbNotice] = useState<string | null>(null);
+  const [kbNavTarget, setKbNavTarget] = useState<KbSpot | null>(null);
   const toolRef = useRef<HTMLDivElement>(null);
   const nav = useNavigation();
   const navigating = Boolean(nav.session);
   const selectPoi = (id: string) => {
     setSelectedPoiId(id);
+    setSelectedKbId(null);
+    setKbOpen(false);
     setTool(null);
     onPoiSelect(id);
   };
@@ -71,11 +91,64 @@ export function HeroMap({
     },
     [nav],
   );
+
+  const closeKb = useCallback(() => {
+    setKbOpen(false);
+    setSelectedKbId(null);
+    setKbNotice(null);
+    setKbNavTarget(null);
+  }, []);
+
+  const kbSpots = useMemo(
+    () => (kbOpen ? getLocatableSpotsForTab(kbTab) : []),
+    [kbOpen, kbTab],
+  );
+  const kbFitKey = `${kbTab}:${kbOpen ? "open" : "closed"}`;
+  const selectedKbSpot = useMemo(() => getKbSpot(selectedKbId), [selectedKbId]);
+
+  /** 外部高德兜底（FR-5 分支 2） */
+  const openExternalMap = useCallback((spot: KbSpot) => {
+    if (!spot.coord) return;
+    const uri = buildAmapNavigationUri(spot.title, spot.coord);
+    const link = document.createElement("a");
+    link.href = uri;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    const coordHint =
+      spot.coordKind === "verified"
+        ? "坐标已双源核验（知识库 + OSM），导航仅供参考，请以现场标识为准。"
+        : "坐标为示意位置，请以现场标识为准。";
+    setKbNotice(
+      `已在新标签打开高德地图前往「${spot.title}」。${coordHint}如未打开，可复制坐标：${coordText(spot.coord)}`,
+    );
+  }, []);
+
+  const startKbNavigation = useCallback(
+    (spot: KbSpot) => {
+      if (!spot.coord) return;
+      setKbNotice(null);
+      if (spot.verified && !isStaticDeployment()) {
+        setKbNavTarget(spot);
+        setSelectedKbId(null);
+        void nav.start({ poiId: `kb:${spot.id}`, name: spot.title }, spot.coord);
+        return;
+      }
+      openExternalMap(spot);
+    },
+    [nav, openExternalMap],
+  );
+
   useEffect(() => {
     if (!command) return;
     const action = command.action;
-    if (action.type === "focus_place" || action.type === "show_poi_card")
+    if (action.type === "focus_place" || action.type === "show_poi_card") {
       setSelectedPoiId(action.poiId);
+      setSelectedKbId(null);
+      setKbOpen(false);
+    }
     if (action.type === "toggle_layer")
       setLayers((prev) => ({ ...prev, [action.layer]: action.visible }));
     if (action.type === "show_route") {
@@ -83,15 +156,30 @@ export function HeroMap({
       setRouteExpanded(true);
     }
   }, [command]);
+
+  useEffect(() => {
+    if (nav.session) setKbNavTarget(null);
+  }, [nav.session]);
+
   useEffect(() => {
     const close = (e: PointerEvent) => {
-      if (!toolRef.current?.contains(e.target as Node)) setTool(null);
+      if (!toolRef.current?.contains(e.target as Node)) {
+        setTool(null);
+        if (kbOpen) {
+          setKbOpen(false);
+          setSelectedKbId(null);
+          setKbNotice(null);
+        }
+      }
     };
     const escape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setTool(null);
         setRouteExpanded(false);
         setSelectedPoiId(null);
+        setKbOpen(false);
+        setSelectedKbId(null);
+        setKbNotice(null);
       }
     };
     document.addEventListener("pointerdown", close);
@@ -100,7 +188,7 @@ export function HeroMap({
       document.removeEventListener("pointerdown", close);
       document.removeEventListener("keydown", escape);
     };
-  }, []);
+  }, [kbOpen]);
   const toggleLayer = (key: keyof LayerState) =>
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   const s = snapshot(hour);
@@ -110,7 +198,9 @@ export function HeroMap({
       aria-label="栖霞山三维地图"
       className="immersive-map"
       data-route-expanded={routeVisible && routeExpanded}
-      data-poi-open={!!selectedPoiId}
+      data-poi-open={!!selectedPoiId || (kbOpen && !!selectedKbId)}
+      data-kb-open={kbOpen}
+      data-kb-card-open={Boolean(kbOpen && selectedKbSpot)}
     >
       <MapView
         layers={layers}
@@ -118,6 +208,14 @@ export function HeroMap({
         personaId={personaId}
         selectedPoiId={selectedPoiId}
         onSelectPoi={selectPoi}
+        kbMode={kbOpen}
+        kbSpots={kbSpots}
+        selectedKbId={selectedKbId}
+        onSelectKb={(id) => {
+          setSelectedKbId(id);
+          setKbNotice(null);
+        }}
+        kbFitKey={kbFitKey}
         navigation={
           nav.session
             ? {
@@ -157,7 +255,10 @@ export function HeroMap({
                 aria-expanded={tool === id}
                 aria-controls="map-tool-panel"
                 className={tool === id ? "active" : ""}
-                onClick={() => setTool(tool === id ? null : id)}
+                onClick={() => {
+                  setTool(tool === id ? null : id);
+                  closeKb();
+                }}
               >
                 <Icon size={19} />
                 <span>{label}</span>
@@ -171,10 +272,36 @@ export function HeroMap({
                 setTool(null);
                 setRouteVisible(false);
                 setSelectedPoiId(null);
+                closeKb();
               }}
             >
               <Maximize2 size={18} />
               <span>纯地图</span>
+            </button>
+            <div className="tool-divider" />
+            <button
+              data-testid="kb-entry"
+              title="栖霞资料"
+              aria-label="栖霞资料"
+              aria-expanded={kbOpen}
+              aria-controls="kb-panel"
+              className={kbOpen ? "active" : ""}
+              onClick={() => {
+                if (kbOpen) {
+                  closeKb();
+                  return;
+                }
+                setTool(null);
+                setSelectedPoiId(null);
+                setRouteExpanded(false);
+                setKbNotice(null);
+                setSelectedKbId(null);
+                setKbTab("attractions");
+                setKbOpen(true);
+              }}
+            >
+              <BookOpen size={18} />
+              <span>栖霞资料</span>
             </button>
           </nav>
           {tool && (
@@ -248,6 +375,24 @@ export function HeroMap({
               )}
             </section>
           )}
+          {kbOpen && (
+            <div id="kb-panel" data-testid="kb-panel-host" className="kb-tool-popover">
+              <KbPanel
+                activeTab={kbTab}
+                onTabChange={(tab) => {
+                  setKbTab(tab);
+                  setSelectedKbId(null);
+                  setKbNotice(null);
+                }}
+                onSelectSpot={(spot) => {
+                  setSelectedKbId(spot.id);
+                  setKbNotice(null);
+                }}
+                onClose={closeKb}
+                selectedSpotId={selectedKbId}
+              />
+            </div>
+          )}
         </div>
       )}
       {!navigating &&
@@ -288,6 +433,20 @@ export function HeroMap({
           />
         </div>
       )}
+      {!navigating && kbOpen && selectedKbSpot && (
+        <div className="poi-card-host kb-card-host">
+          <KbSpotCard
+            spot={selectedKbSpot}
+            onClose={() => setSelectedKbId(null)}
+            onNavigate={startKbNavigation}
+          />
+        </div>
+      )}
+      {!navigating && kbNotice && (
+        <div role="status" data-testid="kb-notice" className="kb-notice glass-panel">
+          {kbNotice}
+        </div>
+      )}
       {!navigating && layers.heat && (
         <div className="map-heat-key glass-panel">
           客流模拟{" "}
@@ -311,7 +470,17 @@ export function HeroMap({
           role="alert"
           className="pointer-events-auto absolute inset-x-3 bottom-4 z-40 mx-auto max-w-md rounded-lg border border-destructive/40 bg-background/95 px-4 py-3 text-sm leading-relaxed text-destructive shadow-lg backdrop-blur"
         >
-          {nav.error}
+          <p>{nav.error}</p>
+          {kbNavTarget?.coord && (
+            <button
+              type="button"
+              data-testid="kb-nav-fallback"
+              onClick={() => openExternalMap(kbNavTarget)}
+              className="mt-2 w-full rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+            >
+              用高德地图打开「{kbNavTarget.title}」
+            </button>
+          )}
         </div>
       )}
       {nav.session && (
@@ -321,7 +490,10 @@ export function HeroMap({
           error={nav.error}
           voiceOn={voiceOn}
           onToggleVoice={() => setVoiceOn((v) => !v)}
-          onExit={nav.stop}
+          onExit={() => {
+            nav.stop();
+            setKbNavTarget(null);
+          }}
         />
       )}
     </section>
