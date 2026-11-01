@@ -9,6 +9,7 @@ import type {
 } from "maplibre-gl";
 import type { Feature, FeatureCollection, LineString } from "geojson";
 import type { RouteSegment } from "@/lib/amap";
+import { planWalkingRouteClient } from "@/lib/route-client";
 import type { KbSpot } from "@/lib/kb-data";
 import type { NavProgress } from "@/lib/navigation";
 import type { NavigationSession } from "@/lib/use-navigation";
@@ -168,7 +169,12 @@ const STATUS_COLOR = [
 ] as const;
 
 function routeGeoJSON(personaId: PersonaId): Feature<LineString> {
-  if (personaId === 'default') return { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } }
+  if (personaId === "default")
+    return {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "LineString", coordinates: [] },
+    };
   return {
     type: "Feature",
     properties: {},
@@ -259,11 +265,7 @@ export function MapView({
       const index = stops.indexOf(id);
       const isOnRoute = index >= 0;
       const isDefaultMode = persona === "default";
-      el.style.display = kbModeRef.current
-        ? "none"
-        : isOnRoute
-          ? ""
-          : "none";
+      el.style.display = kbModeRef.current ? "none" : isOnRoute ? "" : "none";
       el.style.setProperty(
         "--poi-delay",
         isDefaultMode
@@ -344,21 +346,24 @@ export function MapView({
         keyboard: true,
         cooperativeGestures: false,
         attributionControl: { compact: true },
-      })
-      mapRef.current = map
+      });
+      mapRef.current = map;
       // Retain cursor-anchored wheel/trackpad zoom and give the canvas keyboard focus.
-      map.scrollZoom.setWheelZoomRate(1 / 350)
-      map.scrollZoom.setZoomRate(1 / 100)
-      const canvas = map.getCanvas()
-      canvas.tabIndex = 0
-      canvas.setAttribute('aria-label', '栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放')
-      map.on('mousedown', () => canvas.focus({ preventScroll: true }))
-      observer = new ResizeObserver(() => map?.resize())
-      observer.observe(containerRef.current)
-      overlayObserver = new MutationObserver(() => map?.resize())
-      const section = containerRef.current.closest('section')
-      if (section) overlayObserver.observe(section, { attributes: true })
-      containerRef.current.dataset.mapReady = 'false'
+      map.scrollZoom.setWheelZoomRate(1 / 350);
+      map.scrollZoom.setZoomRate(1 / 100);
+      const canvas = map.getCanvas();
+      canvas.tabIndex = 0;
+      canvas.setAttribute(
+        "aria-label",
+        "栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放",
+      );
+      map.on("mousedown", () => canvas.focus({ preventScroll: true }));
+      observer = new ResizeObserver(() => map?.resize());
+      observer.observe(containerRef.current);
+      overlayObserver = new MutationObserver(() => map?.resize());
+      const section = containerRef.current.closest("section");
+      if (section) overlayObserver.observe(section, { attributes: true });
+      containerRef.current.dataset.mapReady = "false";
       const publish = () => {
         if (!map || !containerRef.current) return;
         containerRef.current.dataset.zoom = map.getZoom().toFixed(2);
@@ -718,7 +723,8 @@ export function MapView({
         map.on("move", updateKbLabelVisibility);
         map.on("idle", updateKbLabelVisibility);
         // 图层与 marker 就绪即可交互：不依赖外部瓦片是否加载成功（离线/受限网络下也可用）
-        if (containerRef.current) containerRef.current.dataset.mapReady = "true";
+        if (containerRef.current)
+          containerRef.current.dataset.mapReady = "true";
         setReady(true);
       };
       if (map.isStyleLoaded()) initLayers();
@@ -729,28 +735,31 @@ export function MapView({
       ).matches;
       if (!reduceMotion) {
         const spin = () => {
-          if (!map) return
-          map.setBearing(map.getBearing() + 0.025)
-          frame = requestAnimationFrame(spin)
-        }
-        let stopped = false
-        const stop = () => { stopped = true; cancelAnimationFrame(frame) }
-        map.once('load', () => {
-          if (!stopped) frame = requestAnimationFrame(spin)
-        })
+          if (!map) return;
+          map.setBearing(map.getBearing() + 0.025);
+          frame = requestAnimationFrame(spin);
+        };
+        let stopped = false;
+        const stop = () => {
+          stopped = true;
+          cancelAnimationFrame(frame);
+        };
+        map.once("load", () => {
+          if (!stopped) frame = requestAnimationFrame(spin);
+        });
         // Stop before MapLibre's wheel animation starts, so rotation cannot cancel zoom.
-        map.getCanvas().addEventListener('wheel', stop, { passive: true })
-        map.getCanvas().addEventListener('keydown', stop)
-        map.on('zoomstart', stop)
-        map.on('rotatestart', (e) => {
-          if ((e as { originalEvent?: Event }).originalEvent) stop()
-        })
-        map.on('mousedown', stop)
-        map.on('touchstart', stop)
-        map.on('movestart', (e) => {
-          if ((e as { originalEvent?: Event }).originalEvent) stop()
-        })
-        containerRef.current.addEventListener('stopspin', stop)
+        map.getCanvas().addEventListener("wheel", stop, { passive: true });
+        map.getCanvas().addEventListener("keydown", stop);
+        map.on("zoomstart", stop);
+        map.on("rotatestart", (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop();
+        });
+        map.on("mousedown", stop);
+        map.on("touchstart", stop);
+        map.on("movestart", (e) => {
+          if ((e as { originalEvent?: Event }).originalEvent) stop();
+        });
+        containerRef.current.addEventListener("stopspin", stop);
       }
     });
 
@@ -807,7 +816,10 @@ export function MapView({
     const map = mapRef.current;
     if (!ready || !map) return;
 
-    const stops = personaId === 'default' ? [...DEFAULT_POI_IDS] : PERSONA_MAP[personaId].stops;
+    const stops =
+      personaId === "default"
+        ? [...DEFAULT_POI_IDS]
+        : PERSONA_MAP[personaId].stops;
     const coords = stops.map((id) => POI_MAP[id].coordinates);
 
     (map.getSource("route-approx") as GeoJSONSource | undefined)?.setData(
@@ -819,16 +831,23 @@ export function MapView({
 
     applyPoiVisibility(personaId);
 
-    if (personaId === 'default') return;
+    if (personaId === "default") return;
 
     let cancelled = false;
-    fetch("/api/route/walking", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stops: coords }),
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { segments?: RouteSegment[] } | null) => {
+    const fetchRoute = async (): Promise<{
+      segments?: RouteSegment[];
+    } | null> => {
+      const res = await fetch("/api/route/walking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stops: coords }),
+      });
+      if (res.ok) return res.json();
+      // 静态站点（GitHub Pages 等）没有服务端代理：浏览器直连高德兜底
+      return { segments: await planWalkingRouteClient(coords) };
+    };
+    fetchRoute()
+      .then((data) => {
         if (cancelled || !data?.segments) return;
         const current = mapRef.current;
         if (!current) return;
@@ -1109,7 +1128,12 @@ export function MapView({
 
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        aria-label="栖霞山三维地形地图"
+        role="application"
+      />
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
