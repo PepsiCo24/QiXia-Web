@@ -24,13 +24,28 @@ export function QixiaExperience() {
   const { messages, sendMessage, status, error, stop, setMessages } = useChat({ transport })
   useEffect(() => {
     if (personaId === 'default') return
-    const resetOnOutsidePointer = (event: PointerEvent) => {
+    const keepSelectors = '.persona-tabs, .pet-dock, .pet-panel-host, .poi-marker, .poi-card-host, .route-card, .route-reopen'
+    let start: { x: number; y: number; id: number } | null = null
+    const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Element | null
-      if (target?.closest('.persona-tabs, .pet-dock, .pet-panel-host')) return
-      setPersonaId('default')
+      const isPlainPrimaryClick = event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey
+      start = isPlainPrimaryClick && !target?.closest(keepSelectors)
+        ? { x: event.clientX, y: event.clientY, id: event.pointerId }
+        : null
     }
-    document.addEventListener('pointerdown', resetOnOutsidePointer, true)
-    return () => document.removeEventListener('pointerdown', resetOnOutsidePointer, true)
+    // Reset on pointerup only when the pointer barely moved, so map drags/rotations keep the route.
+    const onPointerUp = (event: PointerEvent) => {
+      if (!start || start.id !== event.pointerId) return
+      const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+      start = null
+      if (moved < 6) setPersonaId('default')
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('pointerup', onPointerUp, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('pointerup', onPointerUp, true)
+    }
   }, [personaId])
   const execute = (value: MapCommand) => {
     const parsed = mapCommandSchema.safeParse(value)
