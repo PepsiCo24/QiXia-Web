@@ -5,7 +5,7 @@ import type { LngLat } from "@/lib/qixia-data";
 export const runtime = "nodejs";
 // 多段路线走限并发的高德请求，给 serverless 平台留足函数执行预算
 // （没有这行，Vercel 上函数会被默认超时掐死，前端只能显示「路线服务暂时不可用」）
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   let stops: LngLat[];

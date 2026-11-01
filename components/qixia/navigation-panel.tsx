@@ -64,7 +64,7 @@ export function NavigationPanel({
             </p>
             {current?.mode === "approx" && (
               <p className="mt-1 text-xs leading-relaxed text-[#e8a33c]">
-                这一段没有精确路网数据，图中橙色虚线为示意路径，请以现场步道标识为准
+                这一段暂无精确路网数据（图中不画线，避免误导），请以现场步道标识为准
               </p>
             )}
             {current?.mode === "real" && current.detourRatio > 3 && (
