@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "./language-provider";
+import { localizeText, translatePoiName } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Layers,
@@ -40,7 +42,7 @@ interface HeroMapProps {
   command: { id: number; action: MapCommand } | null;
   onPoiSelect: (id: string) => void;
 }
-const tools = [
+const toolDefinitions = [
   { id: "layers", label: "地图图层", icon: Layers },
   { id: "foliage", label: "红叶情报", icon: Leaf },
   { id: "crowd", label: "游客客流", icon: Users },
@@ -53,6 +55,8 @@ export function HeroMap({
   command,
   onPoiSelect,
 }: HeroMapProps) {
+  const { locale, t } = useLanguage();
+  const tools = toolDefinitions.map((tool) => ({ ...tool, label: t(tool.label, ({ layers: "Map layers", foliage: "Autumn foliage", crowd: "Visitor flow", ops: "Operations" })[tool.id]) }));
   const [layers, setLayers] = useState<LayerState>({
     heat: false,
     devices: false,
@@ -120,12 +124,12 @@ export function HeroMap({
     link.remove();
     const coordHint =
       spot.coordKind === "verified"
-        ? "坐标已双源核验（知识库 + OSM），导航仅供参考，请以现场标识为准。"
-        : "坐标为示意位置，请以现场标识为准。";
+         ? t("坐标已双源核验（知识库 + OSM），导航仅供参考，请以现场标识为准。", "Coordinates checked against the knowledge base and OSM. Navigation is for reference; follow on-site signs.")
+        : t("坐标为示意位置，请以现场标识为准。", "Coordinates are illustrative; follow on-site signs.");
     setKbNotice(
-      `已在新标签打开高德地图前往「${spot.title}」。${coordHint}如未打开，可复制坐标：${coordText(spot.coord)}`,
+      t(`已在新标签打开高德地图前往「${spot.title}」。${coordHint}如未打开，可复制坐标：${coordText(spot.coord)}`, `Opened Amap in a new tab for ${translatePoiName(spot.title, locale)}. ${coordHint} If it did not open, copy these coordinates: ${coordText(spot.coord)}`),
     );
-  }, []);
+  }, [locale, t]);
 
   const startKbNavigation = useCallback(
     (spot: KbSpot) => {
@@ -200,7 +204,7 @@ export function HeroMap({
   return (
     <section
       id="map"
-      aria-label="栖霞山三维地图"
+      aria-label={t("栖霞山三维地图", "Qixia Mountain 3D map")}
       className="immersive-map"
       data-route-expanded={routeVisible && routeExpanded}
       data-poi-open={!!selectedPoiId || (kbOpen && !!selectedKbId)}
@@ -239,9 +243,9 @@ export function HeroMap({
       {!navigating && (
         <div className="map-intro pointer-events-none">
           <p className="eyebrow">NANJING · QIXIA MOUNTAIN</p>
-          <h1>一客一景，<br />一刻一路。</h1>
-          <p>循着山林，找到属于你的栖霞。</p>
-          <span>沉浸式地形探索 <i /> 灵猫陪伴游览</span>
+          <h1>{t("一客一景，", "Your moment,")}<br />{t("一刻一路。", "your mountain.")}</h1>
+          <p>{t("循着山林，找到属于你的栖霞。", "Follow the forest. Find your own Qixia.")}</p>
+          <span>{t("沉浸式地形探索", "Immersive terrain exploration")} <i /> {t("灵猫陪伴游览", "Your spirit-cat companion")}</span>
         </div>
       )}
       {!navigating && <div className="falling-leaves" aria-hidden="true">
@@ -251,7 +255,7 @@ export function HeroMap({
       </div>}
       {!navigating && (
         <div ref={toolRef} className="map-tool-host">
-          <nav className="map-tools glass-panel" aria-label="地图工具">
+          <nav className="map-tools glass-panel" aria-label={t("地图工具", "Map tools")}>
             {tools.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -271,8 +275,8 @@ export function HeroMap({
             ))}
             <div className="tool-divider" />
             <button
-              title="纯地图模式"
-              aria-label="纯地图模式"
+              title={t("纯地图模式", "Map-only mode")}
+              aria-label={t("纯地图模式", "Map-only mode")}
               onClick={() => {
                 setTool(null);
                 setRouteVisible(false);
@@ -281,13 +285,13 @@ export function HeroMap({
               }}
             >
               <Maximize2 size={18} />
-              <span>纯地图</span>
+              <span>{t("纯地图", "Map only")}</span>
             </button>
             <div className="tool-divider" />
             <button
               data-testid="kb-entry"
-              title="栖霞资料"
-              aria-label="栖霞资料"
+              title={t("栖霞资料", "Qixia knowledge base")}
+              aria-label={t("栖霞资料", "Qixia knowledge base")}
               aria-expanded={kbOpen}
               aria-controls="kb-panel"
               className={kbOpen ? "active" : ""}
@@ -306,7 +310,7 @@ export function HeroMap({
               }}
             >
               <BookOpen size={18} />
-              <span>栖霞资料</span>
+              <span>{t("栖霞资料", "Knowledge")}</span>
             </button>
           </nav>
           {tool && (
@@ -319,13 +323,13 @@ export function HeroMap({
                 <h2>{tools.find((t) => t.id === tool)?.label}</h2>
                 <button
                   className="icon-button"
-                  aria-label="关闭工具面板"
+                  aria-label={t("关闭工具面板", "Close tools panel")}
                   onClick={() => setTool(null)}
                 >
                   <X size={18} />
                 </button>
               </header>
-              <span className="data-badge">模拟数据 · 非实时</span>
+              <span className="data-badge">{t("模拟数据 · 非实时", "Simulated data · not live")}</span>
               {tool === "ops" ? (
                 <LayerPanel
                   layers={layers}
@@ -335,26 +339,26 @@ export function HeroMap({
                 />
               ) : tool === "layers" ? (
                 <>
-                  <p>按需叠加信息，让山林保持清晰。</p>
+                  <p>{t("按需叠加信息，让山林保持清晰。", "Add only the information you need for a clear view.")}</p>
                   <LayerToggles layers={layers} onToggle={toggleLayer} />
                 </>
               ) : tool === "crowd" ? (
                 <>
                   <p>
-                    在园游客{" "}
+                    {t("在园游客", "Visitors in park")}{" "}
                     <strong className="crowd-number">
-                      {s.visitors.toLocaleString()} <small>人</small>
+                      {s.visitors.toLocaleString()} <small>{t("人", "visitors")}</small>
                     </strong>
                   </p>
                   <p>
-                    承载率 {Math.round(s.loadRatio * 100)}% ·{" "}
-                    {String(hour).padStart(2, "0")}:00 时段参考
+                    {t("承载率", "Capacity used")} {Math.round(s.loadRatio * 100)}% ·{" "}
+                    {String(hour).padStart(2, "0")}:00 {t("时段参考", "time-slot estimate")}
                   </p>
                   <HourSlider hour={hour} onHourChange={setHour} />
                   <div className="heat-legend">
-                    <span>疏</span>
+                    <span>{t("疏", "Low")}</span>
                     <i />
-                    <span>密</span>
+                    <span>{t("密", "High")}</span>
                   </div>
                 </>
               ) : (
@@ -364,18 +368,18 @@ export function HeroMap({
                     <small>%</small>
                     <Leaf size={32} />
                   </div>
-                  <h3>红叶 · {FOLIAGE.stage}</h3>
+                  <h3>{t("红叶", "Autumn foliage")} · {localizeText(FOLIAGE.stage, locale)}</h3>
                   <p>
-                    {FOLIAGE.weather} · 日落 {FOLIAGE.sunset}
+                    {localizeText(FOLIAGE.weather, locale)} · {t("日落", "Sunset")} {FOLIAGE.sunset}
                   </p>
-                  <p>红叶与天气非实时信息，赏枫情况请以现场为准。</p>
+                  <p>{t("红叶与天气非实时信息，赏枫情况请以现场为准。", "Foliage and weather information is not live. Check conditions on site.")}</p>
                   <button
                     className="outline-button"
                     onClick={() => selectPoi("maple-ridge")}
                   >
-                    在地图上看看枫岭
+                    {t("在地图上看看枫岭", "View Maple Ridge on the map")}
                   </button>
-                  <p>红枫图鉴建设中 · 可在景点卡收集数字枫叶纪念。</p>
+                  <p>{t("红枫图鉴建设中 · 可在景点卡收集数字枫叶纪念。", "Maple guide coming soon · collect digital maple leaves on sight cards.")}</p>
                 </>
               )}
             </section>
@@ -404,7 +408,7 @@ export function HeroMap({
         (routeVisible ? (
           <aside
             className={`route-host ${routeExpanded ? "expanded" : ""}`}
-            aria-label="推荐游览顺序"
+            aria-label={t("推荐游览顺序", "Suggested visit order")}
           >
             <PersonaPanel
               personaId={personaId}
@@ -421,7 +425,7 @@ export function HeroMap({
             className="route-reopen glass-panel"
             onClick={() => setRouteVisible(true)}
           >
-            <Route size={18} /> 推荐路线
+            <Route size={18} /> {t("推荐路线", "Suggested routes")}
           </button>
         ))}
       {!navigating && selectedPoiId && (
@@ -454,11 +458,11 @@ export function HeroMap({
       )}
       {!navigating && layers.heat && (
         <div className="map-heat-key glass-panel">
-          客流模拟{" "}
+          {t("客流模拟", "Simulated visitor flow")}{" "}
           <span className="heat-legend">
-            <span>疏</span>
+            <span>{t("疏", "Low")}</span>
             <i />
-            <span>密</span>
+            <span>{t("密", "High")}</span>
           </span>{" "}
           {hour}:00
         </div>
@@ -466,7 +470,7 @@ export function HeroMap({
       {nav.loading && (
         <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
           <div className="rounded-lg bg-background/95 px-4 py-3 text-sm text-foreground shadow-lg backdrop-blur">
-            正在获取位置并规划路线…
+            {t("正在获取位置并规划路线…", "Finding your location and planning a route…")}
           </div>
         </div>
       )}
@@ -475,7 +479,7 @@ export function HeroMap({
           role="alert"
           className="pointer-events-auto absolute inset-x-3 bottom-4 z-40 mx-auto max-w-md rounded-lg border border-destructive/40 bg-background/95 px-4 py-3 text-sm leading-relaxed text-destructive shadow-lg backdrop-blur"
         >
-          <p>{nav.error}</p>
+          <p>{localizeText(nav.error, locale)}</p>
           {kbNavTarget?.coord && (
             <button
               type="button"
@@ -483,7 +487,7 @@ export function HeroMap({
               onClick={() => openExternalMap(kbNavTarget)}
               className="mt-2 w-full rounded-md border border-destructive/50 px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
             >
-              用高德地图打开「{kbNavTarget.title}」
+              {t(`用高德地图打开「${kbNavTarget.title}」`, `Open ${translatePoiName(kbNavTarget.title, locale)} in Amap`)}
             </button>
           )}
         </div>

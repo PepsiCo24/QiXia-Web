@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import './immersive.css'
+import { LanguageProvider } from '@/components/qixia/language-provider'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
@@ -32,9 +33,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN">
-      <body className="antialiased">
-        {children}
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
+        <LanguageProvider>{children}</LanguageProvider>
         {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_GITHUB_PAGES !== 'true' && <Analytics />}
       </body>
     </html>

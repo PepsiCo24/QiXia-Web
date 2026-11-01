@@ -5,6 +5,16 @@ import type { UIMessage } from 'ai'
 import { ArrowUp, Leaf, RotateCcw, Square } from 'lucide-react'
 import { PERSONAS, PERSONA_MAP, type PersonaId } from '@/lib/qixia-data'
 import { cn } from '@/lib/utils'
+import { useLanguage } from './language-provider'
+
+
+const personaEnglish: Record<Exclude<PersonaId, 'default'>, { name: string; questions: string[] }> = {
+  family: { name: 'Families', questions: ['How can I explore with a five-year-old without getting too tired?', 'What stories about Thousand Buddha Cliff are good for children?', 'Where are the baby care rooms and toilets?'] },
+  youth: { name: 'Young Travelers', questions: ['What lesser-known stories make Qixia Mountain interesting?', 'When is the light best at Dielang Cliff?', 'Which trail is best for a three-hour gentle hike?'] },
+  culture: { name: 'Culture Lovers', questions: ['Who was Ming Sengshao, and why did he donate his home as a temple?', 'What poems did the Qianlong Emperor write about Qixia Mountain?', 'How is the Sanlun school connected with Qixia Temple?'] },
+  elder: { name: 'Senior Travelers', questions: ['Is there a route without stairs?', 'Where can I sit down to rest and buy water?', 'What is worth taking time to see at Qixia Temple?'] },
+  photo: { name: 'Photographers & Hikers', questions: ['When is sunset today, and when should I reach Biyun Pavilion?', 'How far have the maple leaves changed color?', 'Which viewpoints work best with telephoto and wide-angle lenses?'] },
+}
 
 interface AskSectionProps {
   personaId: PersonaId
@@ -19,9 +29,12 @@ interface AskSectionProps {
 }
 
 export function AskSection({ personaId, onPersonaChange, chatAvailable, messages, status, error, onSend, onStop, onReset }: AskSectionProps) {
+  const { t } = useLanguage()
   const [input, setInput] = useState('')
   const listRef = useRef<HTMLDivElement>(null)
-  const persona = PERSONA_MAP[personaId]
+  const selectedPersonaId = personaId === 'default' ? 'family' : personaId
+  const persona = PERSONA_MAP[selectedPersonaId]
+  const personaName = t(persona.name, personaEnglish[selectedPersonaId].name)
   const busy = status === 'submitted' || status === 'streaming'
 
   useEffect(() => {
@@ -40,18 +53,18 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 lg:grid-cols-[320px_1fr] lg:gap-12 lg:py-24">
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-xs tracking-[0.4em] text-primary">ASK QIXIA</p>
+            <p className="text-xs tracking-[0.4em] text-primary">{t('问栖霞', 'ASK QIXIA')}</p>
             <h2 id="ask-title" className="mt-2 font-serif text-3xl font-bold text-balance text-foreground lg:text-4xl">
-              问栖霞
+              {t('问栖霞', 'Ask Qixia')}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              结合当前客流、红叶与设施状态，按你的同行方式回答。路线与坐标为示意数据，现场请以景区标识和工作人员指引为准。
+              {t('结合当前客流、红叶与设施状态，按你的同行方式回答。路线与坐标为示意数据，现场请以景区标识和工作人员指引为准。', 'Answers tailored to your travel style, taking visitor numbers, maple foliage and facilities into account. Routes and coordinates are illustrative; follow on-site signs and staff guidance.')}
             </p>
           </div>
 
           <div>
-            <p className="mb-2 text-xs text-muted-foreground">我以什么身份来问</p>
-            <div role="radiogroup" aria-label="提问身份" className="flex flex-wrap gap-2">
+            <p className="mb-2 text-xs text-muted-foreground">{t('我以什么身份来问', 'Choose your travel style')}</p>
+            <div role="radiogroup" aria-label={t('提问身份', 'Travel style for questions')} className="flex flex-wrap gap-2">
               {PERSONAS.map((p) => (
                 <button
                   key={p.id}
@@ -66,24 +79,24 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
                       : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground',
                   )}
                 >
-                  {p.name}
+                  {t(p.name, personaEnglish[p.id === 'default' ? 'family' : p.id].name)}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="mb-2 text-xs text-muted-foreground">{persona.name}常问</p>
+            <p className="mb-2 text-xs text-muted-foreground">{t(`${persona.name}常问`, `Popular questions · ${personaName}`)}</p>
             <ul className="flex flex-col gap-2">
-              {persona.questions.map((q) => (
+              {persona.questions.map((q, index) => (
                 <li key={q}>
                   <button
                     type="button"
-                    onClick={() => submit(q)}
+                    onClick={() => submit(t(q, personaEnglish[selectedPersonaId].questions[index]))}
                     disabled={busy || !chatAvailable}
                     className="w-full rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:border-primary/60 hover:text-primary disabled:opacity-50"
                   >
-                    {q}
+                    {t(q, personaEnglish[selectedPersonaId].questions[index])}
                   </button>
                 </li>
               ))}
@@ -98,8 +111,8 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
                 <Leaf className="size-3.5 text-primary" aria-hidden="true" />
               </span>
               <div className="leading-tight">
-                <p className="text-sm font-medium text-foreground">栖霞导游 · 小枫</p>
-                <p className="text-[11px] text-muted-foreground">当前视角：{persona.name}</p>
+                <p className="text-sm font-medium text-foreground">{t('栖霞导游 · 小枫', 'Qixia Guide · Xiaofeng')}</p>
+                <p className="text-[11px] text-muted-foreground">{t('当前视角：', 'Travel style: ')}{personaName}</p>
               </div>
             </div>
             {messages.length > 0 && (
@@ -109,7 +122,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
               >
                 <RotateCcw className="size-3" aria-hidden="true" />
-                新对话
+                {t('新对话', 'New conversation')}
               </button>
             )}
           </div>
@@ -117,11 +130,11 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
           <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-5" aria-live="polite">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <p className="font-serif text-2xl text-foreground">一客一景，一刻一路</p>
+                <p className="font-serif text-2xl text-foreground">{t('一客一景，一刻一路', 'Your mountain, your own way')}</p>
                 <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
                   {chatAvailable
-                    ? '问路线、问故事、问光线、问哪里能坐下歇脚。也可以在地图上点选景点，直接“继续追问”。'
-                    : '当前为公开静态游览版，AI 导游暂未开放。你可以在地图和下方来客推荐中查看景点、路线及游览建议。'}
+                    ? t('问路线、问故事、问光线、问哪里能坐下歇脚。也可以在地图上点选景点，直接“继续追问”。', 'Ask about routes, stories, light or places to rest. You can also select a place on the map and ask a follow-up question.')
+                    : t('当前为公开静态游览版，AI 导游暂未开放。你可以在地图和下方来客推荐中查看景点、路线及游览建议。', 'This public preview does not yet offer an AI guide. Explore attractions, routes and travel tips on the map and in the visitor recommendations below.')}
                 </p>
               </div>
             ) : (
@@ -140,14 +153,14 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
                 ))}
                 {status === 'submitted' && (
                   <li className="flex justify-start">
-                    <div className="rounded-lg bg-secondary px-3.5 py-2.5 text-sm text-muted-foreground">小枫正在查看山间情况…</div>
+                    <div className="rounded-lg bg-secondary px-3.5 py-2.5 text-sm text-muted-foreground">{t('小枫正在查看山间情况…', 'Xiaofeng is checking conditions on the mountain…')}</div>
                   </li>
                 )}
               </ul>
             )}
             {error && (
               <p role="alert" className="mt-4 rounded-md border border-destructive/40 px-3 py-2 text-xs text-destructive">
-                暂时无法回答，请稍后重试。
+                {t('暂时无法回答，请稍后重试。', 'Unable to answer right now. Please try again later.')}
               </p>
             )}
           </div>
@@ -160,7 +173,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
             className="flex items-center gap-2 border-t border-border p-3"
           >
             <label htmlFor="ask-input" className="sr-only">
-              输入你的问题
+              {t('输入你的问题', 'Enter your question')}
             </label>
             <input
               id="ask-input"
@@ -170,7 +183,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
                 if (e.key === 'Enter' && (e.nativeEvent.isComposing || e.keyCode === 229)) e.preventDefault()
               }}
               disabled={!chatAvailable}
-              placeholder={chatAvailable ? `以${persona.name}的身份提问…` : 'AI 导游暂未开放'}
+              placeholder={chatAvailable ? t(`以${persona.name}的身份提问…`, `Ask as ${personaName.toLowerCase()}…`) : t('AI 导游暂未开放', 'AI guide is not yet available')}
               autoComplete="off"
               className="h-10 flex-1 rounded-md border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
             />
@@ -178,7 +191,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
               <button
                 type="button"
                 onClick={onStop}
-                aria-label="停止回答"
+                aria-label={t('停止回答', 'Stop response')}
                 className="flex size-10 items-center justify-center rounded-md bg-secondary text-foreground"
               >
                 <Square className="size-4" />
@@ -186,7 +199,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
             ) : (
               <button
                 type="submit"
-                aria-label="发送"
+                aria-label={t('发送', 'Send')}
                 disabled={!chatAvailable || !input.trim()}
                 className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-40"
               >

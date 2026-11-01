@@ -1,5 +1,7 @@
 'use client'
 
+import { useLanguage } from '../language-provider'
+
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { UIMessage } from 'ai'
@@ -15,6 +17,7 @@ import type { PersonaId } from '@/lib/qixia-data'
 export function PetDock({ open, onOpen, messages, status, error, onSend, onStop, onReset, personaId, onCommand, mapNotice }: {
   open: boolean; onOpen: (open: boolean) => void; messages: UIMessage[]; status: string; error?: Error; onSend: (text: string, demo: boolean) => void; onStop: () => void; onReset: () => void; personaId: PersonaId; onCommand: (command: MapCommand) => void; mapNotice: { id: number; text: string } | null
 }) {
+  const { t } = useLanguage()
   const [preferences, setPreferences] = useState(defaultPreferences)
   const [loaded, setLoaded] = useState(false)
   const [input, setInput] = useState('')
@@ -105,15 +108,15 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const last = messages.at(-1)
   const subtitle = status === 'streaming' && last?.role === 'assistant' ? last.parts.map(p => p.type === 'text' ? p.text : '').join('').slice(-64) : ''
   return <>
-    {!preferences.hidden && <aside ref={dragController.ref} className={`pet-dock pet-${dragController.side}`} aria-label="栖霞灵猫向导">
+    {!preferences.hidden && <aside ref={dragController.ref} className={`pet-dock pet-${dragController.side}`} aria-label={t("栖霞灵猫向导", "Qixia cat guide")}>
     {open && loaded && createPortal(<div ref={panel} className={`pet-panel-host pet-panel-follow pet-panel-${dragController.side}`}><PetChatPanel personaId={personaId} messages={messages} status={status} error={error} preferences={preferences} onPreferences={setPreferences} onSend={text => onSend(text, preferences.demo)} onStop={stop} onClose={() => { stop(); onOpen(false); button.current?.focus() }} onReset={() => { stop(); onReset(); consumed.current.clear() }} onRetry={() => { const previous = [...messages].reverse().find(message => message.role === 'user'); const text = previous?.parts.map(part => part.type === 'text' ? part.text : '').join(''); if (text) onSend(text, preferences.demo) }} input={input} onInput={setInput} /></div>, document.body)}
-    {!open && welcome && preferences.proactive && <div className="pet-welcome glass-panel"><button aria-label="关闭欢迎提示" className="float-right px-2" onClick={dismissWelcome}>×</button><p>喵～欢迎来到栖霞山！我是栖霞灵猫，今天想让我带你去哪里看看？</p></div>}
+    {!open && welcome && preferences.proactive && <div className="pet-welcome glass-panel"><button aria-label={t("关闭欢迎提示", "Dismiss welcome")} className="float-right px-2" onClick={dismissWelcome}>×</button><p>{t("喵～欢迎来到栖霞山！我是栖霞灵猫，今天想让我带你去哪里看看？", "Meow! Welcome to Qixia Mountain. I’m your cat guide. Where shall we explore today?")}</p></div>}
     {!open && !welcome && mapNotice && preferences.proactive && <button className="pet-welcome glass-panel text-left" onClick={() => onOpen(true)}>{mapNotice.text}</button>}
     {open && subtitle && <p className="pet-subtitle" aria-hidden="true">{subtitle}</p>}
-    <button ref={button} type="button" className="pet-character" aria-label="栖霞灵猫，打开对话，可拖动" aria-expanded={open} aria-controls="pet-chat" onPointerEnter={() => { if (status === 'ready') play('curious', 1200) }} {...dragController.handlers} onClick={() => { dismissWelcome(); play('wave', 2000); onOpen(!open) }}>
-      <span ref={gaze} className="pet-gaze" style={{ display: 'block', transformOrigin: '50% 80%', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 180ms ease-out' }}>{spriteAnimation === 'idle' ? <span style={{ display: 'block', position: 'relative', width: '100%', aspectRatio: '1', animation: preferences.reducedMotion || systemMotion ? 'none' : 'pet-resting-sway 4.8s ease-in-out infinite' }}><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-base.png`} alt="栖霞灵猫" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-eyes.png`} alt="" aria-hidden="true" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', transform: 'translate(var(--pet-eye-x, 0px), var(--pet-eye-y, 0px))', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 120ms ease-out', pointerEvents: 'none' }} /></span> : <SpriteAnimator state={spriteAnimation} reducedMotion={preferences.reducedMotion || systemMotion} className="h-full w-full" />}</span><span className="pet-name">栖霞灵猫 <span aria-hidden="true">✦</span></span>
+    <button ref={button} type="button" className="pet-character" aria-label={t("栖霞灵猫，打开对话，可拖动", "Qixia cat guide, open chat; draggable")} aria-expanded={open} aria-controls="pet-chat" onPointerEnter={() => { if (status === 'ready') play('curious', 1200) }} {...dragController.handlers} onClick={() => { dismissWelcome(); play('wave', 2000); onOpen(!open) }}>
+      <span ref={gaze} className="pet-gaze" style={{ display: 'block', transformOrigin: '50% 80%', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 180ms ease-out' }}>{spriteAnimation === 'idle' ? <span style={{ display: 'block', position: 'relative', width: '100%', aspectRatio: '1', animation: preferences.reducedMotion || systemMotion ? 'none' : 'pet-resting-sway 4.8s ease-in-out infinite' }}><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-base.png`} alt={t("栖霞灵猫", "Qixia Cat")} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /><img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/pet/qixia-cat/frames/gaze-eyes.png`} alt="" aria-hidden="true" draggable={false} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', transform: 'translate(var(--pet-eye-x, 0px), var(--pet-eye-y, 0px))', transition: preferences.reducedMotion || systemMotion ? 'none' : 'transform 120ms ease-out', pointerEvents: 'none' }} /></span> : <SpriteAnimator state={spriteAnimation} reducedMotion={preferences.reducedMotion || systemMotion} className="h-full w-full" />}</span><span className="pet-name">{t("栖霞灵猫", "Qixia Cat")} <span aria-hidden="true">✦</span></span>
     </button>
     </aside>}
-    {preferences.hidden && <button type="button" className="pet-welcome glass-panel" aria-label="恢复显示栖霞灵猫" onClick={() => setPreferences(p => ({ ...p, hidden: false }))}>恢复灵猫</button>}
+    {preferences.hidden && <button type="button" className="pet-welcome glass-panel" aria-label={t("恢复显示栖霞灵猫", "Show Qixia cat guide")} onClick={() => setPreferences(p => ({ ...p, hidden: false }))}>{t("恢复灵猫", "Show cat guide")}</button>}
   </>
 }

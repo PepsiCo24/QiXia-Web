@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "./language-provider";
+import { localizeText, translatePoiName } from "@/lib/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   GeoJSONSource,
@@ -69,7 +71,7 @@ const MAP_STYLE: StyleSpecification = {
       ],
       tileSize: 256,
       maxzoom: 18,
-      attribution: "影像 © Esri · 高程 © Mapzen / AWS Terrain Tiles",
+      attribution: "Imagery © Esri · Elevation © Mapzen / AWS Terrain Tiles",
     },
     terrain: {
       type: "raster-dem",
@@ -187,6 +189,9 @@ export function MapView({
   onSelectKb,
   kbFitKey = "",
 }: MapViewProps) {
+  const { locale, t } = useLanguage();
+  const languageRef = useRef({ locale, t });
+  languageRef.current = { locale, t };
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const poiElements = useRef<Map<string, HTMLElement>>(new Map());
@@ -247,7 +252,7 @@ export function MapView({
       canvas.tabIndex = 0;
       canvas.setAttribute(
         "aria-label",
-        "栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放",
+        languageRef.current.t("栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放", "Qixia Mountain map: scroll to zoom, drag to pan, right-drag to rotate and tilt, arrow keys to pan, plus/minus to zoom"),
       );
       map.on("mousedown", () => canvas.focus({ preventScroll: true }));
       observer = new ResizeObserver(() => map?.resize());
@@ -283,8 +288,8 @@ export function MapView({
           const button = document.createElement("button");
           button.type = "button";
           button.className = "reset-view-btn";
-          button.setAttribute("aria-label", "重置地图视角，回到景区全景");
-          button.title = "回到景区视角";
+          button.setAttribute("aria-label", languageRef.current.t("重置地图视角，回到景区全景", "Reset map to the mountain overview"));
+          button.title = languageRef.current.t("回到景区视角", "Return to mountain overview");
           button.innerHTML =
             '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>';
           button.addEventListener("click", () => {
@@ -326,8 +331,8 @@ export function MapView({
             button.className = "qixia-view-toggle";
             const sync = () => {
               const overhead = controlMap.getPitch() < 10;
-              button.textContent = overhead ? "三维" : "俯视";
-              button.title = overhead ? "切换三维视角" : "切换俯视视角";
+              button.textContent = overhead ? languageRef.current.t("三维", "3D") : languageRef.current.t("俯视", "Top");
+              button.title = overhead ? languageRef.current.t("切换三维视角", "Switch to 3D view") : languageRef.current.t("切换俯视视角", "Switch to overhead view");
               button.setAttribute("aria-label", button.title);
               button.setAttribute("aria-pressed", String(overhead));
             };
@@ -498,7 +503,7 @@ export function MapView({
           const el = document.createElement("button");
           el.type = "button";
           el.className = "poi-marker";
-          el.setAttribute("aria-label", `查看${poi.name}`);
+          el.setAttribute("aria-label", languageRef.current.t(`查看${poi.name}`, `View ${translatePoiName(poi.name, languageRef.current.locale)}`));
           el.innerHTML = `<img class="poi-thumb" src="${poi.image}" alt="${poi.name}缩略图" loading="lazy" decoding="async" /><span class="poi-dot"></span><span class="poi-label">${poi.name}</span>`;
           el.addEventListener("click", (ev) => {
             ev.stopPropagation();
@@ -565,7 +570,7 @@ export function MapView({
               "summit",
             ].includes(id);
             const point = map!.project(POI_MAP[id].coordinates);
-            const width = POI_MAP[id].name.length * 15 + 44;
+            const width = (el.querySelector(".poi-label")?.textContent?.length ?? POI_MAP[id].name.length) * (languageRef.current.locale === "en" ? 8 : 15) + 44;
             const collide = occupied.some(
               (p) =>
                 Math.abs(p.x - point.x) < (p.w + width) / 2 &&
@@ -640,6 +645,55 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!ready || !map) return;
+    const root = map.getContainer();
+    map.getCanvas().setAttribute("aria-label", t("栖霞山地图：滚轮缩放，左键拖动平移，右键拖动旋转与倾斜，方向键平移，加减键缩放", "Qixia Mountain map: scroll to zoom, drag to pan, right-drag to rotate and tilt, arrow keys to pan, plus/minus to zoom"));
+    const controlLabels: [string, string, string][] = [
+      [".maplibregl-ctrl-zoom-in", "放大", "Zoom in"],
+      [".maplibregl-ctrl-zoom-out", "缩小", "Zoom out"],
+      [".maplibregl-ctrl-compass", "重置正北方向", "Reset bearing to north"],
+      [".maplibregl-ctrl-attrib-button", "地图版权信息", "Map attribution"],
+      [".reset-view-btn", "重置地图视角，回到景区全景", "Reset map to the mountain overview"],
+    ];
+    controlLabels.forEach(([selector, zh, en]) => {
+      const el = root.querySelector<HTMLElement>(selector);
+      if (el) { el.title = t(zh, en); el.setAttribute("aria-label", t(zh, en)); }
+    });
+    const toggle = root.querySelector<HTMLElement>(".qixia-view-toggle");
+    if (toggle) {
+      const overhead = map.getPitch() < 10;
+      toggle.textContent = overhead ? t("三维", "3D") : t("俯视", "Top");
+      toggle.title = overhead ? t("切换三维视角", "Switch to 3D view") : t("切换俯视视角", "Switch to overhead view");
+      toggle.setAttribute("aria-label", toggle.title);
+    }
+    const stops = personaId === "default" ? [...DEFAULT_POI_IDS] : PERSONA_MAP[personaId].stops;
+    poiElements.current.forEach((el, id) => {
+      const name = translatePoiName(POI_MAP[id].name, locale);
+      el.setAttribute("aria-label", t(`查看${POI_MAP[id].name}`, `View ${name}`));
+      const label = el.querySelector<HTMLElement>(".poi-label");
+      const index = stops.indexOf(id);
+      const order = index === 0 ? t("起", "S") : index === stops.length - 1 ? t("终", "E") : index >= 0 ? String(index + 1) : "";
+      el.dataset.order = order;
+      if (label) { label.textContent = name; label.dataset.order = order; }
+      const image = el.querySelector("img");
+      if (image) image.alt = t(`${POI_MAP[id].name}缩略图`, `Thumbnail of ${name}`);
+    });
+    trafficElements.current.forEach((el, index) => {
+      const node = TRAFFIC_NODES[index];
+      const kind = el.querySelector(".traffic-kind");
+      if (kind) kind.textContent = node.kind === "parking" ? "P" : node.kind === "shuttle" ? t("车", "S") : t("公", "B");
+      const text = el.querySelector(".traffic-text");
+      if (text) {
+        text.replaceChildren();
+        const title = document.createElement("b");
+        title.textContent = localizeText(node.name, locale);
+        text.append(title, node.kind === "parking" ? t(`余 ${node.capacity - node.used} 位`, `${node.capacity - node.used} spaces free`) : `${Math.round(node.used / node.capacity * 100)}%`);
+      }
+    });
+  }, [ready, locale, t, personaId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready || !map) return;
     map.setLayoutProperty(
       "heat",
       "visibility",
@@ -698,9 +752,9 @@ export function MapView({
       el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
       el.dataset.order =
         index === 0
-          ? "起"
+          ? languageRef.current.t("起", "S")
           : index === stops.length - 1
-            ? "终"
+            ? languageRef.current.t("终", "E")
             : index >= 0
               ? String(index + 1)
               : "";
@@ -892,13 +946,14 @@ export function MapView({
         const el = document.createElement("button");
         el.type = "button";
         el.className = "kb-marker";
-        el.setAttribute("aria-label", `查看资料：${spot.title}`);
+        el.classList.toggle("is-selected", spot.id === selectedKbId);
+        el.setAttribute("aria-label", t(`查看资料：${spot.title}`, `View entry: ${translatePoiName(spot.title, locale)}`));
         el.dataset.lngLat = `${spot.coord[0]},${spot.coord[1]}`;
         const dot = document.createElement("span");
         dot.className = "kb-dot";
         const label = document.createElement("span");
         label.className = "kb-label";
-        label.textContent = spot.title;
+        label.textContent = translatePoiName(spot.title, locale);
         el.append(dot, label);
         el.addEventListener("click", (event) => {
           event.stopPropagation();
@@ -929,7 +984,7 @@ export function MapView({
         kbZoomListenerRef.current = null;
       }
     };
-  }, [ready, kbMode, kbSpots]);
+  }, [ready, kbMode, kbSpots, locale, t]);
 
   /** 资料模式：页签切换时把该分类点位收进视野；退出时回到默认视角 */
   useEffect(() => {
@@ -1001,19 +1056,18 @@ export function MapView({
 
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
+      <div ref={containerRef} className="h-full w-full" aria-label={t("栖霞山三维地形地图", "Qixia Mountain 3D terrain map")} role="application" />
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
-            正在载入栖霞山地形
+            {t("正在载入栖霞山地形", "Loading Qixia Mountain terrain")}
           </p>
         </div>
       )}
       {failed && (
         <div className="absolute inset-0 flex items-center justify-center bg-background p-6 text-center">
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            当前设备不支持 WebGL
-            三维地图，已切换为列表导览。可在下方“问栖霞”中继续查询路线与景点。
+            {t("当前设备不支持 WebGL 三维地图，已切换为列表导览。可在下方“问栖霞”中继续查询路线与景点。", "This device does not support the WebGL 3D map. Use the list guide or Ask Qixia below to explore routes and sights.")}
           </p>
         </div>
       )}

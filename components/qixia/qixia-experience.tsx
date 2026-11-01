@@ -10,10 +10,12 @@ import { PhotoEntry } from './photo/photo-entry'
 import { POI_MAP, type PersonaId } from '@/lib/qixia-data'
 import { mapCommandSchema, type MapCommand } from '@/lib/pet/pet-actions'
 import { localReply } from '@/lib/pet/pet-knowledge'
+import { useLanguage } from './language-provider'
 
 function scrollToMap() { document.getElementById('map')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 
 export function QixiaExperience() {
+  const { t, poi, locale } = useLanguage()
   const [personaId, setPersonaId] = useState<PersonaId>('default')
   const [open, setOpen] = useState(false)
   const [command, setCommand] = useState<{ id: number; action: MapCommand } | null>(null)
@@ -64,17 +66,17 @@ export function QixiaExperience() {
       setMessages(prev => [...prev,
         { id: crypto.randomUUID(), role: 'user', parts: [{ type: 'text', text }] },
         { id: crypto.randomUUID(), role: 'assistant', parts: [
-          { type: 'text', text: reply ? reply.text : '喵～你可以先看看地图上的景点，或选一条游览路线。' },
+          { type: 'text', text: locale === 'en' ? 'Meow! Explore the sights on the map or choose a suggested route.' : reply ? reply.text : '喵～你可以先看看地图上的景点，或选一条游览路线。' },
           ...(reply?.commands.map(data => ({ type: 'data-map-command' as const, data })) || []),
         ] },
       ])
-    } else void sendMessage({ text }, { body: { persona: personaId, demo } })
+    } else void sendMessage({ text }, { body: { persona: personaId, demo, locale } })
   }
   const askFromMap = (question?: string) => { setOpen(true); if (question) send(question) }
   return <main className="qixia-viewport bg-background text-foreground">
-    <HeroMap personaId={personaId} onPersonaChange={setPersonaId} onAsk={askFromMap} command={command} onPoiSelect={id => setMapNotice({ id: Date.now(), text: `这里是${POI_MAP[id].name}！想听听它的故事吗？` })} />
+    <HeroMap personaId={personaId} onPersonaChange={setPersonaId} onAsk={askFromMap} command={command} onPoiSelect={id => setMapNotice({ id: Date.now(), text: t(`这里是${POI_MAP[id].name}！想听听它的故事吗？`, `This is ${poi(POI_MAP[id].name, 'en')}! Want to hear its story?`) })} />
 
-    <section id="ask" className="qixia-ask border-t border-border px-5 py-12 text-center"><p className="text-xs tracking-[0.35em] text-primary">ASK QIXIA</p><h2 className="my-3 font-serif text-3xl">让灵猫陪你游栖霞</h2><p className="mx-auto mb-5 max-w-lg text-sm leading-relaxed text-muted-foreground">问故事、看景点、选适合同行人的游览顺序。灵猫会帮你了解景点故事，找到适合自己的游览节奏。</p><button className="rounded-full bg-primary px-6 py-3 text-sm text-primary-foreground" onClick={() => setOpen(true)}>与栖霞灵猫聊聊</button></section>
+    <section id="ask" className="qixia-ask border-t border-border px-5 py-12 text-center"><p className="text-xs tracking-[0.35em] text-primary">ASK QIXIA</p><h2 className="my-3 font-serif text-3xl">{t('让灵猫陪你游栖霞', 'Explore Qixia with the Mountain Cat')}</h2><p className="mx-auto mb-5 max-w-lg text-sm leading-relaxed text-muted-foreground">{t('问故事、看景点、选适合同行人的游览顺序。灵猫会帮你了解景点故事，找到适合自己的游览节奏。', 'Ask about local stories and sights, or find an itinerary that suits your group. The Mountain Cat can help you explore at your own pace.')}</p><button className="rounded-full bg-primary px-6 py-3 text-sm text-primary-foreground" onClick={() => setOpen(true)}>{t('与栖霞灵猫聊聊', 'Chat with the Mountain Cat')}</button></section>
      <PhotoEntry />
      <SiteFooter />
      <PetDock open={open} onOpen={setOpen} messages={messages} status={status} error={error} onSend={send} onStop={() => { void stop() }} onReset={() => setMessages([])} personaId={personaId} onCommand={execute} mapNotice={mapNotice} />
