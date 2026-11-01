@@ -18,7 +18,7 @@ export const knowledgeMetadata = {
 
 const HISTORY_PROVENANCE = '历史叙述整理自仓库导览资料，尚未独立核验，请结合景区说明或权威文献阅读。'
 
-export const SOURCE_BOUNDARY = '本站为栖霞山导览演示：点位、路线及距离耗时均为示意，未经现场核验；客流、天气、红叶、交通、预警为模拟数据，不是实时信息。设施位置、开放状态、台阶数量、坡度及无障碍条件未核验，请以景区官方公告、现场标识和工作人员确认为准。'
+export const SOURCE_BOUNDARY = '栖霞山导览信息说明：点位、路线及距离耗时均为示意，未经现场核验；客流、天气、红叶、交通、预警为模拟数据，不是实时信息。设施位置、开放状态、台阶数量、坡度及无障碍条件未核验，请以景区官方公告、现场标识和工作人员确认为准。'
 
 export function validPersona(value: unknown): Exclude<PersonaId, 'default'> {
   return typeof value === 'string' && Object.hasOwn(PERSONA_MAP, value) && value !== 'default' ? value as Exclude<PersonaId, 'default'> : 'family'
@@ -26,7 +26,7 @@ export function validPersona(value: unknown): Exclude<PersonaId, 'default'> {
 
 // Deliberately curated: legacy demo descriptions contain unverified facility and accessibility claims.
 const stories: Record<string, string> = {
-  gate: '南门游客中心是本演示路线的起点；具体服务和开放情况需向景区确认。',
+  gate: '南门游客中心是参考路线的起点；具体服务和开放情况需向景区确认。',
   'mirror-lake': '明镜湖位于栖霞寺前，可从湖景与寺院的关系开始认识栖霞山。',
   temple: '仓库资料记载：栖霞寺始建于南齐永明七年（489年），明僧绍舍宅建寺，初名“栖霞精舍”，与三论宗文化关系密切。寺院历经毁建，现存建筑多为清末民初重建，可从山门与层叠殿宇观察寺院依山布局。',
   stele: '仓库资料记载：明征君碑立于唐上元三年（676年），唐高宗李治撰文、高正臣书写，追述明僧绍隐居栖霞与舍宅建寺的经历。碑阴“栖霞”二字相传出自高宗手书；“相传”不等于已核验定论。',
@@ -36,7 +36,7 @@ const stories: Record<string, string> = {
   'peach-creek': '桃花涧适合认识山涧景观；沿途休息与补给条件需要现场确认。',
   tiankai: '仓库资料记载：天开岩两崖对峙，形如天门初开，崖壁保存宋、明、清等时期的诗文、游记和地名题刻。可以把题刻看作文人留下的游山记录，结合字形与位置观察；作者、年代与原文请以现场释文核对。',
   dielang: '叠浪崖可关注岩层与林木的构图，山路和石阶通行条件需现场确认。',
-  'maple-ridge': '枫岭是本演示中的赏枫点位；实际红叶颜色与最佳观赏期随天气变化。',
+  'maple-ridge': '枫岭是地图上的赏枫点位；实际红叶颜色与最佳观赏期随天气变化。',
   summit: '凤翔峰为登高观景点，需结合体力、天气与现场开放情况决定是否前往。',
   biyun: '碧云亭可作为观景摄影的备选点，日落时刻与通行条件需另查当日权威信息。',
 }
@@ -50,7 +50,7 @@ export function localReply(text: string, personaId: string): { text: string; com
   let selected = validPersona(personaId)
   const commands: MapCommand[] = []
   const q = text.trim().toLowerCase()
-  const prefix = '【本地演示】'
+  const prefix = '喵～'
   if (/来源|出处|可靠|真实|数据|官方|source/.test(q) && !/实时|现在|今天/.test(q)) {
     return { text: prefix + `资料来源为仓库 ${knowledgeMetadata.source}，更新时间未知，未经独立核验。${SOURCE_BOUNDARY}`, commands }
   }
@@ -69,7 +69,7 @@ export function localReply(text: string, personaId: string): { text: string; com
     || (!wantsRoute && /红叶.*(?:红了|变红|变色|最佳|时候)|日落.*(?:几点|时间)|停车.*(?:满|剩|情况)/.test(q))
   if (realtimeQuestion) {
     const layer = /停车|车位|交通/.test(q) ? 'traffic' : /预警|危险/.test(q) ? 'alerts' : 'heat'
-    return { text: prefix + '已打开相关演示图层。这里的客流、停车、天气、日落、红叶和预警均为模拟数据，不能回答今天真实情况，也不能用于安全判断。出发前请查景区官方公告与当日天气，现场以标识和工作人员指引为准。', commands: [{ type: 'toggle_layer', layer, visible: true }] }
+    return { text: prefix + '已打开相关图层。图中信息并非实时，今天的天气、红叶和交通情况请查看景区公告。出发前请查景区官方公告与当日天气，现场以标识和工作人员指引为准。', commands: [{ type: 'toggle_layer', layer, visible: true }] }
   }
   const historyPoi = /明僧绍|舍宅|三论宗/.test(q) ? 'temple' : /李治|高正臣|唐高宗/.test(q) ? 'stele' : /八相成道|南唐石塔/.test(q) ? 'pagoda' : /乾隆|南巡/.test(q) ? 'palace' : null
   const poi = POIS.find(p => q.includes(p.name.toLowerCase()) || q.includes(p.id)) || POIS.find(p => p.id === historyPoi)
@@ -88,7 +88,7 @@ export function localReply(text: string, personaId: string): { text: string; com
     return { text: `${prefix}已定位${poi.name}并打开点位卡。${stories[poi.id]} ${HISTORY_PROVENANCE}点位为示意；开放状态与现场通行条件需确认。`, commands: [{ type: 'focus_place', poiId: poi.id }, { type: 'show_poi_card', poiId: poi.id }, { type: 'play_animation', animation: 'guide' }] }
   }
   const layer = /设备/.test(q) ? 'devices' : /交通/.test(q) ? 'traffic' : /热力/.test(q) ? 'heat' : /警报|安全/.test(q) ? 'alerts' : null
-  if (layer) return { text: prefix + '已调整演示图层，图中状态为模拟数据，不能作为实时现场依据。', commands: [{ type: 'toggle_layer', layer, visible: !/关闭|隐藏|关掉/.test(q) }] }
-  if (/你好|嗨|打招呼/.test(q)) return { text: prefix + '你好，我是栖霞灵猫，喵！我会陪你慢慢逛，可以推荐同行路线、讲解栖霞寺或定位千佛岩。这里的地图与状态为演示，设施与通行条件需现场确认。', commands: [{ type: 'play_animation', animation: 'wave' }] }
+  if (layer) return { text: prefix + '已调整图层，图中状态为模拟数据，不能作为实时现场依据。', commands: [{ type: 'toggle_layer', layer, visible: !/关闭|隐藏|关掉/.test(q) }] }
+  if (/你好|嗨|打招呼/.test(q)) return { text: prefix + '你好，我是栖霞灵猫，喵！我会陪你慢慢逛，可以推荐同行路线、讲解栖霞寺或定位千佛岩。设施与通行条件请以现场为准。', commands: [{ type: 'play_animation', animation: 'wave' }] }
   return { text: prefix + '我可以展示亲子、长者、文化、青年或摄影路线，也能定位明镜湖、栖霞寺、千佛岩等点位。你可以说“带孩子怎么玩”或“带我看舍利塔”。当前知识不含该问题的可靠答案，票价、开放与设施信息请以景区官方或现场确认为准。', commands: [{ type: 'play_animation', animation: 'curious' }] }
 }

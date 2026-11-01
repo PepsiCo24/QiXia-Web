@@ -117,7 +117,7 @@ export function AskSection({ personaId, onPersonaChange, chatAvailable, messages
           <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-5" aria-live="polite">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                <p className="font-serif text-2xl text-foreground">一客一景 · 一刻一路</p>
+                <p className="font-serif text-2xl text-foreground">一客一景，一刻一路</p>
                 <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
                   {chatAvailable
                     ? '问路线、问故事、问光线、问哪里能坐下歇脚。也可以在地图上点选景点，直接“继续追问”。'

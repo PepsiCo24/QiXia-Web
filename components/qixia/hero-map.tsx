@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import type { MapCommand } from "@/lib/pet/pet-actions";
 import { MapView, type LayerState } from "./map-view";
-import { TopBar } from "./top-bar";
 import { HourSlider, LayerPanel, LayerToggles } from "./layer-panel";
 import { PersonaPanel } from "./persona-panel";
 import { PoiCard } from "./poi-card";
@@ -132,23 +131,11 @@ export function HeroMap({
         className="map-vignette pointer-events-none absolute inset-0"
         aria-hidden="true"
       />
-      {!navigating && (
-        <TopBar onFoliage={() => setTool("foliage")} />
-      )}
-      {!navigating && (
-        <div className="map-intro pointer-events-none">
-          <p className="eyebrow">NANJING · QIXIA MOUNTAIN</p>
-          <h1>
-            一山秋色，
-            <br />
-            一程有你。
-          </h1>
-          <p>循着山林，找到属于你的栖霞。</p>
-          <span>
-            3D 地形探索 <i /> AI 灵猫陪伴
-          </span>
-        </div>
-      )}
+      {!navigating && <div className="falling-leaves" aria-hidden="true">
+        {['8%', '19%', '31%', '44%', '58%', '71%', '86%'].map((left, index) => (
+          <span key={left} style={{ left, animationDelay: `${-index * 2.1}s`, animationDuration: `${11 + index % 4}s` }}>🍁</span>
+        ))}
+      </div>}
       {!navigating && (
         <div ref={toolRef} className="map-tool-host">
           <nav className="map-tools glass-panel" aria-label="地图工具">
@@ -219,7 +206,7 @@ export function HeroMap({
                   </p>
                   <p>
                     承载率 {Math.round(s.loadRatio * 100)}% ·{" "}
-                    {String(hour).padStart(2, "0")}:00 演示快照
+                    {String(hour).padStart(2, "0")}:00 时段参考
                   </p>
                   <HourSlider hour={hour} onHourChange={setHour} />
                   <div className="heat-legend">
@@ -239,7 +226,7 @@ export function HeroMap({
                   <p>
                     {FOLIAGE.weather} · 日落 {FOLIAGE.sunset}
                   </p>
-                  <p>红叶与天气为演示信息；当前未接入红叶分布热力数据。</p>
+                  <p>红叶与天气非实时信息，赏枫情况请以现场为准。</p>
                   <button
                     className="outline-button"
                     onClick={() => selectPoi("maple-ridge")}

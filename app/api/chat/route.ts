@@ -103,6 +103,7 @@ async function chat(req: Request) {
   }
   const text = last.parts.filter(p => p.type === 'text').map(p => p.text).join('\n')
   const persona = validPersona(body.persona)
+  const personaContext = body.persona && body.persona !== 'default' ? '' : '\n用户尚未选择同行方式，不要假设有孩子、老人或特定同行人，不要主动添加亲子语气。'
   const fallback = localReply(text, persona)
   const plan = planPetResponse(text)
   const controller = new AbortController()
@@ -121,6 +122,7 @@ async function chat(req: Request) {
         writer.write({ type: 'data-map-command', data })
       }
       const emitText = (value: string) => {
+        if (value.trim()) hasAnswer = true
         const id = crypto.randomUUID()
         writer.write({ type: 'text-start', id })
         for (const delta of value.match(/[\s\S]{1,20}/g) || []) writer.write({ type: 'text-delta', id, delta })
@@ -128,6 +130,7 @@ async function chat(req: Request) {
       }
       writer.write({ type: 'start', messageId: crypto.randomUUID() })
       let failed = false
+      let hasAnswer = false
       if (!body.demo) for (const command of plan.commands) emitCommand(command)
       const appliedCommands: MapCommand[] = []
       let kb: KbSourcesData = { query: text.slice(0, 300), status: 'unavailable', results: [] }
@@ -139,7 +142,7 @@ async function chat(req: Request) {
         writer.write({ type: 'data-kb-sources', data: kb })
         // Exclude local historical stories entirely from production model input.
         const mapSystem = buildPetSystemPrompt(persona).replace(/知识来源：[\s\S]*?示意路线/, '示意路线')
-        const groundedSystem = mapSystem + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb) + PET_OUTPUT_POLICY + '\n本轮意图：' + plan.instruction + '\n已执行操作：' + JSON.stringify(plan.commands)
+        const groundedSystem = mapSystem + personaContext + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb) + PET_OUTPUT_POLICY + '\n本轮意图：' + plan.instruction + '\n已执行操作：' + JSON.stringify(plan.commands)
         const searchPlacesSchema = z.object({ query: z.string().max(100) }).strict()
         const routesSchema = z.object({ personaId: z.enum(['family', 'youth', 'culture', 'elder', 'photo']).optional() }).strict()
         const searchPlaces = (input: z.infer<typeof searchPlacesSchema>) => ({ demo: true, verified: false, places: POIS.filter(p => !input.query || p.name.includes(input.query) || p.id.includes(input.query)).map(p => ({ id: p.id, name: p.name })) })
@@ -151,6 +154,7 @@ async function chat(req: Request) {
             description: '执行栖霞山演示地图操作。只接受已知点位和同行方式；设施操作仅打开未核验提示。',
             inputSchema: toolInputSchema,
             execute: async input => {
+              if (/focus_place|show_poi_card|show_route|select_persona/.test(input.command.type) && !/带我|定位|打开|想去|前往|路线|怎么走|怎么玩|行程|推荐/.test(text)) return { commands: [], notice: '本轮只需回答问题，不执行地图操作。' }
               const output = executeMapCommand(input.command)
               for (const command of output.commands) emitCommand(command)
               return output
@@ -207,6 +211,7 @@ async function chat(req: Request) {
                 content += delta.content
                 if (content.length > 12_000) throw new Error('answer too large')
                 if (!started) { writer.write({ type: 'text-start', id: textId }); started = true }
+                if (delta.content.trim()) hasAnswer = true
                 writer.write({ type: 'text-delta', id: textId, delta: delta.content })
               }
               if (delta.tool_calls !== undefined && !Array.isArray(delta.tool_calls)) throw new Error('invalid tool delta')
@@ -280,7 +285,11 @@ async function chat(req: Request) {
               const outputs = orderedCalls.map(call => {
                 if (!call.id) throw new Error('invalid tool')
                 const input: unknown = JSON.parse(call.function.arguments)
-                if (call.function.name === 'map_action') return executeMapCommand(toolInputSchema.parse(input).command)
+                if (call.function.name === 'map_action') {
+                  const command = toolInputSchema.parse(input).command
+                  if (/focus_place|show_poi_card|show_route|select_persona/.test(command.type) && !/带我|定位|打开|想去|前往|路线|怎么走|怎么玩|行程|推荐/.test(text)) return { commands: [], notice: '本轮只需回答问题，不执行地图操作。' }
+                  return executeMapCommand(command)
+                }
                 if (call.function.name === 'search_places') return searchPlaces(searchPlacesSchema.parse(input))
                 if (call.function.name === 'get_persona_routes') return getRoutes(routesSchema.parse(input))
                 throw new Error('invalid tool')
@@ -303,7 +312,7 @@ async function chat(req: Request) {
             tools, stopWhen: stepCountIs(3), maxOutputTokens: 700, maxRetries: 0, abortSignal: controller.signal,
           })
           const uiStream = toUIMessageStream({ stream: result.stream, tools, sendStart: false, sendFinish: false,
-            onError: () => { failed = true; return '在线讲解暂不可用，可展开知识库来源查看资料。' },
+            onError: () => { failed = true; return '' },
           })
           // Drain inside execute so async failures can fall back before stream completion.
           const reader = uiStream.getReader()
@@ -311,6 +320,8 @@ async function chat(req: Request) {
             while (true) {
               const { value, done } = await reader.read()
               if (done) break
+              if (value.type === 'error') failed = true
+              if (value.type === 'text-delta' && value.delta.trim()) hasAnswer = true
               if (value.type !== 'error') writer.write(value as Parameters<typeof writer.write>[0])
             }
           } finally { reader.releaseLock() }
@@ -324,9 +335,9 @@ async function chat(req: Request) {
         clearTimeout(timeout)
         req.signal.removeEventListener('abort', abort)
       }
-      if (failed && !req.signal.aborted) {
+      if (failed && !req.signal.aborted && !hasAnswer) {
         if (body.demo) {
-          emitText('已启用本地演示。\n' + fallback.text)
+          emitText(fallback.text)
           for (const command of fallback.commands) emitCommand(command)
         } else {
           emitText([plan.acknowledgement, kbExcerptReply(kb)].filter(Boolean).join('\n'))

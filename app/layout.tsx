@@ -6,7 +6,7 @@ import './immersive.css'
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 export const metadata: Metadata = {
-  title: '栖霞山 · 数字游览 | 一客一景 · 一刻一路',
+  title: '栖霞山 · 数字游览 | 一客一景，一刻一路',
   description: '南京栖霞山三维数字游览：实时客流热力、设备状态、交通运力与安全预警，按亲子、青年、文化、长者、摄影五类来客推荐路线，并可随时问栖霞。',
   generator: 'v0.app',
   icons: {
