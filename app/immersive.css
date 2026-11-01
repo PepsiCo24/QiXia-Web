@@ -65,3 +65,7 @@ button,a,input{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}bu
 
 
 @media(max-width:800px){.brand-slogan{display:none}}
+/* Portal coordinates are measured from the draggable cat in the visual viewport. */
+.pet-panel-host.pet-panel-follow .pet-chat{position:fixed;right:auto;bottom:auto;transform:none;min-width:0}
+.pet-panel-follow .pet-messages{min-height:0}
+

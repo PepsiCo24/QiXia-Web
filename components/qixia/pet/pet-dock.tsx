@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { UIMessage } from 'ai'
 import SpriteAnimator from './sprite-animator'
@@ -25,6 +25,43 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const spoken = useRef('')
   const button = useRef<HTMLButtonElement>(null)
   const gaze = useRef<HTMLSpanElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (!open || !loaded || preferences.hidden) return
+    const host = panel.current
+    const dock = button.current?.closest('.pet-dock')
+    const chat = host?.querySelector<HTMLElement>('.pet-chat')
+    if (!host || !dock || !chat) return
+    const place = () => {
+      const viewport = window.visualViewport
+      const vx = viewport?.offsetLeft ?? 0, vy = viewport?.offsetTop ?? 0
+      const vw = viewport?.width ?? innerWidth, vh = viewport?.height ?? innerHeight
+      const pet = dock.getBoundingClientRect()
+      const width = Math.min(355, Math.max(0, vw - 24))
+      const spaceRight = vx + vw - pet.right - 12
+      const spaceLeft = pet.left - vx - 12
+      const left = spaceRight >= width || spaceRight > spaceLeft ? pet.right + 12 : pet.left - width - 12
+      chat.style.width = `${width}px`
+      chat.style.maxHeight = `${Math.max(0, Math.min(590, vh - 24))}px`
+      chat.style.left = `${Math.max(vx + 12, Math.min(left, vx + vw - width - 12))}px`
+      chat.style.top = `${Math.max(vy + 12, Math.min(pet.top + pet.height / 2 - chat.offsetHeight / 2, vy + vh - chat.offsetHeight - 12))}px`
+    }
+    const movement = new MutationObserver(place)
+    movement.observe(dock, { attributes: true, attributeFilter: ['style'] })
+    const size = new ResizeObserver(place)
+    size.observe(chat)
+    size.observe(dock)
+    window.addEventListener('resize', place)
+    window.visualViewport?.addEventListener('resize', place)
+    window.visualViewport?.addEventListener('scroll', place)
+    place()
+    return () => {
+      movement.disconnect(); size.disconnect()
+      window.removeEventListener('resize', place)
+      window.visualViewport?.removeEventListener('resize', place)
+      window.visualViewport?.removeEventListener('scroll', place)
+    }
+  }, [open, loaded, preferences.hidden])
   useEffect(() => {
     if (preferences.hidden || dragController.isDragging || animation !== 'idle') return
     let frame = 0
@@ -103,7 +140,7 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const subtitle = status === 'streaming' && last?.role === 'assistant' ? last.parts.map(p => p.type === 'text' ? p.text : '').join('').slice(-64) : ''
   return <>
     {!preferences.hidden && <aside ref={dragController.ref} className={`pet-dock pet-${dragController.side}`} aria-label="栖霞灵猫向导">
-    {open && loaded && createPortal(<div className={`pet-panel-host pet-panel-${dragController.side}`}><PetChatPanel personaId={personaId} messages={messages} status={status} error={error} preferences={preferences} onPreferences={setPreferences} onSend={text => onSend(text, preferences.demo)} onStop={stop} onClose={() => { stop(); onOpen(false); button.current?.focus() }} onReset={() => { stop(); onReset(); consumed.current.clear() }} onRetry={() => { const previous = [...messages].reverse().find(message => message.role === 'user'); const text = previous?.parts.map(part => part.type === 'text' ? part.text : '').join(''); if (text) onSend(text, preferences.demo) }} input={input} onInput={setInput} /></div>, document.body)}
+    {open && loaded && createPortal(<div ref={panel} className={`pet-panel-host pet-panel-follow pet-panel-${dragController.side}`}><PetChatPanel personaId={personaId} messages={messages} status={status} error={error} preferences={preferences} onPreferences={setPreferences} onSend={text => onSend(text, preferences.demo)} onStop={stop} onClose={() => { stop(); onOpen(false); button.current?.focus() }} onReset={() => { stop(); onReset(); consumed.current.clear() }} onRetry={() => { const previous = [...messages].reverse().find(message => message.role === 'user'); const text = previous?.parts.map(part => part.type === 'text' ? part.text : '').join(''); if (text) onSend(text, preferences.demo) }} input={input} onInput={setInput} /></div>, document.body)}
     {!open && welcome && preferences.proactive && <div className="pet-welcome glass-panel"><button aria-label="关闭欢迎提示" className="float-right px-2" onClick={dismissWelcome}>×</button><p>喵～欢迎来到栖霞山！我是栖霞灵猫，今天想让我带你去哪里看看？</p></div>}
     {!open && !welcome && mapNotice && preferences.proactive && <button className="pet-welcome glass-panel text-left" onClick={() => onOpen(true)}>{mapNotice.text}</button>}
     {open && subtitle && <p className="pet-subtitle" aria-hidden="true">{subtitle}</p>}
