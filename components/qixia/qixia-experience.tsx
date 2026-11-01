@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { HeroMap } from './hero-map'
@@ -22,6 +22,16 @@ export function QixiaExperience() {
   const staticWithoutAgent = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true' && !agentBase
   const [transport] = useState(() => new DefaultChatTransport({ api: agentBase ? `${agentBase}/api/chat` : '/api/chat' }))
   const { messages, sendMessage, status, error, stop, setMessages } = useChat({ transport })
+  useEffect(() => {
+    if (personaId === 'default') return
+    const resetOnOutsidePointer = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      if (target?.closest('.persona-tabs, .pet-dock, .pet-panel-host')) return
+      setPersonaId('default')
+    }
+    document.addEventListener('pointerdown', resetOnOutsidePointer, true)
+    return () => document.removeEventListener('pointerdown', resetOnOutsidePointer, true)
+  }, [personaId])
   const execute = (value: MapCommand) => {
     const parsed = mapCommandSchema.safeParse(value)
     if (!parsed.success) return
