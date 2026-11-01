@@ -104,7 +104,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'stele',
-    image: '/images/poi/kb-4.jpg',
+    image: '/images/poi/upload/stele.png',
     name: '明征君碑',
     category: '古迹',
     coordinates: [118.9546, 32.1524],
@@ -164,7 +164,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'tiankai',
-    image: '/images/poi/kb-9.jpg',
+    image: '/images/poi/upload/tiankai.png',
     name: '天开岩',
     category: '石刻',
     coordinates: [118.9548, 32.1566],
@@ -176,7 +176,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'dielang',
-    image: '/images/poi/kb-10.jpg',
+    image: '/images/poi/upload/dielang.png',
     name: '叠浪崖',
     category: '观景',
     coordinates: [118.9576, 32.1573],
@@ -188,7 +188,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'maple-ridge',
-    image: '/images/poi/kb-11.jpg',
+    image: '/images/poi/upload/maple-ridge.png',
     name: '枫岭',
     category: '观景',
     coordinates: [118.9618, 32.156],
@@ -200,7 +200,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'summit',
-    image: '/images/poi/kb-12.jpg',
+    image: '/images/poi/upload/summit.png',
     name: '凤翔峰',
     category: '观景',
     coordinates: [118.962, 32.1589],
@@ -325,7 +325,7 @@ export const PERSONAS: Persona[] = [
     intensity: '适中',
     stairs: '叠浪崖至凤翔峰��连续石阶',
     highlights: ['叠浪崖红枫岩壁机位', '凤翔峰望���打卡', '同伴叶章合成纪念卡'],
-    questions: ['栖霞山有哪些冷门但好玩的故事？', '叠浪崖几点去光线最好？', '三小时轻徒步怎么走？'],
+    questions: ['栖霞山有哪些冷门但好玩的故事？', '叠浪崖几点去光线最好？', '三���时轻徒步怎么走？'],
   },
   {
     id: 'culture',
