@@ -149,6 +149,9 @@ button,a,input{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}bu
   .kb-notice{left:8px;right:8px;bottom:10px;max-width:none;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.kb-skeleton{animation:none}}
+/* Keep portal positioning controlled by the draggable cat, not legacy side rules. */
+.pet-panel-host.pet-panel-follow .pet-chat{position:fixed;right:auto;bottom:auto;transform:none;min-width:0}
+.pet-panel-follow .pet-messages{min-height:0}
 
 /* ================= 修复：栖霞资料面板页签被压扁、列表在部分窗口高度下不可见 ================= */
 .kb-tool-popover{height:calc(100dvh - 430px);min-height:280px;max-height:calc(100dvh - 430px)}
