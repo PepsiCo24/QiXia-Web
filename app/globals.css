@@ -300,16 +300,16 @@
   object-position: center;
   opacity: 1;
   animation: poi-thumb-flicker 3.6s ease-in-out infinite;
-  animation-delay: 0s;
-}
-.poi-marker.is-default-twinkle .poi-label {
+  animation-delay: var(--poi-delay, 0s);
+  }
+  .poi-marker.is-default-twinkle .poi-label {
   visibility: visible !important;
   opacity: 1;
   color: var(--foreground);
   background: rgba(11, 16, 14, 0.88);
   border-color: rgba(237, 230, 216, 0.24);
   animation: poi-thumb-flicker 3.6s ease-in-out infinite;
-  animation-delay: 0s;
+  animation-delay: var(--poi-delay, 0s);
   }
 .poi-marker.is-default-twinkle .poi-dot::after {
   content: "";
