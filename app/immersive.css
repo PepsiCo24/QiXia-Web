@@ -149,3 +149,16 @@ button,a,input{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}bu
   .kb-notice{left:8px;right:8px;bottom:10px;max-width:none;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.kb-skeleton{animation:none}}
+
+/* ================= 修复：栖霞资料面板页签被压扁、列表在部分窗口高度下不可见 ================= */
+.kb-tool-popover{height:calc(100dvh - 430px);min-height:280px;max-height:calc(100dvh - 430px)}
+.kb-tool-popover .kb-panel{height:100%;min-height:0}
+.kb-tool-popover .kb-panel-header{flex:0 0 auto}
+.kb-tool-popover .kb-tabs{flex:0 0 auto;min-height:44px;overflow-x:auto;overflow-y:hidden}
+.kb-tool-popover .kb-tab{flex:0 0 auto;min-height:44px}
+.kb-tool-popover .kb-panel-body{flex:1 1 auto;min-height:0}
+.kb-tool-popover .kb-search{flex:0 0 auto}
+.kb-tool-popover .kb-list{flex:1 1 auto;min-height:0}
+.kb-tool-popover .kb-panel-foot,.kb-tool-popover .kb-source-note{flex:0 0 auto}
+@media(min-width:801px) and (max-height:760px){.kb-tool-popover{height:calc(100dvh - 400px);max-height:calc(100dvh - 400px)}}
+@media(max-width:800px){.kb-tool-popover{height:auto;max-height:calc(100dvh - 430px);min-height:260px}}
