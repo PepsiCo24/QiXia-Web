@@ -283,7 +283,7 @@
   box-shadow: 0 0 0 3px rgba(237, 230, 216, 0.2);
 }
 .poi-marker.is-default-twinkle .poi-dot {
-  animation: poi-dot-twinkle 3.4s ease-in-out infinite;
+  animation: poi-dot-twinkle 4.8s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
 }
 .poi-marker.is-default-twinkle .poi-thumb {
@@ -299,7 +299,7 @@
   object-fit: cover;
   object-position: center;
   opacity: 1;
-  animation: poi-thumb-flicker 3.6s ease-in-out infinite;
+  animation: poi-thumb-flicker 5.2s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
   }
   .poi-marker.is-default-twinkle .poi-label {
@@ -308,7 +308,7 @@
   color: var(--foreground);
   background: rgba(11, 16, 14, 0.88);
   border-color: rgba(237, 230, 216, 0.24);
-  animation: poi-thumb-flicker 3.6s ease-in-out infinite;
+  animation: poi-thumb-flicker 5.2s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
   }
 .poi-marker.is-default-twinkle .poi-dot::after {
@@ -318,7 +318,7 @@
   border-radius: inherit;
   border: 1px solid rgba(225, 184, 94, 0.25);
   box-shadow: 0 0 8px rgba(225, 184, 94, 0.28);
-  animation: poi-glow-breathe 3.4s ease-in-out infinite;
+  animation: poi-glow-breathe 4.8s ease-in-out infinite;
   animation-delay: var(--poi-delay, 0s);
 }
 @keyframes poi-thumb-flicker {
