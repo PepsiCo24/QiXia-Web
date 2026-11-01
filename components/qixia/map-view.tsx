@@ -48,38 +48,12 @@ interface MapViewProps {
   onSelectPoi: (id: string) => void;
   /** 有值时进入导航视图：绘制导航路线、显示用户位置并跟随 */
   navigation?: NavigationView | null;
-  /** 资料模式：隐藏演示 POI 层与推荐路线，只显示知识库点位（PRD §6.5） */
+  /** 栖霞资料模式（新增板块）：隐藏演示层、显示知识库点位 */
   kbMode?: boolean;
-  /** 当前页签可定位资料点位 */
   kbSpots?: KbSpot[];
-  /** 当前选中的资料点位 id */
   selectedKbId?: string | null;
-  /** 点击地图上的资料点位 */
   onSelectKb?: (id: string) => void;
-  /** 打开面板 / 切页签时变化，用于触发 fitBounds */
   kbFitKey?: string;
-}
-
-/** 资料模式的 fitBounds 留白：避开左侧资料面板与右侧推荐路线卡（PRD FR-3） */
-function kbOverlayPadding(width: number, height: number) {
-  if (width < 801) {
-    return {
-      top: 150,
-      bottom: Math.round(height * 0.55),
-      left: 40,
-      right: 40,
-    };
-  }
-  if (width < 950) {
-    // 801–950px：推荐路线卡 + 资料面板同时存在时空间很紧，优先保证点位可见
-    return { top: 120, bottom: 120, left: 520, right: 60 };
-  }
-  if (width < 1100) {
-    // 951–1100px：面板 320px（右缘 502），右侧预留推荐路线卡
-    return { top: 120, bottom: 120, left: 540, right: 340 };
-  }
-  // 面板 360px + 工具条 142px + 间距 → 左缘 542；右侧预留推荐路线卡
-  return { top: 120, bottom: 120, left: 600, right: 380 };
 }
 
 const TERRAIN_TILES =
@@ -207,6 +181,13 @@ function overlayPadding(width: number) {
   return { top: 120, bottom: 160, left: 110, right: 360 };
 }
 
+/** 资料模式 fitBounds 留白：避开左侧工具条+资料面板与右侧推荐路线卡 */
+function kbOverlayPadding(width: number, height: number) {
+  if (width < 801) return { top: 150, bottom: Math.round(height * 0.52), left: 40, right: 40 };
+  if (width < 1100) return { top: 120, bottom: 120, left: 520, right: 60 };
+  return { top: 120, bottom: 120, left: 600, right: 380 };
+}
+
 export function MapView({
   layers,
   hour,
@@ -222,16 +203,15 @@ export function MapView({
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
-  const maplibreRef = useRef<typeof import("maplibre-gl") | null>(null);
   const poiElements = useRef<Map<string, HTMLElement>>(new Map());
-  const kbMarkersRef = useRef<Map<string, MapLibreMarker>>(new Map());
   const trafficElements = useRef<HTMLElement[]>([]);
   const navMarkerRef = useRef<MapLibreMarker | null>(null);
   const lastNavKey = useRef("");
   const onSelectRef = useRef(onSelectPoi);
   const onSelectKbRef = useRef(onSelectKb);
-  const kbModeRef = useRef(kbMode);
-  const personaRef = useRef(personaId);
+  const kbMarkersRef = useRef<Map<string, MapLibreMarker>>(new Map());
+  const kbZoomListenerRef = useRef<((event: unknown) => void) | null>(null);
+  const demoDisplayBackup = useRef<Map<string, string>>(new Map());
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -244,77 +224,6 @@ export function MapView({
   }, [onSelectKb]);
 
   useEffect(() => {
-    kbModeRef.current = kbMode;
-  }, [kbMode]);
-
-  useEffect(() => {
-    personaRef.current = personaId;
-  }, [personaId]);
-
-  /** 演示 POI 与推荐路线的显隐：资料模式隐藏演示层（PRD §6.5） */
-  const applyPoiVisibility = useCallback((persona: PersonaId) => {
-    const stops =
-      persona === "default" ? [...DEFAULT_POI_IDS] : PERSONA_MAP[persona].stops;
-    poiElements.current.forEach((el, id) => {
-      const index = stops.indexOf(id);
-      const isOnRoute = index >= 0;
-      const isDefaultMode = persona === "default";
-      el.style.display = kbModeRef.current
-        ? "none"
-        : isOnRoute
-          ? ""
-          : "none";
-      el.style.setProperty(
-        "--poi-delay",
-        isDefaultMode
-          ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s`
-          : "0s",
-      );
-      el.classList.toggle("is-on-route", isOnRoute && !isDefaultMode);
-      el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
-      el.dataset.order =
-        index === 0
-          ? "起"
-          : index === stops.length - 1
-            ? "终"
-            : index >= 0
-              ? String(index + 1)
-              : "";
-      el.querySelector(".poi-label")?.setAttribute(
-        "data-order",
-        el.dataset.order,
-      );
-    });
-  }, []);
-
-  /** 推荐路线图层显隐（资料模式隐藏，关闭后恢复） */
-  const setRouteLayersVisible = useCallback((visible: boolean) => {
-    const map = mapRef.current;
-    if (!map) return;
-    for (const id of ["route-real", "route-real-glow", "route-approx"]) {
-      try {
-        map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-      } catch {
-        // 图层尚未初始化时忽略
-      }
-    }
-  }, []);
-
-  /** 资料点位标签按缩放级别显隐：低缩放只留金点，避免 29 个标签互相压盖 */
-  const updateKbLabelVisibility = useCallback(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const showLabels = map.getZoom() >= 15.5;
-    kbMarkersRef.current.forEach((marker) => {
-      const el = marker.getElement();
-      el.classList.toggle(
-        "kb-label-muted",
-        !showLabels && !el.classList.contains("is-selected"),
-      );
-    });
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
     let map: MapLibreMap | null = null;
     let frame = 0;
@@ -323,7 +232,6 @@ export function MapView({
 
     import("maplibre-gl").then((ml) => {
       if (cancelled || !containerRef.current) return;
-      maplibreRef.current = ml;
 
       map = new ml.Map({
         container: containerRef.current,
@@ -640,7 +548,7 @@ export function MapView({
             onSelectRef.current(poi.id);
           });
           poiElements.current.set(poi.id, el);
-          new ml.Marker({ element: el, anchor: "bottom" })
+          new ml.Marker({ element: el, anchor: "bottom", opacity: "1", opacityWhenCovered: "1" })
             .setLngLat(poi.coordinates)
             .addTo(map!);
         });
@@ -703,6 +611,7 @@ export function MapView({
             );
             const show =
               selected ||
+              el.classList.contains("is-default-twinkle") ||
               ((major ||
                 el.classList.contains("is-on-route") ||
                 map!.getZoom() >= 16.1) &&
@@ -714,11 +623,6 @@ export function MapView({
         map.on("move", declutter);
         map.on("idle", declutter);
         declutter();
-        // 资料点位标签按缩放显隐（资料模式专用，监听一次即可）
-        map.on("move", updateKbLabelVisibility);
-        map.on("idle", updateKbLabelVisibility);
-        // 图层与 marker 就绪即可交互：不依赖外部瓦片是否加载成功（离线/受限网络下也可用）
-        if (containerRef.current) containerRef.current.dataset.mapReady = "true";
         setReady(true);
       };
       if (map.isStyleLoaded()) initLayers();
@@ -755,7 +659,6 @@ export function MapView({
     });
 
     const elementsAtMount = poiElements.current;
-    const kbMarkersAtMount = kbMarkersRef.current;
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
@@ -764,7 +667,6 @@ export function MapView({
       map?.remove();
       mapRef.current = null;
       elementsAtMount.clear();
-      kbMarkersAtMount.clear();
       trafficElements.current = [];
     };
     // Map is created once; later prop changes are applied by the effects below.
@@ -817,7 +719,27 @@ export function MapView({
       emptyFeatureCollection(),
     );
 
-    applyPoiVisibility(personaId);
+    poiElements.current.forEach((el, id) => {
+      const index = stops.indexOf(id);
+      const isOnRoute = index >= 0;
+      const isDefaultMode = personaId === "default";
+      el.style.display = isOnRoute ? "" : "none";
+      el.style.setProperty("--poi-delay", isDefaultMode ? `${(DEFAULT_POI_IDS.indexOf(id as (typeof DEFAULT_POI_IDS)[number]) * 0.42).toFixed(2)}s` : "0s");
+      el.classList.toggle("is-on-route", isOnRoute && !isDefaultMode);
+      el.classList.toggle("is-default-twinkle", isDefaultMode && isOnRoute);
+      el.dataset.order =
+        index === 0
+          ? "起"
+          : index === stops.length - 1
+            ? "终"
+            : index >= 0
+              ? String(index + 1)
+              : "";
+      el.querySelector(".poi-label")?.setAttribute(
+        "data-order",
+        el.dataset.order,
+      );
+    });
 
     if (personaId === 'default') return;
 
@@ -886,12 +808,9 @@ export function MapView({
       el.classList.toggle("is-selected", id === selectedPoiId),
     );
     if (!selectedPoiId) return;
-    // 不要用 POI_MAP 索引知识库 id（PRD §5.3）：查不到演示点位就不动地图
-    const poi = POI_MAP[selectedPoiId];
-    if (!poi) return;
     containerRef.current?.dispatchEvent(new Event("stopspin"));
     map.flyTo({
-      center: poi.coordinates,
+      center: POI_MAP[selectedPoiId].coordinates,
       zoom: 16.6,
       pitch: 66,
       duration: 1400,
@@ -969,82 +888,122 @@ export function MapView({
     });
   }, [ready, navigation]);
 
-  /* ---------------- 资料模式：独立 KB marker 层 + 双图层切换（PRD §6.5 / FR-3） ---------------- */
-
-  // 资料点位 marker：与演示 POI 分开管理，不能用 POI_MAP 索引知识库 id（PRD §5.3）
+  /** 栖霞资料模式：隐藏演示点位与推荐路线，叠加知识库点位 */
   useEffect(() => {
     const map = mapRef.current;
-    const ml = maplibreRef.current;
-    if (!ready || !map || !ml) return;
+    if (!ready || !map) return;
+    let cancelled = false;
+    const routeLayerIds = ["route-real", "route-real-glow", "route-approx"];
+    const setRouteVisibility = (visibility: "visible" | "none") => {
+      routeLayerIds.forEach((layerId) => {
+        if (map.getLayer(layerId))
+          map.setLayoutProperty(layerId, "visibility", visibility);
+      });
+    };
 
     kbMarkersRef.current.forEach((marker) => marker.remove());
-    kbMarkersRef.current.clear();
+    kbMarkersRef.current = new Map();
 
     if (!kbMode) {
-      applyPoiVisibility(personaRef.current);
-      setRouteLayersVisible(true);
+      demoDisplayBackup.current.forEach((display, id) => {
+        const el = poiElements.current.get(id);
+        if (el) el.style.display = display;
+      });
+      demoDisplayBackup.current.clear();
+      setRouteVisibility("visible");
       return;
     }
 
-    // 隐藏演示 POI 与推荐路线，避免同名地点出现两个 marker / 两套说法（PRD §6.5）
-    applyPoiVisibility(personaRef.current);
-    setRouteLayersVisible(false);
+    poiElements.current.forEach((el, id) => {
+      if (!demoDisplayBackup.current.has(id))
+        demoDisplayBackup.current.set(id, el.style.display);
+      el.style.display = "none";
+    });
+    setRouteVisibility("none");
 
-    for (const spot of kbSpots) {
-      if (!spot.coord) continue;
-      const el = document.createElement("button");
-      el.type = "button";
-      el.className = "kb-marker";
-      el.dataset.kbId = spot.id;
-      el.dataset.lngLat = spot.coord.join(",");
-      el.setAttribute("aria-label", `查看资料：${spot.title}`);
-      const dot = document.createElement("span");
-      dot.className = "kb-dot";
-      const label = document.createElement("span");
-      label.className = "kb-label";
-      label.textContent = spot.title;
-      el.append(dot, label);
-      el.addEventListener("click", (event) => {
-        event.stopPropagation();
-        onSelectKbRef.current?.(spot.id);
-      });
-      const marker = new ml.Marker({ element: el, anchor: "bottom" })
-        .setLngLat(spot.coord)
-        .addTo(map);
-      kbMarkersRef.current.set(spot.id, marker);
-    }
-    updateKbLabelVisibility();
+    import("maplibre-gl").then((ml) => {
+      if (cancelled || !map) return;
+      const markers = new Map<string, MapLibreMarker>();
+      const syncLabelVisibility = () => {
+        const muted = map.getZoom() < 15.2;
+        markers.forEach((marker) =>
+          marker.getElement().classList.toggle("kb-label-muted", muted),
+        );
+      };
+      for (const spot of kbSpots) {
+        if (!spot.coord) continue;
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "kb-marker";
+        el.setAttribute("aria-label", `查看资料：${spot.title}`);
+        el.dataset.lngLat = `${spot.coord[0]},${spot.coord[1]}`;
+        const dot = document.createElement("span");
+        dot.className = "kb-dot";
+        const label = document.createElement("span");
+        label.className = "kb-label";
+        label.textContent = spot.title;
+        el.append(dot, label);
+        el.addEventListener("click", (event) => {
+          event.stopPropagation();
+          onSelectKbRef.current?.(spot.id);
+        });
+        const marker = new ml.Marker({
+          element: el,
+          anchor: "bottom",
+          opacity: "1",
+          opacityWhenCovered: "1",
+        })
+          .setLngLat(spot.coord)
+          .addTo(map);
+        markers.set(spot.id, marker);
+      }
+      kbMarkersRef.current = markers;
+      syncLabelVisibility();
+      map.on("zoom", syncLabelVisibility);
+      kbZoomListenerRef.current = syncLabelVisibility;
+    });
 
     return () => {
+      cancelled = true;
       kbMarkersRef.current.forEach((marker) => marker.remove());
-      kbMarkersRef.current.clear();
+      kbMarkersRef.current = new Map();
+      if (kbZoomListenerRef.current) {
+        map.off("zoom", kbZoomListenerRef.current);
+        kbZoomListenerRef.current = null;
+      }
     };
-  }, [ready, kbMode, kbSpots, applyPoiVisibility, setRouteLayersVisible]);
+  }, [ready, kbMode, kbSpots]);
 
-  // 打开面板 / 切页签：fitBounds 到该分类全部可定位点位，避开左右两侧面板（FR-3）
+  /** 资料模式：页签切换时把该分类点位收进视野；退出时回到默认视角 */
   useEffect(() => {
     const map = mapRef.current;
-    if (!ready || !map || !kbMode) return;
-    const coords = kbSpots
-      .map((spot) => spot.coord)
-      .filter((coord): coord is [number, number] => Array.isArray(coord));
-    if (!coords.length) return;
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    if (!ready || !map) return;
     containerRef.current?.dispatchEvent(new Event("stopspin"));
-    if (coords.length === 1) {
-      map.flyTo({
-        center: coords[0],
-        zoom: 16.6,
-        pitch: 64,
-        duration: reduceMotion ? 0 : 1200,
-        essential: false,
+    if (!kbMode) {
+      map.easeTo({
+        center: DEFAULT_VIEW.center,
+        zoom: DEFAULT_VIEW.zoom,
+        pitch: DEFAULT_VIEW.pitch,
+        bearing: DEFAULT_VIEW.bearing,
+        duration: 900,
       });
       return;
     }
-    const lngs = coords.map((coord) => coord[0]);
-    const lats = coords.map((coord) => coord[1]);
+    const located = kbSpots.filter(
+      (spot): spot is KbSpot & { coord: [number, number] } => Boolean(spot.coord),
+    );
+    if (located.length === 0) return;
+    if (located.length === 1) {
+      map.easeTo({
+        center: located[0].coord,
+        zoom: 15.4,
+        pitch: 55,
+        duration: 1100,
+      });
+      return;
+    }
+    const lngs = located.map((spot) => spot.coord[0]);
+    const lats = located.map((spot) => spot.coord[1]);
     map.fitBounds(
       [
         [Math.min(...lngs), Math.min(...lats)],
@@ -1057,55 +1016,31 @@ export function MapView({
         ),
         pitch: 55,
         bearing: map.getBearing(),
-        duration: reduceMotion ? 0 : 1200,
-        maxZoom: 16.3,
+        duration: 1100,
+        maxZoom: 16.2,
       },
     );
   }, [ready, kbMode, kbFitKey, kbSpots]);
 
-  // 选中资料点位：marker 高亮 + flyTo（点击列表或地图 marker 都走这里）
+  /** 资料卡片选中：高亮对应点位并聚焦 */
   useEffect(() => {
     const map = mapRef.current;
     if (!ready || !map) return;
     kbMarkersRef.current.forEach((marker, id) =>
       marker.getElement().classList.toggle("is-selected", id === selectedKbId),
     );
-    updateKbLabelVisibility();
-    if (!selectedKbId) return;
+    if (!kbMode || !selectedKbId) return;
     const spot = kbSpots.find((item) => item.id === selectedKbId);
     if (!spot?.coord) return;
     containerRef.current?.dispatchEvent(new Event("stopspin"));
     map.flyTo({
       center: spot.coord,
-      zoom: 16.6,
-      pitch: 66,
-      duration: 1200,
+      zoom: 16.2,
+      pitch: 60,
+      duration: 1000,
       essential: false,
     });
-  }, [ready, selectedKbId, kbSpots]);
-
-  // 关闭资料模式：恢复演示层与默认视角（PRD FR-3 / §6.5）
-  const prevKbMode = useRef(false);
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!ready || !map) return;
-    const wasKbMode = prevKbMode.current;
-    prevKbMode.current = kbMode;
-    if (!wasKbMode || kbMode) return;
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    containerRef.current?.dispatchEvent(new Event("stopspin"));
-    applyPoiVisibility(personaRef.current);
-    setRouteLayersVisible(true);
-    map.easeTo({
-      center: DEFAULT_VIEW.center,
-      zoom: DEFAULT_VIEW.zoom,
-      pitch: DEFAULT_VIEW.pitch,
-      bearing: DEFAULT_VIEW.bearing,
-      duration: reduceMotion ? 0 : 900,
-    });
-  }, [ready, kbMode, applyPoiVisibility, setRouteLayersVisible]);
+  }, [ready, kbMode, selectedKbId, kbSpots]);
 
   return (
     <div className="absolute inset-0">
