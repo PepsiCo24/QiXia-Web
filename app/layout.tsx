@@ -8,8 +8,8 @@ import { LanguageProvider } from '@/components/qixia/language-provider'
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 export const metadata: Metadata = {
-  title: '栖霞山 · 数字游览 | 一客一景，一刻一路',
-  description: '南京栖霞山三维数字游览：实时客流热力、设备状态、交通运力与安全预警，按亲子、青年、文化、长者、摄影五类来客推荐路线，并可随时问栖霞。',
+  title: '数字游览大屏',
+  description: '数字游览大屏：南京栖霞山三维数字游览、客流热力、设备状态、交通运力与安全预警。',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning data-app-name="数字游览大屏">
       <body className="antialiased" suppressHydrationWarning>
         <LanguageProvider>{children}</LanguageProvider>
         {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_GITHUB_PAGES !== 'true' && <Analytics />}

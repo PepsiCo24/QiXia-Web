@@ -14,7 +14,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-background">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-[1fr_2fr]">
         <div>
-          <p className="font-serif text-lg font-bold tracking-widest text-foreground">{t('栖霞山 · 数字游览', 'Qixia Mountain · Digital Guide')}</p>
+          <p className="font-serif text-lg font-bold tracking-widest text-foreground">{t('数字游览大屏 · 栖霞山', 'Digital Tour Dashboard · Qixia Mountain')}</p>
           <p className="mt-2 text-xs text-muted-foreground">{t('陪你慢慢走进栖霞山', 'Discover Qixia Mountain at your own pace')}</p>
         </div>
         <dl className="grid gap-4 sm:grid-cols-2">

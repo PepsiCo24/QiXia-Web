@@ -29,8 +29,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN'
     document.title = pathname.startsWith('/photo')
-      ? (locale === 'en' ? 'Qixia Cat · Photo Memories | Qixia Mountain' : '栖小猫·栖霞留影 | 栖霞山')
-      : (locale === 'en' ? 'Qixia Mountain · Digital Guide' : '栖霞山 · 数字游览 | 一客一景，一刻一路')
+      ? (locale === 'en' ? 'Digital Tour Dashboard · Photo Memories' : '数字游览大屏 · 栖霞留影')
+      : (locale === 'en' ? 'Digital Tour Dashboard · Qixia Mountain' : '数字游览大屏 · 栖霞山')
   }, [locale, pathname])
   const setLocale = useCallback((value: Locale) => {
     updateLocale(value)
