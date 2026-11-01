@@ -1,0 +1,1477 @@
+{
+  "generatedAt": "2026-10-31T16:15:33.961Z",
+  "tabs": {
+    "attractions": [
+      "place-320113-bailuquan",
+      "place-320113-bairuquan",
+      "place-320113-biyunting",
+      "place-320113-boreta",
+      "place-320113-dielangyan",
+      "place-320113-fengling",
+      "place-320113-fengxiangfeng",
+      "place-320113-henghadian",
+      "place-320113-hongyegu",
+      "place-320113-hushan",
+      "place-320113-liaofanwendao",
+      "place-320113-lingfengchi",
+      "place-320113-longshan",
+      "place-320113-mingjinghu",
+      "place-320113-mingzhengjunbei",
+      "place-320113-pinwaiquan",
+      "place-320113-qianfoyan",
+      "place-320113-qianlongxinggong",
+      "place-320113-qixiafeitian",
+      "place-320113-qixiashan",
+      "place-320113-qixiasi",
+      "place-320113-shamaofeng",
+      "place-320113-shelita",
+      "place-320113-shihuanglinjiang",
+      "place-320113-taohuahu",
+      "place-320113-tiankaiyan",
+      "place-320113-woyunting",
+      "place-320113-yixiantian",
+      "place-320113-youlingyunyi",
+      "place-320113-yuhuayuan",
+      "place-320113-zhenzhuquan",
+      "place-320113-zhongdalu",
+      "place-320113-zhongfengjian",
+      "place-320113-zhonggulou"
+    ],
+    "ancillary": [
+      "event-320113-2024-hongling-jin",
+      "event-320113-2024-rujingpiaoji",
+      "place-320113-guzhen-gushiguan",
+      "place-320113-nanmen-fuwuzhongxin",
+      "place-320113-qixiashan-weishengjian",
+      "place-320113-ximen-fuwuzhongxin",
+      "place-320113-zonghe-fuwuzhongxin"
+    ],
+    "access": [
+      "event-320113-2026-ditie6hao",
+      "place-320113-qixiashan",
+      "place-320113-qixiashan-tingchechang",
+      "place-320113-qixiashan-youlanche"
+    ],
+    "amenities": [
+      "place-320113-luyuchazhuang",
+      "place-320113-qixiashan-canyin",
+      "place-320113-qixiashan-zhusu"
+    ],
+    "activities": [
+      "event-320113-2023-yingxin",
+      "event-320113-2026-hongfengji",
+      "event-320113-2026-ningzhen",
+      "place-320113-guzhen-gushiguan"
+    ],
+    "packages": [
+      "event-320113-2024-rujingpiaoji",
+      "event-320113-2026-hongfengji",
+      "event-320113-2026-ningzhen",
+      "place-320113-qixiashan-youlanche"
+    ]
+  },
+  "spots": [
+    {
+      "id": "event-320113-2023-yingxin",
+      "type": "event",
+      "title": "2023 栖霞文旅「迎新」百场活动",
+      "summary": "2023年9月25日，栖霞区第24届“四季栖霞∙秋之韵”文化旅游节暨首届“大学∙城市”仙林大学城艺术节之迎新季活动在金鹰湖滨天地开幕，活动持续百余天、百余场。",
+      "sixA": [
+        "activities"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 7,
+      "tabs": [
+        "activities"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "往期活动（start 2023-09-25，无 end）；开幕地为仙林金鹰湖滨天地（超出 PRD 坐标范围），活动覆盖全区百余场无合理单点 → none，待人工裁决",
+      "past": true
+    },
+    {
+      "id": "event-320113-2024-hongling-jin",
+      "type": "event",
+      "title": "栖霞山「红领巾」志愿服务岗成立",
+      "summary": "2月1日，栖霞山“红领巾”志愿服务岗在栖霞区“缤纷的冬日”青少年主题活动中成立，此前已试运行并组建多支小小志愿服务队伍。",
+      "sixA": [
+        "ancillary"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 8,
+      "tabs": [
+        "ancillary"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "event 卡无坐标；关联地点为栖霞山，无单一场馆（志愿服务岗成立），待补点；往期活动（start 2024-02-01）",
+      "past": true
+    },
+    {
+      "id": "event-320113-2024-rujingpiaoji",
+      "type": "event",
+      "title": "栖霞山落地入境游便利化票机",
+      "summary": "南京首批入境游便利化票机落地四家4A级景区，大报恩寺遗址公园、牛首山文化旅游区、栖霞山风景区、阅江楼景区在列，境外游客可多语种自助购票入园。",
+      "sixA": [
+        "ancillary",
+        "packages"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 7,
+      "tabs": [
+        "ancillary",
+        "packages"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "event 卡无坐标；票机落地四家 4A 景区，无单一点位，待核验具体安装位置；往期活动（start 2024-08-15）",
+      "past": true
+    },
+    {
+      "id": "event-320113-2026-ditie6hao",
+      "type": "event",
+      "title": "地铁 6 号线通到栖霞山",
+      "summary": "2026年9月29日，南京地铁6号线正式开通运营，乘客可乘地铁直达栖霞山，且该线路与S1号线贯通，可直达禄口机场。",
+      "sixA": [
+        "access"
+      ],
+      "credibility": "B",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 14,
+      "tabs": [
+        "access"
+      ],
+      "poiId": "bus",
+      "coord": [
+        118.9488,
+        32.1476
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 bus（栖霞山公交站/地铁接驳专线）；地铁 6 号线栖霞山站开通事件，示意待核验"
+    },
+    {
+      "id": "event-320113-2026-hongfengji",
+      "type": "event",
+      "title": "2026 栖霞山「江山入戏」红枫季",
+      "summary": "2026 年 10 月 18 日（重阳）在栖霞山启幕的赏枫季，串联演艺巡游、戏曲展演、中外音乐会、定向越野、AIGC 大赛和联名套票，持续到 12 月中下旬。",
+      "aliases": [
+        "2026 红枫系列活动",
+        "栖霞山赏枫季"
+      ],
+      "sixA": [
+        "activities",
+        "packages"
+      ],
+      "credibility": "B",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 23,
+      "tabs": [
+        "activities",
+        "packages"
+      ],
+      "coord": [
+        118.9575,
+        32.1545
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "2026 红枫季主会场为栖霞山景区；按 QIXIA_CENTER（景区几何中心，lib/qixia-data.ts）近似，示意待核验"
+    },
+    {
+      "id": "event-320113-2026-ningzhen",
+      "type": "event",
+      "title": "2026 宁镇文旅合作：栖霞山与宝华山结对",
+      "summary": "2026 年 10 月 21 日在镇江举行的宁镇文旅合作交流活动上，栖霞山与句容宝华山景区结对，句容、江宁、栖霞三地文旅部门签区域合作协议，并发布「宁镇文旅合作 10 条」。",
+      "sixA": [
+        "packages",
+        "activities"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 6,
+      "tabs": [
+        "activities",
+        "packages"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "宁镇文旅合作（政策类事件），无单一会场，none"
+    },
+    {
+      "id": "org-320113-qixiashan-guanlichu",
+      "type": "org",
+      "title": "南京市栖霞山风景名胜区管理处",
+      "summary": "栖霞区政府举办的事业单位，负责栖霞山景区的公园设施、绿地、游览项目和节庆活动；2015 年报显示有 106 人，全年旅游总收入 1543 万元。",
+      "aliases": [
+        "栖霞山风景区管理处",
+        "栖霞山园林管理处"
+      ],
+      "sixA": [],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 9,
+      "tabs": [],
+      "coordKind": "none",
+      "verified": false,
+      "note": "org 卡 six_a 为空，不进入任何页签；无坐标需求"
+    },
+    {
+      "id": "place-320113-bailuquan",
+      "type": "place",
+      "title": "白鹿泉",
+      "summary": "历史名泉，现已干涸：《栖霞区志》（1999）记泉水干涸枯竭。旧在紫盆峰岩壁下，传说山中缺水时居民追白鹿到此得泉，乾隆题诗写到过。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 36,
+      "tabs": [
+        "attractions"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "id": "place-320113-bairuquan",
+      "type": "place",
+      "title": "白乳泉",
+      "summary": "泉已久涸（《栖霞新志》1934、《栖霞山志》1962），但天开岩下石壁上「试茶亭白乳泉」六个大字题刻仍在（《栖霞区志》1999）。传说陆羽在此试茶，明代与品外泉、珍珠泉并称栖霞山三大名泉。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 33,
+      "tabs": [
+        "attractions"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "id": "place-320113-biyunting",
+      "type": "place",
+      "title": "碧云亭",
+      "summary": "碧云亭出现在栖霞山观光车行程中（游览车底站到碧云亭、碧云亭到始皇临江），也在线路B的御花园与红叶谷之间。",
+      "aliases": [
+        "望江亭"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 16,
+      "geo": {
+        "lat": 32.15898,
+        "lon": 118.95371,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "biyun",
+      "coord": [
+        118.9536551,
+        32.1590028
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9536551,
+        32.1590028
+      ],
+      "verifiedSource": "OSM node/5599488218（tourism=attraction，名称=碧云亭），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 5.8m，确认为同一地点"
+    },
+    {
+      "id": "place-320113-boreta",
+      "type": "place",
+      "title": "般若台",
+      "summary": "般若台位于西峰，沙门慧光建立，因四十二章经善本由名士书刻、勒石四面以封而得名。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 23,
+      "geo": {
+        "lat": 32.15573,
+        "lon": 118.95644,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "banruo-platform",
+      "coord": [
+        118.95644,
+        32.15573
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-dielangyan",
+      "type": "place",
+      "title": "叠浪岩",
+      "summary": "叠浪岩为层崖起伏如波澜，乱石错之，若海波万沸；其下有平阪数亩，旧传为栖霞观故址。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 28,
+      "geo": {
+        "lat": 32.15542,
+        "lon": 118.95444,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "dielang",
+      "coord": [
+        118.95444,
+        32.15542
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素（OSM 有「叠浪崖」别名差异但未收录），未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-fengling",
+      "type": "place",
+      "title": "枫岭",
+      "summary": "栖霞山山西侧称枫岭。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 9,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "maple-ridge",
+      "coord": [
+        118.9618,
+        32.156
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 maple-ridge；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-fengxiangfeng",
+      "type": "place",
+      "title": "凤翔峰",
+      "summary": "栖霞山有三峰，主峰三茅峰，又名凤翔峰，海拔286米。",
+      "aliases": [
+        "三茅峰",
+        "主峰"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 23,
+      "geo": {
+        "lat": 32.16034,
+        "lon": 118.96492,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "summit",
+      "coord": [
+        118.9649161,
+        32.1603375
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9649161,
+        32.1603375
+      ],
+      "verifiedSource": "OSM node/1042362671（natural=peak，ele=286，名称=凤翔峰），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.5m"
+    },
+    {
+      "id": "place-320113-guzhen-gushiguan",
+      "type": "place",
+      "title": "栖霞古镇故事馆",
+      "summary": "栖霞古镇里的故事馆，景区小程序把它列为游客中心之一，开放 9:00—17:00；2026 红枫季在这里办古董打字机展。",
+      "sixA": [
+        "ancillary",
+        "activities"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 3,
+      "tabs": [
+        "ancillary",
+        "activities"
+      ],
+      "coord": [
+        118.9439,
+        32.1464
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "知识库地址「栖霞街与 20 县道交叉口西北 40 米」；按 OSM「栖霞老街」公交站（node/8773088129，[118.9439,32.1464]）所在古镇片区近似，示意待核验"
+    },
+    {
+      "id": "place-320113-henghadian",
+      "type": "place",
+      "title": "哼哈殿",
+      "summary": "栖霞寺山门，也叫金刚殿，供哼哈二将；景区小程序称 2001 年建成，匾额为乾隆御笔，沈鹏题名。",
+      "aliases": [
+        "金刚殿"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 9,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "hengha-hall",
+      "coord": [
+        118.9548,
+        32.1528
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 hengha-hall；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-hongyegu",
+      "type": "place",
+      "title": "红叶谷",
+      "summary": "红叶谷是成片的枫叶形成的山谷，偶尔夹杂银杏树，空气清新；线路从景区入口一直往北到达，观看长江的视线较好。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 13,
+      "geo": {
+        "lat": 32.1593,
+        "lon": 118.95908,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "red-leaf-valley",
+      "coord": [
+        118.95908,
+        32.1593
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-hushan",
+      "type": "place",
+      "title": "虎山",
+      "summary": "栖霞山西北有虎山。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 16,
+      "geo": {
+        "lat": 32.15866,
+        "lon": 118.95301,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "tiger-mountain",
+      "coord": [
+        118.9530129,
+        32.1586643
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9530129,
+        32.1586643
+      ],
+      "verifiedSource": "OSM node/5599488219（natural=peak，名称=虎山），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.6m"
+    },
+    {
+      "id": "place-320113-liaofanwendao",
+      "type": "place",
+      "title": "了凡问道",
+      "summary": "栖霞山上讲袁了凡与云谷禅师问道故事的景点，故事年代 1570 年，出自《了凡四训》。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 5,
+      "geo": {
+        "lat": 32.15671,
+        "lon": 118.95953,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "liaofan-qiuxin",
+      "coord": [
+        118.9592866,
+        32.1568848
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9592866,
+        32.1568848
+      ],
+      "verifiedSource": "OSM node/5599488271（tourism=attraction，名称=了凡问道），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 30.0m"
+    },
+    {
+      "id": "place-320113-lingfengchi",
+      "type": "place",
+      "title": "玲峰池",
+      "summary": "玲峰池在中峰之侧、行宫之内最高处，与石梁遥对；一泓湛然可鉴毫发，旱暵不竭潦不溢。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 23,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "lingfeng-pond",
+      "coord": [
+        118.9586,
+        32.1558
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 lingfeng-pond；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-longshan",
+      "type": "place",
+      "title": "龙山",
+      "summary": "栖霞山东北有龙山。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 14,
+      "geo": {
+        "lat": 32.15191,
+        "lon": 118.95935,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "dragon-mountain",
+      "coord": [
+        118.95935,
+        32.15191
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；与陆羽茶庄坐标完全相同（32.15191,118.95935，已登记重复坐标豁免），疑似数据错误；OSM 无同名要素，待人工裁决"
+    },
+    {
+      "id": "place-320113-luyuchazhuang",
+      "type": "place",
+      "title": "陆羽茶庄",
+      "summary": "位于栖霞山风景区内龙山之巅，可于茶庄小憩、与陆羽对饮，品尝口味独特的农家菜着。",
+      "sixA": [
+        "amenities"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 15,
+      "geo": {
+        "lat": 32.15191,
+        "lon": 118.95935,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "amenities"
+      ],
+      "coord": [
+        118.95935,
+        32.15191
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；与龙山坐标完全相同（32.15191,118.95935，已登记重复坐标豁免），疑似数据错误；OSM 无同名要素，待人工裁决/现场核验"
+    },
+    {
+      "id": "place-320113-mingjinghu",
+      "type": "place",
+      "title": "明镜湖",
+      "summary": "明镜湖是栖霞山景点中的自然奇观之一。",
+      "aliases": [
+        "彩虹明镜"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 45,
+      "geo": {
+        "lat": 32.15414,
+        "lon": 118.95144,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "mirror-lake",
+      "coord": [
+        118.95144,
+        32.15414
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 附近仅有无名水体 way/968838967（距约 14m），缺少名称无法确认同一地点，待人工裁决"
+    },
+    {
+      "id": "place-320113-mingzhengjunbei",
+      "type": "place",
+      "title": "明征君碑",
+      "summary": "明征君碑于2001年被列为第五批全国重点文物保护单位。",
+      "aliases": [
+        "征君碑"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 60,
+      "geo": {
+        "lat": 32.15432,
+        "lon": 118.95317,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "stele",
+      "coord": [
+        118.95317,
+        32.15432
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-nanmen-fuwuzhongxin",
+      "type": "place",
+      "title": "南门游客服务中心",
+      "summary": "栖霞山南门的游客服务中心，开放 9:00—17:00；旁边有卫生间。",
+      "sixA": [
+        "ancillary"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 5,
+      "tabs": [
+        "ancillary"
+      ],
+      "poiId": "gate",
+      "coord": [
+        118.952,
+        32.1495
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 gate（南门游客中心）；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-pinwaiquan",
+      "type": "place",
+      "title": "品外泉",
+      "summary": "栖霞寺内的六角石池，平日干涸见底（《栖霞区志》1999）。旧时寺僧在此汲水；得名于「陆羽所未品」，明代与白乳泉、珍珠泉并称栖霞山三大名泉。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 31,
+      "tabs": [
+        "attractions"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "id": "place-320113-qianfoyan",
+      "type": "place",
+      "title": "千佛岩",
+      "summary": "千佛岩是栖霞山的景点之一。",
+      "aliases": [
+        "千佛崖",
+        "千佛岭",
+        "千佛岩造像"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 63,
+      "geo": {
+        "lat": 32.15385,
+        "lon": 118.95503,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "grottoes",
+      "coord": [
+        118.9550305,
+        32.1538504
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9550305,
+        32.1538504
+      ],
+      "verifiedSource": "OSM node/5599488223（tourism=attraction，名称=千佛岩），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.1m"
+    },
+    {
+      "id": "place-320113-qianlongxinggong",
+      "type": "place",
+      "title": "乾隆行宫遗址",
+      "summary": "清代两江总督尹继善在栖霞山为乾隆建行宫，乾隆行宫后毁于咸丰时期。",
+      "aliases": [
+        "乾隆行宫",
+        "行宫"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 29,
+      "geo": {
+        "lat": 32.15369,
+        "lon": 118.95684,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "palace",
+      "coord": [
+        118.95684,
+        32.15369
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-qixiafeitian",
+      "type": "place",
+      "title": "栖霞飞天",
+      "summary": "栖霞飞天壁画在2000年考古研究中被发现，为目前千佛岩内唯一发现的、保存完好的壁画。",
+      "aliases": [
+        "飞天壁画"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 12,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "qixia-flying",
+      "coord": [
+        118.957,
+        32.1542
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 qixia-flying；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan",
+      "type": "place",
+      "title": "栖霞山",
+      "summary": "南京栖霞区临江的山岳型景区，以秋季红叶和栖霞寺、千佛岩等佛教遗存著称；2026 年 9 月起地铁 6 号线可直达。",
+      "aliases": [
+        "摄山",
+        "南京栖霞山风景名胜区"
+      ],
+      "sixA": [
+        "attractions",
+        "access"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 58,
+      "tabs": [
+        "attractions",
+        "access"
+      ],
+      "poiId": "p-east",
+      "coord": [
+        118.9642,
+        32.1506
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 p-east（东侧停车场）代表景区东入口片区；大尺度山体/景区聚合卡（跨景点+交通停车页签），示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan-canyin",
+      "type": "place",
+      "title": "栖霞山周边餐饮（汇总）",
+      "summary": "栖霞寺、古镇一带 38 家店的汇总：正餐为主，素食是特色，人均中位数 52 元；集中在栖霞古镇、栖霞街和红枫路两片。",
+      "sixA": [
+        "amenities"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 10,
+      "tabs": [
+        "amenities"
+      ],
+      "coord": [
+        118.9434,
+        32.1466
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "周边餐饮汇总卡；按 OSM「栖霞老街」片区（古镇餐饮/商业聚集区）近似，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan-tingchechang",
+      "type": "place",
+      "title": "栖霞山景区停车场（6 处）",
+      "summary": "景区小程序列出的 6 处停车场：管委会东、南门、古镇南、P3 地上、西门 P2、P1 大客车停车场，都写全天开放。",
+      "sixA": [
+        "access"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 26,
+      "tabs": [
+        "access"
+      ],
+      "poiId": "p-south",
+      "coord": [
+        118.9502,
+        32.1487
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 p-south（南门停车场）；6 处停车场聚合卡取代表点，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan-weishengjian",
+      "type": "place",
+      "title": "栖霞山景区卫生间（12 处）",
+      "summary": "景区小程序列出的 12 处卫生间：南门游客中心、集云亭、太虚亭、千佛崖、始皇临江、桃花坞、鼓楼、明镜湖、西门游客中心、夕亭、西门进门左侧、德云亭，都写 9:00—17:00。",
+      "sixA": [
+        "ancillary"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 13,
+      "tabs": [
+        "ancillary"
+      ],
+      "coord": [
+        118.962765,
+        32.161496
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "OSM amenity=toilets node/4771286826（凤翔峰附近一处，overpass-api.de 2026-10-31）；12 处聚合卡取代表点，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan-youlanche",
+      "type": "place",
+      "title": "栖霞山观光车与红枫接驳专线",
+      "summary": "景区内观光车（入园处上车，三段、每段 10 元）、红枫节机动车禁止上山，以及 2025 年红枫季免费接驳专线（羊山湖公园地铁站 ↔ P1 停车场）和地铁 6 号线票价、直达机场。",
+      "sixA": [
+        "access",
+        "packages"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 18,
+      "tabs": [
+        "access",
+        "packages"
+      ],
+      "poiId": "shuttle",
+      "coord": [
+        118.9558,
+        32.1508
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 shuttle（景区观光车）；观光车与红枫接驳专线，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiashan-zhusu",
+      "type": "place",
+      "title": "栖霞山周边住宿（汇总）",
+      "summary": "栖霞山 4 公里内 20 家酒店的汇总：1.5 公里内只有 3 家（山门、古镇一带，偏贵），外圈多为 100 元上下的经济型和连锁酒店。",
+      "sixA": [
+        "amenities"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 4,
+      "tabs": [
+        "amenities"
+      ],
+      "coord": [
+        118.943,
+        32.1471
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "周边住宿汇总卡；按栖霞街道/栖霞古镇片区近似，示意待核验"
+    },
+    {
+      "id": "place-320113-qixiasi",
+      "type": "place",
+      "title": "栖霞寺",
+      "summary": "原文将栖霞寺列为栖霞山景点之一。",
+      "aliases": [
+        "栖霞精舍",
+        "栖霞古寺"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 65,
+      "geo": {
+        "lat": 32.15417,
+        "lon": 118.95417,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "temple",
+      "coord": [
+        118.95417,
+        32.15417
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "知识库坐标；第二来源 OSM way/1243073749「栖霞寺」中心相距 130.9m（100–300m 区间，按 PRD §8.4 不得升级 verified）；另 OSM 毘卢宝殿建筑 way/1059591708 距 11.9m，疑知识库坐标指向主殿而非寺院轮廓，待人工裁决"
+    },
+    {
+      "id": "place-320113-shamaofeng",
+      "type": "place",
+      "title": "纱帽峰",
+      "summary": "纱帽峰处千佛岩之巅，被众佛龛环抱，乾隆南巡时赐名“玉冠峰”，今人仍习惯称纱帽峰。",
+      "aliases": [
+        "玉冠峰"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 26,
+      "geo": {
+        "lat": 32.15413,
+        "lon": 118.95609,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "shamao-peak",
+      "coord": [
+        118.95609,
+        32.15413
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-shelita",
+      "type": "place",
+      "title": "栖霞寺舍利塔",
+      "summary": "栖霞山景点包括栖霞寺、千佛岩、舍利塔等。",
+      "aliases": [
+        "舍利塔",
+        "隋塔"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 58,
+      "geo": {
+        "lat": 32.1539,
+        "lon": 118.95468,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "pagoda",
+      "coord": [
+        118.95468,
+        32.1539
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无「栖霞寺舍利塔」同名要素（最近为如來堂，非同一地点），未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-shihuanglinjiang",
+      "type": "place",
+      "title": "始皇临江处",
+      "summary": "始皇临江处是栖霞山游玩线路B中的景点，观光车行程包括碧云亭到始皇临江、始皇临江下山。",
+      "aliases": [
+        "始皇临江"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 21,
+      "geo": {
+        "lat": 32.1617,
+        "lon": 118.96328,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "shihuang-riverside",
+      "coord": [
+        118.9632444,
+        32.1619
+      ],
+      "coordKind": "verified",
+      "verified": true,
+      "verifiedGeo": [
+        118.9632444,
+        32.1619
+      ],
+      "verifiedSource": "OSM node/4771298530（无名称标签，位置与类型吻合，名称依据周边同名路线节点交叉判定），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 22.5m"
+    },
+    {
+      "id": "place-320113-taohuahu",
+      "type": "place",
+      "title": "桃花湖",
+      "summary": "桃花湖景区在桃花涧中游建成，为纪念李香君，同时为景区扩容、改善山林小气候；桃花涧自明代以来逢春桃花争妍，久负盛名。",
+      "aliases": [
+        "桃花涧"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 12,
+      "geo": {
+        "lat": 32.156225,
+        "lon": 118.95546,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "peach-lake",
+      "coord": [
+        118.95546,
+        32.156225
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "多对一显式裁决：演示点位「桃花涧」peach-creek 与「桃花湖」peach-lake 均对应本卡，资料模式合并为 1 个 marker（poiId=peach-lake）；坐标为知识库坐标（未核验），与两演示坐标偏差约 577m/596m，待人工裁决"
+    },
+    {
+      "id": "place-320113-tiankaiyan",
+      "type": "place",
+      "title": "天开岩",
+      "summary": "天开岩是栖霞山的自然奇观之一",
+      "aliases": [
+        "污西凹"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 21,
+      "geo": {
+        "lat": 32.15731,
+        "lon": 118.95919,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "tiankai",
+      "coord": [
+        118.95919,
+        32.15731
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-woyunting",
+      "type": "place",
+      "title": "卧云亭",
+      "summary": "栖霞山风景区管理处为再现明代“卧云”景观，在卧云景区建山道、广植名贵花草树木，恢复了该景点——卧云亭。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 3,
+      "geo": {
+        "lat": 32.15722,
+        "lon": 118.95812,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "wolun-pavilion",
+      "coord": [
+        118.95812,
+        32.15722
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-ximen-fuwuzhongxin",
+      "type": "place",
+      "title": "西门游客服务中心",
+      "summary": "栖霞山西门（主入口一侧）的游客服务中心，开放 9:00—17:00；里面有卫生间。",
+      "sixA": [
+        "ancillary"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 6,
+      "tabs": [
+        "ancillary"
+      ],
+      "coord": [
+        118.9515,
+        32.1535
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "知识库地址「栖霞街 88 号(近栖霞大道) 景区内西侧」；按 OSM 栖霞寺 way/1243073749 范围西侧近似，示意待核验"
+    },
+    {
+      "id": "place-320113-yixiantian",
+      "type": "place",
+      "title": "一线天",
+      "summary": "栖霞山有二大石夹立中通一径，斜行而上得一线天；一大石如圆锥形中空若龛，顶通天光故名，导游注称洞中窥天呈圆形。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 19,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "one-line-sky",
+      "coord": [
+        118.9562,
+        32.156
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 one-line-sky；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-youlingyunyi",
+      "type": "place",
+      "title": "有凌云意观景平台",
+      "summary": "有凌云意是栖霞山乾隆行宫中的建筑之一，行宫规模宏大，建筑鳞次节比。",
+      "aliases": [
+        "有凌云意"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 8,
+      "geo": {
+        "lat": 32.15859,
+        "lon": 118.95289,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "lingyun-platform",
+      "coord": [
+        118.95289,
+        32.15859
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-yuhuayuan",
+      "type": "place",
+      "title": "乾隆御花园",
+      "summary": "御花园就系高宗花园的旧址。",
+      "aliases": [
+        "御花园"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 8,
+      "geo": {
+        "lat": 32.15858,
+        "lon": 118.95917,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "qianlong-garden",
+      "coord": [
+        118.95917,
+        32.15858
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-zhenzhuquan",
+      "type": "place",
+      "title": "珍珠泉",
+      "summary": "历史名泉，现已不存：《栖霞区志》（1999）记 1979 年修盘山公路时泉眼被埋没、泉水枯竭。旧址在栖霞寺北桃花涧旁，明代与白乳泉、品外泉并称栖霞山三大名泉，乾隆题过诗。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 30,
+      "tabs": [
+        "attractions"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "知识库无坐标；OSM node/5604273225「珍珠泉」[118.9572475,32.15768] 可作备选 fallback，但 PRD 附录 A fixture 将其列为未定位，本版不启用（M0 可评估补点）"
+    },
+    {
+      "id": "place-320113-zhongdalu",
+      "type": "place",
+      "title": "中大路赏枫段",
+      "summary": "中大路在目前枫叶观赏效果最佳区域内，沿途红枫进入全盛时期。",
+      "aliases": [
+        "中大路"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 3,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "middle-road-maple",
+      "coord": [
+        118.9528,
+        32.156
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 middle-road-maple；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-zhongfengjian",
+      "type": "place",
+      "title": "中峰涧",
+      "summary": "中峰涧是山中涧水，山水倾泻而下全部汇入明镜湖。",
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-28",
+      "facts": 21,
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "middle-creek",
+      "coord": [
+        118.9598,
+        32.1565
+      ],
+      "coordKind": "demo-fallback",
+      "verified": false,
+      "note": "复用现有演示点位 middle-creek；知识库无坐标，示意待核验"
+    },
+    {
+      "id": "place-320113-zhonggulou",
+      "type": "place",
+      "title": "钟鼓楼",
+      "summary": "栖霞寺里的钟楼和鼓楼，景区小程序称约 2000 年前后建成，大鼓 400 公斤，早晚叩钟 108 响。",
+      "aliases": [
+        "钟楼",
+        "鼓楼"
+      ],
+      "sixA": [
+        "attractions"
+      ],
+      "credibility": "C",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 4,
+      "geo": {
+        "lat": 32.15389,
+        "lon": 118.95231,
+        "crs": "WGS84"
+      },
+      "tabs": [
+        "attractions"
+      ],
+      "poiId": "bell-drum-towers",
+      "coord": [
+        118.95231,
+        32.15389
+      ],
+      "coordKind": "kb-geo",
+      "verified": false,
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "id": "place-320113-zonghe-fuwuzhongxin",
+      "type": "place",
+      "title": "栖霞山旅游服务度假区综合服务中心",
+      "summary": "栖霞街 60 号（古镇一带）的度假区综合服务中心，开放 9:00—17:00。",
+      "sixA": [
+        "ancillary"
+      ],
+      "credibility": "A",
+      "status": "draft",
+      "updated": "2026-10-27",
+      "facts": 2,
+      "tabs": [
+        "ancillary"
+      ],
+      "coordKind": "none",
+      "verified": false,
+      "note": "知识库地址「栖霞街 60 号」；公开地图无法唯一定位，待人工裁决/现场核验"
+    }
+  ]
+}
