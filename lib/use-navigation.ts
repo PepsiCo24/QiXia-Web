@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LngLat } from "./qixia-data";
+import { gpsToAMap } from "./map-coordinates";
 import { flattenSteps, type FlatNavStep, type RouteSegment } from "./amap";
 import {
   buildRouteIndex,
@@ -31,7 +32,7 @@ function getCurrentPosition(): Promise<LngLat> {
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve([pos.coords.longitude, pos.coords.latitude]),
+      (pos) => resolve(gpsToAMap([pos.coords.longitude, pos.coords.latitude])),
       (err) => reject(new Error(err.message || "定位失败，请允许获取位置")),
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
     );
@@ -60,7 +61,7 @@ export function useNavigation() {
       (pos) => {
         // 成功拿到位置就清掉之前的定位错误
         setError(null);
-        const next: LngLat = [pos.coords.longitude, pos.coords.latitude];
+        const next = gpsToAMap([pos.coords.longitude, pos.coords.latitude]);
         positionRef.current = next;
         setPosition(next);
         setProgress(computeProgress(session.index, session.steps, next));
