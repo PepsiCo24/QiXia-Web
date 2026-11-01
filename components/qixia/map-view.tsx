@@ -574,9 +574,8 @@ export function MapView({
             const show =
               selected ||
               el.classList.contains("is-default-twinkle") ||
-              ((major ||
-                el.classList.contains("is-on-route") ||
-                map!.getZoom() >= 16.1) &&
+              el.classList.contains("is-on-route") ||
+              ((major || map!.getZoom() >= 16.1) &&
                 !collide);
             el.classList.toggle("label-muted", !show);
             if (show) occupied.push({ x: point.x, y: point.y, w: width });
@@ -748,9 +747,11 @@ export function MapView({
       return;
     }
     containerRef.current?.dispatchEvent(new Event("stopspin"));
-    const coords = PERSONA_MAP[personaId].stops.map(
-      (id) => POI_MAP[id].coordinates,
-    );
+    const stopIds =
+      personaId === "default"
+        ? [...DEFAULT_POI_IDS]
+        : PERSONA_MAP[personaId].stops;
+    const coords = stopIds.map((id) => POI_MAP[id].coordinates);
     const lngs = coords.map((c) => c[0]);
     const lats = coords.map((c) => c[1]);
     map.fitBounds(

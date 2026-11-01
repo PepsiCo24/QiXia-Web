@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { HeroMap } from './hero-map'
@@ -23,6 +23,31 @@ export function QixiaExperience() {
   const staticWithoutAgent = process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true' && !agentBase
   const [transport] = useState(() => new DefaultChatTransport({ api: agentBase ? `${agentBase}/api/chat` : '/api/chat' }))
   const { messages, sendMessage, status, error, stop, setMessages } = useChat({ transport })
+  useEffect(() => {
+    if (personaId === 'default') return
+    const keepSelectors = '.persona-tabs, .pet-dock, .pet-panel-host, .poi-marker, .poi-card-host, .route-card, .route-reopen'
+    let start: { x: number; y: number; id: number } | null = null
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      const isPlainPrimaryClick = event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey
+      start = isPlainPrimaryClick && !target?.closest(keepSelectors)
+        ? { x: event.clientX, y: event.clientY, id: event.pointerId }
+        : null
+    }
+    // Reset on pointerup only when the pointer barely moved, so map drags/rotations keep the route.
+    const onPointerUp = (event: PointerEvent) => {
+      if (!start || start.id !== event.pointerId) return
+      const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+      start = null
+      if (moved < 6) setPersonaId('default')
+    }
+    document.addEventListener('pointerdown', onPointerDown, true)
+    document.addEventListener('pointerup', onPointerUp, true)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true)
+      document.removeEventListener('pointerup', onPointerUp, true)
+    }
+  }, [personaId])
   const execute = (value: MapCommand) => {
     const parsed = mapCommandSchema.safeParse(value)
     if (!parsed.success) return

@@ -80,7 +80,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'mirror-lake',
-    image: '/images/poi/kb-2.jpg',
+    image: '/images/poi/upload/mirror-lake.jpg',
     name: '明镜湖',
     category: '山水',
     coordinates: [118.9538, 32.1514],
@@ -92,7 +92,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'temple',
-    image: '/images/poi/kb-3.jpg',
+    image: '/images/poi/upload/qixia-temple.png',
     name: '栖霞寺',
     category: '寺院',
     coordinates: [118.9552, 32.153],
@@ -104,7 +104,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'stele',
-    image: '/images/poi/kb-4.jpg',
+    image: '/images/poi/upload/stele.png',
     name: '明征君碑',
     category: '古迹',
     coordinates: [118.9546, 32.1524],
@@ -116,7 +116,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'pagoda',
-    image: '/images/poi/kb-5.jpg',
+    image: '/images/poi/upload/sheli-pagoda.png',
     name: '舍利塔',
     category: '古迹',
     coordinates: [118.9566, 32.1534],
@@ -128,7 +128,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'grottoes',
-    image: '/images/poi/kb-6.jpg',
+    image: '/images/poi/upload/thousand-buddha-cliff.png',
     name: '千佛岩',
     category: '石刻',
     coordinates: [118.9574, 32.154],
@@ -164,7 +164,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'tiankai',
-    image: '/images/poi/kb-9.jpg',
+    image: '/images/poi/upload/tiankai.png',
     name: '天开岩',
     category: '石刻',
     coordinates: [118.9548, 32.1566],
@@ -176,7 +176,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'dielang',
-    image: '/images/poi/kb-10.jpg',
+    image: '/images/poi/upload/dielang.png',
     name: '叠浪崖',
     category: '观景',
     coordinates: [118.9576, 32.1573],
@@ -188,7 +188,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'maple-ridge',
-    image: '/images/poi/kb-11.jpg',
+    image: '/images/poi/upload/maple-ridge.png',
     name: '枫岭',
     category: '观景',
     coordinates: [118.9618, 32.156],
@@ -200,7 +200,7 @@ export const POIS: Poi[] = [
   },
   {
     id: 'summit',
-    image: '/images/poi/kb-12.jpg',
+    image: '/images/poi/upload/summit.png',
     name: '凤翔峰',
     category: '观景',
     coordinates: [118.962, 32.1589],
@@ -212,19 +212,19 @@ export const POIS: Poi[] = [
   },
   {
     id: 'biyun',
-    image: '/images/poi/kb-13.jpg',
+    image: '/images/poi/upload/biyun-pavilion.png',
     name: '碧云亭观景台',
     category: '观景',
     coordinates: [118.959, 32.16],
     brief: '朝西开阔的观景平台，是摄影爱好者拍摄日落与江景的首选位置。',
-    story: '10 月底日落约 17:20，最佳光线窗口在 16:30–17:15。平台面积有限，高峰时段请���峰停留。',
+    story: '10 月底日落约 17:20，最佳光线窗口在 16:30–17:15。平台面积有限，高峰时段请勿长时间停留。',
     elevation: 240,
     peakLoad: 260,
     hourlyCurve: 'sunset',
   },
   {
-    id: 'shamao-peak', image: '/images/poi/kb-14.jpg', name: '纱帽峰', category: '观景', coordinates: [118.9578, 32.1552],
-    brief: '位于千佛岩之巅，因峰形与纱帽相似得名，乾隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
+    id: 'shamao-peak', image: '/images/poi/kb-14.jpg', name: '纱��峰', category: '观景', coordinates: [118.9578, 32.1552],
+    brief: '位于千佛岩之巅，因峰形与纱帽相似得名，���隆南巡时曾赐名玉冠峰。', story: '纱帽峰被佛龛环抱，是连接石刻与山景的高处节点。', elevation: 120, peakLoad: 350, hourlyCurve: 'afternoon',
   },
   {
     id: 'banruo-platform', image: '/images/poi/kb-15.jpg', name: '般若台', category: '古迹', coordinates: [118.9558, 32.1548],
@@ -235,7 +235,7 @@ export const POIS: Poi[] = [
     brief: '位于中峰一侧、乾隆行宫内��历史水景，旧称水面清澈可鉴。', story: '玲峰池与行宫遗址、石梁相望，是山中人文水景节点。', elevation: 92, peakLoad: 180, hourlyCurve: 'afternoon',
   },
   {
-    id: 'shihuang-riverside', image: '/images/poi/kb-17.png', name: '始皇临江处', category: '观景', coordinates: [118.9626, 32.161],
+    id: 'shihuang-riverside', image: '/images/poi/upload/shihuang-riverside.png', name: '始皇临江处', category: '观景', coordinates: [118.9626, 32.161],
     brief: '观光车线路中的临江观景点，可远望长江与山下平原。', story: '适合与碧云亭、凤翔峰串联游览，具体视野受天气影响。', elevation: 220, peakLoad: 380, hourlyCurve: 'sunset',
   },
   {
@@ -255,7 +255,7 @@ export const POIS: Poi[] = [
     brief: '栖霞山东北侧山体，连接林地与远眺视线。', story: '龙山适合作为山林地理知识点查看，不代表当前开放登山线路。', elevation: 190, peakLoad: 180, hourlyCurve: 'afternoon',
   },
   {
-    id: 'red-leaf-valley', image: '/images/poi/kb-22.jpg', name: '红叶谷', category: '观景', coordinates: [118.9535, 32.157],
+    id: 'red-leaf-valley', image: '/images/poi/upload/red-leaf-valley.png', name: '红叶谷', category: '观景', coordinates: [118.9535, 32.157],
     brief: '成片枫叶形成的山谷，秋季空气清新、视线开阔。', story: '红叶谷是栖霞山秋季观景的重要区域，最佳效果受当年转色进度影响。', elevation: 100, peakLoad: 750, hourlyCurve: 'afternoon',
   },
   {
@@ -263,7 +263,7 @@ export const POIS: Poi[] = [
     brief: '千佛岩内发现的保存较完整的壁画遗存。', story: '栖霞飞天补充了千佛岩石刻之外的壁画线索，参观范围以现场保护安排为准。', elevation: 58, peakLoad: 220, hourlyCurve: 'midday',
   },
   {
-    id: 'peach-lake', image: '/images/poi/kb-24.jpg', name: '桃花湖', category: '山水', coordinates: [118.961, 32.154],
+    id: 'peach-lake', image: '/images/poi/upload/peach-lake.png', name: '桃花湖', category: '山水', coordinates: [118.961, 32.154],
     brief: '桃花涧中游的水景区域，春季桃花沿涧盛开。', story: '桃花湖与桃花涧共同构成山中休憩与赏花节点。', elevation: 60, peakLoad: 320, hourlyCurve: 'afternoon',
   },
   {
@@ -323,15 +323,15 @@ export const PERSONAS: Persona[] = [
     durationMin: 210,
     distanceKm: 4.6,
     intensity: '适中',
-    stairs: '叠浪崖至凤翔峰为连续石阶',
+    stairs: '叠浪崖至凤翔峰��连续石阶',
     highlights: ['叠浪崖红枫岩壁机位', '凤翔峰望���打卡', '同伴叶章合成纪念卡'],
-    questions: ['栖霞山有哪些冷门但好玩的故事？', '叠浪崖几点去光线最好？', '三小时轻徒步怎么走？'],
+    questions: ['栖霞山有哪些冷门但好玩的故事？', '叠浪崖几点去光线最好？', '三���时轻徒步怎么走？'],
   },
   {
     id: 'culture',
     name: '文化爱好者',
     short: '文化',
-    cares: '人物、诗文、题刻、建筑与地方历史，也愿意停下来继续追问。',
+    cares: '人物、诗文���题刻、建筑与地方历史，也愿意停下来继续追问。',
     routeName: '六朝至清 · 碑刻诗文线',
     stops: ['temple', 'stele', 'pagoda', 'grottoes', 'palace', 'tiankai'],
     durationMin: 180,
