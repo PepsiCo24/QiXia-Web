@@ -299,7 +299,7 @@
   object-fit: cover;
   object-position: center;
   opacity: 1;
-  animation: poi-thumb-flicker 5.2s ease-in-out infinite;
+  animation: poi-thumb-flicker 5.2s ease-in-out infinite backwards;
   animation-delay: var(--poi-delay, 0s);
   }
   .poi-marker.is-default-twinkle .poi-label {
@@ -308,9 +308,14 @@
   color: var(--foreground);
   background: rgba(11, 16, 14, 0.88);
   border-color: rgba(237, 230, 216, 0.24);
-  animation: poi-thumb-flicker 5.2s ease-in-out infinite;
+  animation: poi-thumb-flicker 5.2s ease-in-out infinite backwards;
   animation-delay: var(--poi-delay, 0s);
   }
+/* 抵消 immersive.css 对 label-muted 名称的 opacity:0，使所有默认节点的透明度基准一致 */
+.poi-marker.is-default-twinkle.label-muted:not(:hover):not(:focus-visible):not(.is-selected):not(.is-on-route) .poi-label {
+  visibility: visible;
+  opacity: 1;
+}
 .poi-marker.is-default-twinkle .poi-dot::after {
   content: "";
   position: absolute;
