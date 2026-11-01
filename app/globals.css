@@ -304,11 +304,13 @@
 }
 .poi-marker.is-default-twinkle .poi-label {
   visibility: visible !important;
-  opacity: 1 !important;
+  opacity: 1;
   color: var(--foreground);
   background: rgba(11, 16, 14, 0.88);
   border-color: rgba(237, 230, 216, 0.24);
-}
+  animation: poi-thumb-flicker 3.6s ease-in-out infinite;
+  animation-delay: 0s;
+  }
 .poi-marker.is-default-twinkle .poi-dot::after {
   content: "";
   position: absolute;
@@ -335,7 +337,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .poi-marker.is-default-twinkle .poi-thumb,
-  .poi-marker.is-default-twinkle .poi-dot,
+ .poi-marker.is-default-twinkle .poi-label,
+ .poi-marker.is-default-twinkle .poi-dot,
   .poi-marker.is-default-twinkle .poi-dot::after { animation: none; }
 }
 .poi-marker.is-on-route .poi-label {
