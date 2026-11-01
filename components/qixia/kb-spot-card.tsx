@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "./language-provider";
+import { localizeText, translatePoiName } from "@/lib/i18n";
 import { useEffect, useId, useState } from "react";
 import { ExternalLink, Navigation, X } from "lucide-react";
 import {
@@ -42,6 +44,7 @@ function normalizeCredibility(
 }
 
 export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
+  const { locale, t } = useLanguage();
   const titleId = useId();
   const hintId = useId();
   const [state, setState] = useState<DetailState>("loading");
@@ -98,30 +101,30 @@ export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
             <span
               className="kb-tag kb-tag-coord"
               data-coord-kind={spot.coordKind}
-              title={coordKindHint(spot)}
+              title={localizeText(coordKindHint(spot), locale)}
             >
-              {coordKindLabel(spot)}
+              {localizeText(coordKindLabel(spot), locale)}
             </span>
             <span
               className="kb-tag kb-tag-cred"
-              title={KB_CREDIBILITY_LABEL[credibility]}
+              title={localizeText(KB_CREDIBILITY_LABEL[credibility], locale)}
             >
-              {credibilityBadge(credibility)}
+              {t(credibilityBadge(credibility), `Grade ${credibility}`)}
             </span>
-            {spot.past && <span className="kb-tag kb-tag-past">往期</span>}
+            {spot.past && <span className="kb-tag kb-tag-past">{t("往期", "Past")}</span>}
           </p>
           <h3 className="kb-card-title" id={titleId}>
-            {spot.title}
+            {translatePoiName(spot.title, locale)}
           </h3>
           {aliases.length > 0 && (
-            <p className="kb-card-aliases">别名：{aliases.join("、")}</p>
+            <p className="kb-card-aliases">{t("别名：", "Aliases (Chinese): ")}{aliases.join("、")}</p>
           )}
-          <p className="kb-card-category">分类：{category}</p>
+          <p className="kb-card-category">{t("分类：", "Category: ")}{spot.tabs.map((tab) => localizeText(({ attractions: "景点", ancillary: "游客服务", access: "交通停车", amenities: "吃住", activities: "活动", packages: "门票套票" })[tab], locale)).join(" / ")}</p>
         </div>
         <button
           type="button"
           className="kb-card-close"
-          aria-label="关闭资料卡"
+          aria-label={t("关闭资料卡", "Close information card")}
           onClick={onClose}
         >
           <X aria-hidden="true" />
@@ -129,16 +132,17 @@ export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
       </header>
 
       {loading ? (
-        <div className="kb-skeleton-list" role="status" aria-label="正在加载资料">
+        <div className="kb-skeleton-list" role="status" aria-label={t("正在加载资料", "Loading information")}>
           <span className="kb-skeleton" />
           <span className="kb-skeleton" />
           <span className="kb-skeleton" />
         </div>
       ) : (
         <>
-          {summary.length > 0 && <p className="kb-card-summary">{summary}</p>}
+          {summary.length > 0 && <p className="kb-card-summary" lang="zh-CN">{locale === "en" && <span>Chinese original: </span>}{summary}</p>}
+          {locale === "en" && facts.length > 0 && <p className="kb-card-note">Key facts — Chinese original</p>}
           {facts.length > 0 && (
-            <ul className="kb-card-facts" role="list" aria-label="关键事实">
+            <ul className="kb-card-facts" role="list" aria-label={t("关键事实", "Key facts (Chinese original)")} lang="zh-CN">
               {facts.map((fact, index) => (
                 <li
                   key={`${fact.key}-${index}`}
@@ -155,22 +159,22 @@ export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
           )}
           {failed && (
             <p className="kb-card-note" role="status">
-              资料暂时读不到，请稍后重试
+              {t("资料暂时读不到，请稍后重试", "Information is temporarily unavailable. Please try again later.")}
             </p>
           )}
           <p className="kb-card-meta">
-            <span>可信度 {credibilityBadge(credibility)}</span>
+            <span>{t("可信度", "Credibility")} {t(credibilityBadge(credibility), `Grade ${credibility}`)}</span>
             <span aria-hidden="true">·</span>
-            <span>{updated}</span>
+            <span>{locale === "en" ? ((detail?.updated ?? spot.updated) ? `Updated ${detail?.updated ?? spot.updated}` : "Update date unavailable") : updated}</span>
             <span aria-hidden="true">·</span>
-            <span className="kb-card-draft">草稿未人工审核</span>
+            <span className="kb-card-draft">{t("草稿未人工审核", "Unreviewed draft")}</span>
           </p>
         </>
       )}
 
       {sources.length > 0 && (
         <div className="kb-card-sources">
-          <p className="kb-card-section-title">出处</p>
+          <p className="kb-card-section-title">{t("出处", "Sources (original titles)")}</p>
           <ul role="list">
             {sources.map((source) => (
               <li key={source.url}>
@@ -201,11 +205,11 @@ export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
             onClick={() => onNavigate(spot)}
           >
             <Navigation aria-hidden="true" />
-            导航到这里
+            {t("导航到这里", "Navigate here")}
           </button>
         ) : null}
         <p className="kb-card-hint" id={hintId}>
-          {navigationHint}
+          {localizeText(navigationHint, locale)}
         </p>
         <a
           className="kb-place-link"
@@ -215,8 +219,8 @@ export function KbSpotCard({ spot, onClose, onNavigate }: KbSpotCardProps) {
           rel="noopener noreferrer"
         >
           <ExternalLink aria-hidden="true" />
-          在知识库查看完整资料
-          <span className="sr-only">（在新标签页打开）</span>
+          {t("在知识库查看完整资料", "View full entry in the knowledge base")}
+          <span className="sr-only">{t("（在新标签页打开）", " (opens in a new tab)")}</span>
         </a>
       </div>
     </article>

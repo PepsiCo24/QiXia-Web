@@ -1,5 +1,7 @@
 "use client";
 
+import { useLanguage } from "./language-provider";
+import { localizeText, translatePoiName } from "@/lib/i18n";
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Search, X } from "lucide-react";
 import {
@@ -20,7 +22,7 @@ import { cn } from "@/lib/utils";
  *
  * 列表来自构建期快照（同步读取，切换页签不请求网络）；
  * 面板本身不渲染全屏遮罩，滚动发生在面板内部（列表内部滚动，不触发地图缩放）。
- * 宿主元素 `.kb-panel-host` 由 hero-map 提供；组件根节点是 `.kb-panel`。
+ * 宿主元素 `.kb-tool-popover` 由 hero-map 提供；组件根节点是 `.kb-panel`。
  */
 export interface KbPanelProps {
   activeTab: KbTabKey;
@@ -49,6 +51,7 @@ export function KbPanel({
   onClose,
   selectedSpotId = null,
 }: KbPanelProps) {
+  const { locale, t } = useLanguage();
   const [query, setQuery] = useState("");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -61,11 +64,11 @@ export function KbPanel({
     // 「千佛岩」这类名称命中时只列直接命中项，避免被正文提及的条目淹没；
     // 名称/别名无命中时再退回摘要检索，保证 FR-2 的摘要过滤能力。
     const nameMatches = spots.filter((spot) =>
-      matchesName(spot, normalizedQuery),
+      (matchesName(spot, normalizedQuery) || translatePoiName(spot.title, locale).toLowerCase().includes(normalizedQuery)),
     );
     if (nameMatches.length > 0) return nameMatches;
     return spots.filter((spot) => matchesSummary(spot, normalizedQuery));
-  }, [spots, normalizedQuery]);
+  }, [spots, normalizedQuery, locale]);
 
   const activeTabLabel =
     KB_TABS.find((tab) => tab.key === activeTab)?.label ?? "资料";
@@ -121,22 +124,22 @@ export function KbPanel({
     <section
       className="kb-panel glass-panel"
       data-testid="kb-panel"
-      aria-label="栖霞资料"
+      aria-label={t("栖霞资料", "Qixia knowledge base")}
       onKeyDown={handlePanelKeyDown}
     >
       <header className="kb-panel-header">
-        <h2 className="kb-panel-title">栖霞资料</h2>
+        <h2 className="kb-panel-title">{t("栖霞资料", "Qixia knowledge base")}</h2>
         <button
           type="button"
           className="kb-panel-close"
-          aria-label="关闭栖霞资料"
+          aria-label={t("关闭栖霞资料", "Close knowledge base")}
           onClick={onClose}
         >
           <X aria-hidden="true" />
         </button>
       </header>
 
-      <div className="kb-tabs" role="tablist" aria-label="资料分类">
+      <div className="kb-tabs" role="tablist" aria-label={t("资料分类", "Knowledge categories")}>
         {KB_TABS.map((tab, index) => {
           const selected = tab.key === activeTab;
           return (
@@ -156,7 +159,7 @@ export function KbPanel({
               onClick={() => onTabChange(tab.key)}
               onKeyDown={handleTabKeyDown}
             >
-              {tab.label}
+              {localizeText(tab.label, locale)}
             </button>
           );
         })}
@@ -169,7 +172,7 @@ export function KbPanel({
         aria-labelledby={`kb-tab-${activeTab}`}
       >
         <p className="kb-count" data-testid="kb-count" aria-live="polite">
-          共 {stats.total} 条 · {stats.locatable} 条可定位
+          {t(`共 ${stats.total} 条 · ${stats.locatable} 条可定位`, `${stats.total} entries · ${stats.locatable} locatable`)}
         </p>
 
         <div className="kb-search">
@@ -179,8 +182,8 @@ export function KbPanel({
             data-testid="kb-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索名称"
-            aria-label="搜索栖霞资料"
+            placeholder={t("搜索名称", "Search by name")}
+            aria-label={t("搜索栖霞资料", "Search Qixia knowledge base")}
             autoComplete="off"
             spellCheck={false}
           />
@@ -188,7 +191,7 @@ export function KbPanel({
             <button
               type="button"
               className="kb-search-clear"
-              aria-label="清除搜索"
+              aria-label={t("清除搜索", "Clear search")}
               onClick={() => setQuery("")}
             >
               <X aria-hidden="true" />
@@ -198,17 +201,17 @@ export function KbPanel({
 
         {spots.length === 0 ? (
           <p className="kb-empty" data-testid="kb-empty" role="status">
-            这一类资料还在整理中
+            {t("这一类资料还在整理中", "This category is being compiled")}
           </p>
         ) : visibleSpots.length === 0 ? (
           <p className="kb-empty" data-testid="kb-empty" role="status">
-            没有匹配的条目
+            {t("没有匹配的条目", "No matching entries")}
           </p>
         ) : (
           <ul
             className="kb-list"
             role="list"
-            aria-label={`${activeTabLabel}资料列表`}
+            aria-label={t(`${activeTabLabel}资料列表`, `${localizeText(activeTabLabel, locale)} entries`)}
           >
             {visibleSpots.map((spot) => {
               const selected = spot.id === selectedSpotId;
@@ -223,27 +226,27 @@ export function KbPanel({
                     onClick={() => onSelectSpot(spot)}
                   >
                     <span className="kb-row-head">
-                      <span className="kb-row-title">{spot.title}</span>
+                      <span className="kb-row-title">{translatePoiName(spot.title, locale)}</span>
                       <span className="kb-tags">
                         {spot.past && (
-                          <span className="kb-tag kb-tag-past">往期</span>
+                          <span className="kb-tag kb-tag-past">{t("往期", "Past")}</span>
                         )}
                         <span
                           className="kb-tag kb-tag-coord"
                           data-coord-kind={spot.coordKind}
-                          title={coordKindHint(spot)}
+                          title={localizeText(coordKindHint(spot), locale)}
                         >
-                          {coordKindLabel(spot)}
+                          {localizeText(coordKindLabel(spot), locale)}
                         </span>
                         <span
                           className="kb-tag kb-tag-cred"
-                          title={KB_CREDIBILITY_LABEL[spot.credibility]}
+                          title={localizeText(KB_CREDIBILITY_LABEL[spot.credibility], locale)}
                         >
-                          {credibilityBadge(spot.credibility)}
+                          {t(credibilityBadge(spot.credibility), `Grade ${spot.credibility}`)}
                         </span>
                       </span>
                     </span>
-                    <span className="kb-row-summary">{spot.summary}</span>
+                    <span className="kb-row-summary" lang="zh-CN">{locale === "en" && <span>Chinese original: </span>}{spot.summary}</span>
                   </button>
                 </li>
               );
@@ -255,10 +258,10 @@ export function KbPanel({
       <footer className="kb-panel-foot">
         {showNoCoordHint && (
           <p className="kb-nocoord" role="status">
-            该分类 {stats.total} 条暂无核验坐标
+            {t(`该分类 ${stats.total} 条暂无核验坐标`, `All ${stats.total} entries in this category lack verified coordinates`)}
           </p>
         )}
-        <p className="kb-source-note">资料来自栖霞知识库 · 草稿未人工审核</p>
+        <p className="kb-source-note">{t("资料来自栖霞知识库 · 草稿未人工审核", "Source: Qixia knowledge base · unreviewed draft · source prose in Chinese")}</p>
       </footer>
     </section>
   );

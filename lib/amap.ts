@@ -1,25 +1,41 @@
 import type { LngLat } from "./qixia-data";
 
-/** 步行速度（米/秒），用于估算示意段的时长 */
-const WALK_SPEED = 1.2;
-
-/** 单条转向指令，供 turn-by-turn 导航播报与匹配 */
+/** 单条真实路网转向指令，供 turn-by-turn 导航播报与匹配 */
 export interface NavStep {
-  /** 高德给出的中文指令，如「向西南步行129米右转」 */
   instruction: string;
   distance: number;
   coordinates: LngLat[];
 }
 
 export interface RouteSegment {
-  /** real = 高德真实路网；approx = 景区内部示意路径 */
+  /** approx 仅保留旧数据类型兼容；在线规划与导航均不接受示意路径。 */
   mode: "real" | "approx";
   coordinates: LngLat[];
   distance: number;
   duration: number;
   detourRatio: number;
-  /** 逐条转向指令；approx 段只有一条 */
   steps: NavStep[];
+}
+
+export type RoutingErrorCode =
+  | "ROUTING_NOT_CONFIGURED"
+  | "ROUTING_PROVIDER_CONFIG"
+  | "ROUTING_NO_ROUTE"
+  | "ROUTING_UNAVAILABLE"
+  | "ROUTING_INVALID_RESPONSE";
+
+/** 只携带可公开的信息：不透传含密钥的请求 URL 或供应商原始异常。 */
+export class RoutingError extends Error {
+  constructor(
+    public readonly code: RoutingErrorCode,
+    message: string,
+    public readonly status: number,
+    public readonly retryable = false,
+    public readonly providerCode?: string,
+  ) {
+    super(message);
+    this.name = "RoutingError";
+  }
 }
 
 /** 两点球面距离（米） */
@@ -30,246 +46,194 @@ export function haversine(a: LngLat, b: LngLat): number {
   const dLng = toRad(b[0] - a[0]);
   const lat1 = toRad(a[1]);
   const lat2 = toRad(b[1]);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
+  const h = Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-function approxSegment(origin: LngLat, destination: LngLat): RouteSegment {
-  const distance = haversine(origin, destination);
-  return {
-    mode: "approx",
-    coordinates: [origin, destination],
-    distance: Math.round(distance),
-    duration: Math.round(distance / WALK_SPEED),
-    detourRatio: 1,
-    steps: [
-      {
-        instruction: "沿景区内步道前往目的地",
-        distance: Math.round(distance),
-        coordinates: [origin, destination],
-      },
-    ],
-  };
+function isCoordinate(point: unknown): point is LngLat {
+  return Array.isArray(point) && point.length === 2 &&
+    point.every((value) => typeof value === "number" && Number.isFinite(value)) &&
+    Math.abs(point[0]) <= 180 && Math.abs(point[1]) <= 90;
 }
 
-/** 解析高德 polyline 字符串（格式 "lng,lat;lng,lat"） */
+function hasGeometry(points: unknown): points is LngLat[] {
+  return Array.isArray(points) && points.length >= 2 && points.every(isCoordinate) &&
+    points.some((point) => point[0] !== points[0][0] || point[1] !== points[0][1]);
+}
+
+/** 客户端也校验：旧服务/缓存返回的 approx 或空几何绝不能启动导航。 */
+export function isNavigableRoute(segments: unknown): segments is RouteSegment[] {
+  return Array.isArray(segments) && segments.length > 0 && segments.every((segment) =>
+    segment && segment.mode === "real" && hasGeometry(segment.coordinates) &&
+    Number.isFinite(segment.distance) && segment.distance > 0 &&
+    Number.isFinite(segment.duration) && segment.duration > 0 &&
+    Array.isArray(segment.steps) && segment.steps.length > 0 &&
+    segment.steps.every((step: NavStep) => step && typeof step.instruction === "string" &&
+      Number.isFinite(step.distance) && step.distance >= 0 && hasGeometry(step.coordinates)),
+  );
+}
+
+/** 不跳过坏坐标，以免把不连续的几何拼成虚假直线。 */
 function parsePolylineString(polyline?: string): LngLat[] {
-  if (!polyline) return [];
+  if (typeof polyline !== "string" || !polyline) return [];
   const coordinates: LngLat[] = [];
   for (const pair of polyline.split(";")) {
-    const [lng, lat] = pair.split(",").map(Number);
-    if (Number.isFinite(lng) && Number.isFinite(lat))
-      coordinates.push([lng, lat]);
+    const parts = pair.split(",");
+    if (parts.length !== 2 || parts.some((value) => !value.trim())) return [];
+    const point = parts.map(Number);
+    if (!isCoordinate(point)) return [];
+    coordinates.push(point);
   }
   return coordinates;
 }
 
-/** 触发高德 QPS 限流后的等待时间（毫秒），免费 key 限 3 次/秒 */
 const QPS_RETRY_DELAY = 350;
-
-/** 路线段缓存：相同起终点 10 分钟内直接复用，避免重复消耗高德配额 */
 const SEGMENT_CACHE_TTL = 10 * 60 * 1000;
 const SEGMENT_CACHE_MAX = 50;
 const segmentCache = new Map<string, { at: number; segment: RouteSegment }>();
 
-function segmentCacheKey(a: LngLat, b: LngLat): string {
-  const round = (v: number) => v.toFixed(5);
-  return `${round(a[0])},${round(a[1])}|${round(b[0])},${round(b[1])}`;
-}
-
-function readSegmentCache(key: string): RouteSegment | null {
-  const hit = segmentCache.get(key);
-  if (!hit) return null;
-  if (Date.now() - hit.at > SEGMENT_CACHE_TTL) {
-    segmentCache.delete(key);
-    return null;
+export async function planWalkingSegment(origin: LngLat, destination: LngLat): Promise<RouteSegment> {
+  // 两个环境变量均仅在服务端使用，绝不使用 NEXT_PUBLIC_ 前缀。
+  const key = process.env.AMAP_WEB_SERVICE_KEY?.trim() || process.env.AMAP_KEY?.trim();
+  if (!key) {
+    throw new RoutingError("ROUTING_NOT_CONFIGURED",
+      "在线步行路线尚未配置，请管理员在服务端配置高德 Web 服务密钥 AMAP_WEB_SERVICE_KEY（兼容 AMAP_KEY）后重新部署。", 503);
   }
-  return hit.segment;
-}
+  const round = (value: number) => value.toFixed(5);
+  const cacheKey = `${origin.map(round).join(",")}|${destination.map(round).join(",")}`;
+  const cached = segmentCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < SEGMENT_CACHE_TTL) return cached.segment;
+  if (cached) segmentCache.delete(cacheKey);
 
-function writeSegmentCache(key: string, segment: RouteSegment): void {
+  const segment = await requestWalkingSegment(origin, destination, key);
   if (segmentCache.size >= SEGMENT_CACHE_MAX) {
     const oldest = segmentCache.keys().next().value;
     if (oldest !== undefined) segmentCache.delete(oldest);
   }
-  segmentCache.set(key, { at: Date.now(), segment });
-}
-
-export async function planWalkingSegment(
-  origin: LngLat,
-  destination: LngLat,
-): Promise<RouteSegment> {
-  const cacheKey = segmentCacheKey(origin, destination);
-  const cached = readSegmentCache(cacheKey);
-  if (cached) return cached;
-
-  const segment = await requestWalkingSegment(origin, destination);
-  // 只缓存真实路网结果：approx 多为限流/超时的临时退化，下次应重试而不是吃缓存
-  if (segment.mode === "real") writeSegmentCache(cacheKey, segment);
+  segmentCache.set(cacheKey, { at: Date.now(), segment });
   return segment;
 }
 
-async function requestWalkingSegment(
-  origin: LngLat,
-  destination: LngLat,
-): Promise<RouteSegment> {
-  const key = process.env.AMAP_KEY;
-  if (!key) return approxSegment(origin, destination);
-
-  const url = new URL("https://restapi.amap.com/v3/direction/walking");
-  url.searchParams.set("origin", `${origin[0]},${origin[1]}`);
-  url.searchParams.set("destination", `${destination[0]},${destination[1]}`);
-  url.searchParams.set("key", key);
-
-  // 高德偶发超时/限流：重试三次（退避递增）再兜底，尽量不让临时故障漏出直线
-  let payload: {
-    status?: string;
-    route?: {
-      paths?: Array<{
-        distance?: string;
-        duration?: string;
-        steps?: Array<{
-          instruction?: string;
-          distance?: string;
-          polyline?: string;
-        }>;
-      }>;
-    };
-  } | null = null;
-
-  for (let attempt = 0; attempt < 3 && !payload; attempt += 1) {
-    try {
-      const res = await fetch(url, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(4000),
-      });
-      const data = await res.json();
-      if (data.status === "1" && data.route?.paths?.length) {
-        payload = data;
-      } else if (attempt < 2) {
-        // 高德 QPS 限流 / 瞬时故障：退避递增后重试，绝不轻易退化成直线
-        await new Promise((resolve) =>
-          setTimeout(resolve, QPS_RETRY_DELAY * (attempt + 1)),
-        );
-      }
-    } catch {
-      // 网络异常：进入下一轮重试
-    }
-  }
-
-  if (!payload) return approxSegment(origin, destination);
-
-  const path = payload.route!.paths![0];
-  const rawSteps = path.steps ?? [];
-
-  const steps: NavStep[] = rawSteps
-    .map((step) => ({
-      instruction: String(step.instruction ?? "").trim(),
-      distance: Number(step.distance) || 0,
-      coordinates: parsePolylineString(step.polyline),
-    }))
-    .filter((step) => step.coordinates.length >= 2);
-
-  const coordinates = steps.flatMap((step) => step.coordinates);
-  if (coordinates.length < 2) return approxSegment(origin, destination);
-
-  const straight = haversine(origin, destination);
-  const routed = Number(path.distance) || 0;
-  const detourRatio = straight > 0 && routed > 0 ? routed / straight : 1;
-
-  // 只要高德给了有效路径就用它：绕远也好过两点直线穿山体。
-  // 仅当高德确实没给出距离（无法成路）时才退回示意段。
-  if (!routed) {
-    return approxSegment(origin, destination);
-  }
-
-  return {
-    mode: "real",
-    coordinates,
-    distance: Math.round(routed),
-    duration: Number(path.duration) || Math.round(routed / WALK_SPEED),
-    detourRatio,
-    steps,
-  };
+interface WalkingPayload {
+  status?: string;
+  infocode?: string;
+  route?: { paths?: Array<{
+    distance?: string;
+    duration?: string;
+    steps?: Array<{ instruction?: string; distance?: string; polyline?: string }>;
+  }> };
 }
 
-/** 同时打高德的段数上限：免费 key 限 3 QPS，留出余量给其他请求 */
-const ROUTE_CONCURRENCY = 2;
+function invalidResponse(): RoutingError {
+  return new RoutingError("ROUTING_INVALID_RESPONSE",
+    "路线服务未返回完整的真实步行路径，无法开始导航。请稍后重试或更换起终点；不会使用直线示意路线。", 502);
+}
 
-/** 逐段规划：相邻两个 POI 之间分别判定 real / approx。
- *  用并发 2 的工作池代替串行 await——串行在 4s 超时 × 重试下，
- *  5 停靠点最坏要几十秒，线上 serverless 函数会先被平台超时掐死。
- *  首轮算完后，对仍然退化为示意的段再补算一轮：临时限流/超时
- *  不该在界面上留下两点直连线（此时其余段已进缓存，重试无 QPS 压力）。 */
-export async function planWalkingRoute(
-  stops: LngLat[],
-): Promise<RouteSegment[]> {
-  const segmentCount = Math.max(stops.length - 1, 0);
-  const segments = await planSegments(stops, segmentCount);
-
-  const pending = segments
-    .map((segment, index) => (segment.mode === "approx" ? index : -1))
-    .filter((index) => index >= 0);
-  if (pending.length) {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    const retried = await planSegments(stops, segmentCount, pending);
-    pending.forEach((index, i) => {
-      if (retried[i].mode === "real") segments[index] = retried[i];
-    });
+function providerError(code?: string): RoutingError {
+  // 高德平台类型不匹配、无效 key、权限/白名单/签名等配置错误不应盲目重试。
+  if (code && ["10001", "10002", "10005", "10006", "10007", "10008", "10009", "10012", "10013"].includes(code)) {
+    return new RoutingError("ROUTING_PROVIDER_CONFIG",
+      code === "10009"
+        ? "步行路线服务密钥的平台类型不匹配。请管理员配置高德「Web 服务」类型密钥 AMAP_WEB_SERVICE_KEY 后重新部署（不能使用浏览器 JS API 密钥）。"
+        : "步行路线服务的密钥或权限配置无效。请管理员检查高德 Web 服务密钥、服务权限及服务器白名单后重新部署。",
+      503, false, code);
   }
+  const safeCode = code && /^\d{5}$/.test(code) ? code : undefined;
+  return new RoutingError("ROUTING_UNAVAILABLE",
+    code === "10003" || code === "10044"
+      ? "步行路线服务配额已用尽，请管理员检查高德服务配额，恢复后重试。"
+      : "步行路线服务暂时不可用，请稍后重试；不会使用直线示意路线。",
+    503, !["10003", "10044"].includes(code ?? ""), safeCode);
+}
+
+async function requestWalkingSegment(origin: LngLat, destination: LngLat, key: string): Promise<RouteSegment> {
+  const url = new URL("https://restapi.amap.com/v3/direction/walking");
+  url.searchParams.set("origin", origin.join(","));
+  url.searchParams.set("destination", destination.join(","));
+  url.searchParams.set("key", key);
+
+  let payload: WalkingPayload | undefined;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(4000) });
+      if (!res.ok) {
+        throw new RoutingError("ROUTING_UNAVAILABLE", "步行路线服务暂时不可用，请稍后重试。", 503,
+          res.status === 429 || res.status >= 500);
+      }
+      const data = await res.json() as WalkingPayload | null;
+      if (!data || typeof data !== "object") throw invalidResponse();
+      if (data.status !== "1") throw providerError(data.infocode);
+      if (!Array.isArray(data.route?.paths)) throw invalidResponse();
+      if (!data.route.paths.length) {
+        throw new RoutingError("ROUTING_NO_ROUTE", "未找到起终点之间可用的真实步行路线，请更换起点或目的地；不会使用直线示意路线。", 422);
+      }
+      payload = data;
+      break;
+    } catch (error) {
+      const failure = error instanceof RoutingError ? error :
+        new RoutingError("ROUTING_UNAVAILABLE", "步行路线服务连接失败或超时，请稍后重试。", 503, true);
+      if (!failure.retryable || attempt === 2) throw failure;
+      await new Promise((resolve) => setTimeout(resolve, QPS_RETRY_DELAY * (attempt + 1)));
+    }
+  }
+  const path = payload?.route?.paths?.[0];
+  if (!path || !Array.isArray(path.steps) || !path.steps.length) throw invalidResponse();
+  const steps: NavStep[] = path.steps.map((step) => ({
+    instruction: String(step.instruction ?? "").trim(),
+    distance: Number(step.distance),
+    coordinates: parsePolylineString(step.polyline),
+  }));
+  const distance = Number(path.distance);
+  const straight = haversine(origin, destination);
+  const segment: RouteSegment = {
+    mode: "real",
+    coordinates: steps.flatMap((step) => step.coordinates),
+    distance,
+    duration: Number(path.duration),
+    detourRatio: straight > 0 ? distance / straight : 1,
+    steps,
+  };
+  if (!isNavigableRoute([segment])) throw invalidResponse();
+  return segment;
+}
+
+/** 真实路网逐段规划；任意一段失败则整条失败，不拼接虚构路径。 */
+export async function planWalkingRoute(stops: LngLat[]): Promise<RouteSegment[]> {
+  const segments: RouteSegment[] = new Array(Math.max(stops.length - 1, 0));
+  let cursor = 0;
+  let failed = false;
+  const workers = Array.from({ length: Math.min(2, segments.length) }, async () => {
+    while (!failed && cursor < segments.length) {
+      const index = cursor++;
+      try {
+        segments[index] = await planWalkingSegment(stops[index], stops[index + 1]);
+      } catch (error) {
+        failed = true;
+        throw error;
+      }
+    }
+  });
+  await Promise.all(workers);
   return segments;
 }
 
-function planSegments(
-  stops: LngLat[],
-  segmentCount: number,
-  only?: number[],
-): Promise<RouteSegment[]> {
-  const targets = only ?? Array.from({ length: segmentCount }, (_, i) => i);
-  const segments: RouteSegment[] = new Array(targets.length);
-
-  let cursor = 0;
-  const workerCount = Math.min(ROUTE_CONCURRENCY, targets.length) || 1;
-  const workers = Array.from({ length: workerCount }, async () => {
-    while (cursor < targets.length) {
-      const slot = cursor;
-      cursor += 1;
-      const index = targets[slot];
-      segments[slot] = await planWalkingSegment(stops[index], stops[index + 1]);
-    }
-  });
-  return Promise.all(workers).then(() => segments);
-}
-
-/** 把整条路线的 steps 展平成一维指令序列，并标注所属 segment */
 export interface FlatNavStep extends NavStep {
   segmentIndex: number;
   stepIndex: number;
   mode: "real" | "approx";
-  /** 所属段的绕行比（高德路径 ÷ 直线距离），用于提示「这段其实可走近道」 */
   detourRatio: number;
-  /** 所属段的直线距离（米） */
   straightDistance: number;
 }
 
 export function flattenSteps(segments: RouteSegment[]): FlatNavStep[] {
   const flat: FlatNavStep[] = [];
   segments.forEach((segment, segmentIndex) => {
-    const straightDistance =
-      segment.detourRatio > 0
-        ? segment.distance / segment.detourRatio
-        : segment.distance;
+    const straightDistance = segment.detourRatio > 0
+      ? segment.distance / segment.detourRatio : segment.distance;
     segment.steps.forEach((step, stepIndex) => {
-      flat.push({
-        ...step,
-        segmentIndex,
-        stepIndex,
-        mode: segment.mode,
-        detourRatio: segment.detourRatio,
-        straightDistance: Math.round(straightDistance),
-      });
+      flat.push({ ...step, segmentIndex, stepIndex, mode: segment.mode,
+        detourRatio: segment.detourRatio, straightDistance: Math.round(straightDistance) });
     });
   });
   return flat;

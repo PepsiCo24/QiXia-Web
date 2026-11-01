@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { planWalkingRoute } from "@/lib/amap";
+import { planWalkingRoute, RoutingError } from "@/lib/amap";
 import type { LngLat } from "@/lib/qixia-data";
 
 export const runtime = "nodejs";
@@ -34,21 +34,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "请求体格式错误" }, { status: 400 });
   }
 
-  if (!process.env.AMAP_KEY) {
-    return NextResponse.json(
-      {
-        error:
-          "在线步行路线尚未配置，请在服务端配置高德 Web 服务密钥 AMAP_KEY 后重新部署。",
-        code: "ROUTING_NOT_CONFIGURED",
-      },
-      { status: 503 },
-    );
-  }
-
   try {
     const segments = await planWalkingRoute(stops);
     return NextResponse.json({ segments });
-  } catch {
-    return NextResponse.json({ error: "路线规划失败" }, { status: 500 });
+  } catch (error) {
+    if (error instanceof RoutingError) {
+      return NextResponse.json(
+        { error: error.message, code: error.code, retryable: error.retryable,
+          ...(error.providerCode ? { providerCode: error.providerCode } : {}) },
+        { status: error.status },
+      );
+    }
+    // 不泄露供应商请求 URL、密钥或原始异常。
+    return NextResponse.json(
+      { error: "路线服务暂时不可用，请稍后重试。", code: "ROUTING_UNAVAILABLE", retryable: true },
+      { status: 503 },
+    );
   }
 }

@@ -15,6 +15,7 @@ const requestSchema = z.object({
   messages: z.array(z.object({ id: z.string().max(200), role: z.enum(['user', 'assistant']), parts: z.array(z.object({ type: z.string() }).passthrough()).max(80) })).min(1).max(32),
   persona: z.string().max(60).optional(),
   demo: z.boolean().optional(),
+  locale: z.enum(['zh-CN', 'en']).optional(),
 }).passthrough()
 
 type PetMessage = UIMessage<unknown, { 'map-command': MapCommand; 'kb-sources': KbSourcesData }>
@@ -142,7 +143,7 @@ async function chat(req: Request) {
         writer.write({ type: 'data-kb-sources', data: kb })
         // Exclude local historical stories entirely from production model input.
         const mapSystem = buildPetSystemPrompt(persona).replace(/知识来源：[\s\S]*?示意路线/, '示意路线')
-        const groundedSystem = mapSystem + personaContext + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb) + PET_OUTPUT_POLICY + '\n本轮意图：' + plan.instruction + '\n已执行操作：' + JSON.stringify(plan.commands)
+        const groundedSystem = (body.locale === 'en' ? 'Respond in English. Keep place IDs unchanged. Translate cited factual explanations faithfully and preserve uncertainty.\n' : '请使用简体中文回答。\n') + mapSystem + personaContext + '\n演示地图可用点位ID（仅供工具定位，不是事实来源）：\n' + POIS.map(p => `${p.id}: ${p.name}`).join('\n') + '\n用户明确要求定位或打开点位卡时，请分别调用map_action的focus_place和show_poi_card；command必须使用以上ID。' + kbGroundingContext(kb) + PET_OUTPUT_POLICY + '\n本轮意图：' + plan.instruction + '\n已执行操作：' + JSON.stringify(plan.commands)
         const searchPlacesSchema = z.object({ query: z.string().max(100) }).strict()
         const routesSchema = z.object({ personaId: z.enum(['family', 'youth', 'culture', 'elder', 'photo']).optional() }).strict()
         const searchPlaces = (input: z.infer<typeof searchPlacesSchema>) => ({ demo: true, verified: false, places: POIS.filter(p => !input.query || p.name.includes(input.query) || p.id.includes(input.query)).map(p => ({ id: p.id, name: p.name })) })
@@ -340,7 +341,9 @@ async function chat(req: Request) {
           emitText(fallback.text)
           for (const command of fallback.commands) emitCommand(command)
         } else {
-          emitText([plan.acknowledgement, kbExcerptReply(kb)].filter(Boolean).join('\n'))
+          emitText(body.locale === 'en'
+            ? 'The guide is temporarily unavailable. You can still explore the map and read the place information. Please try again shortly.'
+            : [plan.acknowledgement, kbExcerptReply(kb)].filter(Boolean).join('\n'))
         }
       }
       writer.write({ type: 'finish' })
