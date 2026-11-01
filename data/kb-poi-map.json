@@ -1,0 +1,413 @@
+{
+  "version": 1,
+  "updated": "2026-10-31",
+  "exemptions": {
+    "duplicateCoordinates": [
+      "place-320113-longshan",
+      "place-320113-luyuchazhuang"
+    ]
+  },
+  "mappings": [
+    {
+      "kbId": "place-320113-biyunting",
+      "poiId": "biyun",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9536551,
+        32.1590028
+      ],
+      "verifiedSource": "OSM node/5599488218（tourism=attraction，名称=碧云亭），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 5.8m，确认为同一地点"
+    },
+    {
+      "kbId": "place-320113-boreta",
+      "poiId": "banruo-platform",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-dielangyan",
+      "poiId": "dielang",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素（OSM 有「叠浪崖」别名差异但未收录），未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-fengling",
+      "poiId": "maple-ridge",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9618,
+        32.156
+      ],
+      "note": "复用现有演示点位 maple-ridge；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-fengxiangfeng",
+      "poiId": "summit",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9649161,
+        32.1603375
+      ],
+      "verifiedSource": "OSM node/1042362671（natural=peak，ele=286，名称=凤翔峰），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.5m"
+    },
+    {
+      "kbId": "place-320113-henghadian",
+      "poiId": "hengha-hall",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9548,
+        32.1528
+      ],
+      "note": "复用现有演示点位 hengha-hall；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-hongyegu",
+      "poiId": "red-leaf-valley",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-hushan",
+      "poiId": "tiger-mountain",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9530129,
+        32.1586643
+      ],
+      "verifiedSource": "OSM node/5599488219（natural=peak，名称=虎山），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.6m"
+    },
+    {
+      "kbId": "place-320113-liaofanwendao",
+      "poiId": "liaofan-qiuxin",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9592866,
+        32.1568848
+      ],
+      "verifiedSource": "OSM node/5599488271（tourism=attraction，名称=了凡问道），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 30.0m"
+    },
+    {
+      "kbId": "place-320113-lingfengchi",
+      "poiId": "lingfeng-pond",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9586,
+        32.1558
+      ],
+      "note": "复用现有演示点位 lingfeng-pond；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-longshan",
+      "poiId": "dragon-mountain",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；与陆羽茶庄坐标完全相同（32.15191,118.95935，已登记重复坐标豁免），疑似数据错误；OSM 无同名要素，待人工裁决"
+    },
+    {
+      "kbId": "place-320113-luyuchazhuang",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；与龙山坐标完全相同（32.15191,118.95935，已登记重复坐标豁免），疑似数据错误；OSM 无同名要素，待人工裁决/现场核验"
+    },
+    {
+      "kbId": "place-320113-mingjinghu",
+      "poiId": "mirror-lake",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 附近仅有无名水体 way/968838967（距约 14m），缺少名称无法确认同一地点，待人工裁决"
+    },
+    {
+      "kbId": "place-320113-mingzhengjunbei",
+      "poiId": "stele",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-qianfoyan",
+      "poiId": "grottoes",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9550305,
+        32.1538504
+      ],
+      "verifiedSource": "OSM node/5599488223（tourism=attraction，名称=千佛岩），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 0.1m"
+    },
+    {
+      "kbId": "place-320113-qianlongxinggong",
+      "poiId": "palace",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-qixiafeitian",
+      "poiId": "qixia-flying",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.957,
+        32.1542
+      ],
+      "note": "复用现有演示点位 qixia-flying；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiasi",
+      "poiId": "temple",
+      "coordKind": "kb-geo",
+      "note": "知识库坐标；第二来源 OSM way/1243073749「栖霞寺」中心相距 130.9m（100–300m 区间，按 PRD §8.4 不得升级 verified）；另 OSM 毘卢宝殿建筑 way/1059591708 距 11.9m，疑知识库坐标指向主殿而非寺院轮廓，待人工裁决"
+    },
+    {
+      "kbId": "place-320113-shamaofeng",
+      "poiId": "shamao-peak",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-shelita",
+      "poiId": "pagoda",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无「栖霞寺舍利塔」同名要素（最近为如來堂，非同一地点），未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-shihuanglinjiang",
+      "poiId": "shihuang-riverside",
+      "coordKind": "verified",
+      "verifiedGeo": [
+        118.9632444,
+        32.1619
+      ],
+      "verifiedSource": "OSM node/4771298530（无名称标签，位置与类型吻合，名称依据周边同名路线节点交叉判定），overpass-api.de 查询，2026-10-31",
+      "verifiedAt": "2026-10-31",
+      "note": "双源一致：OSM 与知识库坐标相距 22.5m"
+    },
+    {
+      "kbId": "place-320113-taohuahu",
+      "poiId": "peach-lake",
+      "poiIds": [
+        "peach-lake",
+        "peach-creek"
+      ],
+      "coordKind": "kb-geo",
+      "note": "多对一显式裁决：演示点位「桃花涧」peach-creek 与「桃花湖」peach-lake 均对应本卡，资料模式合并为 1 个 marker（poiId=peach-lake）；坐标为知识库坐标（未核验），与两演示坐标偏差约 577m/596m，待人工裁决"
+    },
+    {
+      "kbId": "place-320113-tiankaiyan",
+      "poiId": "tiankai",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-woyunting",
+      "poiId": "wolun-pavilion",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-yixiantian",
+      "poiId": "one-line-sky",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9562,
+        32.156
+      ],
+      "note": "复用现有演示点位 one-line-sky；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-youlingyunyi",
+      "poiId": "lingyun-platform",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-yuhuayuan",
+      "poiId": "qianlong-garden",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-zhongdalu",
+      "poiId": "middle-road-maple",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9528,
+        32.156
+      ],
+      "note": "复用现有演示点位 middle-road-maple；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-zhongfengjian",
+      "poiId": "middle-creek",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9598,
+        32.1565
+      ],
+      "note": "复用现有演示点位 middle-creek；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "place-320113-zhonggulou",
+      "poiId": "bell-drum-towers",
+      "coordKind": "kb-geo",
+      "note": "仅知识库坐标；OSM 该范围内无同名要素，未获取第二独立来源，待现场核验"
+    },
+    {
+      "kbId": "place-320113-bailuquan",
+      "coordKind": "none",
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "kbId": "place-320113-bairuquan",
+      "coordKind": "none",
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "kbId": "place-320113-pinwaiquan",
+      "coordKind": "none",
+      "note": "知识库无坐标，演示点位无对应点；待建点位/现场打点"
+    },
+    {
+      "kbId": "place-320113-qixiashan",
+      "poiId": "p-east",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9642,
+        32.1506
+      ],
+      "note": "复用现有演示点位 p-east（东侧停车场）代表景区东入口片区；大尺度山体/景区聚合卡（跨景点+交通停车页签），示意待核验"
+    },
+    {
+      "kbId": "place-320113-zhenzhuquan",
+      "coordKind": "none",
+      "note": "知识库无坐标；OSM node/5604273225「珍珠泉」[118.9572475,32.15768] 可作备选 fallback，但 PRD 附录 A fixture 将其列为未定位，本版不启用（M0 可评估补点）"
+    },
+    {
+      "kbId": "place-320113-nanmen-fuwuzhongxin",
+      "poiId": "gate",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.952,
+        32.1495
+      ],
+      "note": "复用现有演示点位 gate（南门游客中心）；知识库无坐标，示意待核验"
+    },
+    {
+      "kbId": "event-320113-2024-hongling-jin",
+      "coordKind": "none",
+      "note": "event 卡无坐标；关联地点为栖霞山，无单一场馆（志愿服务岗成立），待补点；往期活动（start 2024-02-01）"
+    },
+    {
+      "kbId": "event-320113-2024-rujingpiaoji",
+      "coordKind": "none",
+      "note": "event 卡无坐标；票机落地四家 4A 景区，无单一点位，待核验具体安装位置；往期活动（start 2024-08-15）"
+    },
+    {
+      "kbId": "place-320113-guzhen-gushiguan",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9439,
+        32.1464
+      ],
+      "note": "知识库地址「栖霞街与 20 县道交叉口西北 40 米」；按 OSM「栖霞老街」公交站（node/8773088129，[118.9439,32.1464]）所在古镇片区近似，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiashan-weishengjian",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.962765,
+        32.161496
+      ],
+      "note": "OSM amenity=toilets node/4771286826（凤翔峰附近一处，overpass-api.de 2026-10-31）；12 处聚合卡取代表点，示意待核验"
+    },
+    {
+      "kbId": "place-320113-ximen-fuwuzhongxin",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9515,
+        32.1535
+      ],
+      "note": "知识库地址「栖霞街 88 号(近栖霞大道) 景区内西侧」；按 OSM 栖霞寺 way/1243073749 范围西侧近似，示意待核验"
+    },
+    {
+      "kbId": "place-320113-zonghe-fuwuzhongxin",
+      "coordKind": "none",
+      "note": "知识库地址「栖霞街 60 号」；公开地图无法唯一定位，待人工裁决/现场核验"
+    },
+    {
+      "kbId": "event-320113-2026-ditie6hao",
+      "poiId": "bus",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9488,
+        32.1476
+      ],
+      "note": "复用现有演示点位 bus（栖霞山公交站/地铁接驳专线）；地铁 6 号线栖霞山站开通事件，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiashan-tingchechang",
+      "poiId": "p-south",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9502,
+        32.1487
+      ],
+      "note": "复用现有演示点位 p-south（南门停车场）；6 处停车场聚合卡取代表点，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiashan-youlanche",
+      "poiId": "shuttle",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9558,
+        32.1508
+      ],
+      "note": "复用现有演示点位 shuttle（景区观光车）；观光车与红枫接驳专线，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiashan-canyin",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9434,
+        32.1466
+      ],
+      "note": "周边餐饮汇总卡；按 OSM「栖霞老街」片区（古镇餐饮/商业聚集区）近似，示意待核验"
+    },
+    {
+      "kbId": "place-320113-qixiashan-zhusu",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.943,
+        32.1471
+      ],
+      "note": "周边住宿汇总卡；按栖霞街道/栖霞古镇片区近似，示意待核验"
+    },
+    {
+      "kbId": "event-320113-2023-yingxin",
+      "coordKind": "none",
+      "note": "往期活动（start 2023-09-25，无 end）；开幕地为仙林金鹰湖滨天地（超出 PRD 坐标范围），活动覆盖全区百余场无合理单点 → none，待人工裁决"
+    },
+    {
+      "kbId": "event-320113-2026-hongfengji",
+      "coordKind": "demo-fallback",
+      "fallbackGeo": [
+        118.9575,
+        32.1545
+      ],
+      "note": "2026 红枫季主会场为栖霞山景区；按 QIXIA_CENTER（景区几何中心，lib/qixia-data.ts）近似，示意待核验"
+    },
+    {
+      "kbId": "event-320113-2026-ningzhen",
+      "coordKind": "none",
+      "note": "宁镇文旅合作（政策类事件），无单一会场，none"
+    },
+    {
+      "kbId": "org-320113-qixiashan-guanlichu",
+      "coordKind": "none",
+      "note": "org 卡 six_a 为空，不进入任何页签；无坐标需求"
+    }
+  ]
+}
