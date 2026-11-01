@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { LngLat } from "./qixia-data";
 import { gpsToAMap } from "./map-coordinates";
 import { flattenSteps, type FlatNavStep, type RouteSegment } from "./amap";
+import { planWalkingRouteClient } from "./route-client";
 import {
   buildRouteIndex,
   computeProgress,
@@ -95,8 +96,18 @@ export function useNavigation() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ stops: [origin, destination] }),
         });
-        const data = (await res.json().catch(() => null)) as { segments?: RouteSegment[]; error?: string } | null;
-        if (!res.ok) throw new Error(data?.error || (res.status === 404 ? "当前站点不支持在线路线规划，请使用部署了导航 API 的站点" : "路线服务暂时不可用，请稍后重试"));
+        let data: { segments?: RouteSegment[]; error?: string } | null = null;
+        if (res.ok) {
+          data = (await res.json().catch(() => null)) as {
+            segments?: RouteSegment[];
+            error?: string;
+          } | null;
+        } else {
+          // 静态站点（GitHub Pages 等）没有服务端代理：浏览器直连高德兜底
+          data = {
+            segments: await planWalkingRouteClient([origin, destination]),
+          };
+        }
         if (!data) throw new Error("路线服务返回格式异常，请稍后重试");
         if (!data.segments?.length) throw new Error("没有可用路线");
 

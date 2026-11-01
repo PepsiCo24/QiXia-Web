@@ -9,6 +9,7 @@ import type {
 } from "maplibre-gl";
 import type { Feature, FeatureCollection, LineString } from "geojson";
 import type { RouteSegment } from "@/lib/amap";
+import { planWalkingRouteClient } from "@/lib/route-client";
 import type { KbSpot } from "@/lib/kb-data";
 import type { NavProgress } from "@/lib/navigation";
 import type { NavigationSession } from "@/lib/use-navigation";
@@ -169,7 +170,8 @@ function overlayPadding(width: number) {
 
 /** 资料模式 fitBounds 留白：避开左侧工具条+资料面板与右侧推荐路线卡 */
 function kbOverlayPadding(width: number, height: number) {
-  if (width < 801) return { top: 150, bottom: Math.round(height * 0.52), left: 40, right: 40 };
+  if (width < 801)
+    return { top: 150, bottom: Math.round(height * 0.52), left: 40, right: 40 };
   if (width < 1100) return { top: 120, bottom: 120, left: 520, right: 60 };
   return { top: 120, bottom: 120, left: 600, right: 380 };
 }
@@ -575,8 +577,7 @@ export function MapView({
               selected ||
               el.classList.contains("is-default-twinkle") ||
               el.classList.contains("is-on-route") ||
-              ((major || map!.getZoom() >= 16.1) &&
-                !collide);
+              ((major || map!.getZoom() >= 16.1) && !collide);
             el.classList.toggle("label-muted", !show);
             if (show) occupied.push({ x: point.x, y: point.y, w: width });
           });
@@ -713,13 +714,20 @@ export function MapView({
     if (personaId === "default") return;
 
     let cancelled = false;
-    fetch("/api/route/walking", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stops: coords }),
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: { segments?: RouteSegment[] } | null) => {
+    const fetchRoute = async (): Promise<{
+      segments?: RouteSegment[];
+    } | null> => {
+      const res = await fetch("/api/route/walking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stops: coords }),
+      });
+      if (res.ok) return res.json();
+      // 静态站点（GitHub Pages 等）没有服务端代理：浏览器直连高德兜底
+      return { segments: await planWalkingRouteClient(coords) };
+    };
+    fetchRoute()
+      .then((data) => {
         if (cancelled || !data?.segments) return;
         const current = mapRef.current;
         if (!current) return;
@@ -947,7 +955,8 @@ export function MapView({
       return;
     }
     const located = kbSpots.filter(
-      (spot): spot is KbSpot & { coord: [number, number] } => Boolean(spot.coord),
+      (spot): spot is KbSpot & { coord: [number, number] } =>
+        Boolean(spot.coord),
     );
     if (located.length === 0) return;
     if (located.length === 1) {
@@ -1001,7 +1010,12 @@ export function MapView({
 
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="h-full w-full" aria-label="栖霞山三维地形地图" role="application" />
+      <div
+        ref={containerRef}
+        className="h-full w-full"
+        aria-label="栖霞山三维地形地图"
+        role="application"
+      />
       {!ready && !failed && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background">
           <p className="font-serif text-sm tracking-[0.4em] text-muted-foreground">
