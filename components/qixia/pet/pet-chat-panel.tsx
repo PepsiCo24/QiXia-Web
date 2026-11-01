@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { UIMessage } from 'ai'
-import { ArrowUp, Minus, Settings, Square, X } from 'lucide-react'
+import { ArrowUp, Minus, Settings, Square, X, RotateCcw, Grip } from 'lucide-react'
 import { PERSONA_MAP, type PersonaId } from '@/lib/qixia-data'
 import { PetSettings, type PetPreferences } from './pet-settings'
 
@@ -36,7 +36,8 @@ export function PetChatPanel(p: PetChatProps) {
   useEffect(() => { list.current?.scrollTo({ top: list.current.scrollHeight, behavior: 'instant' }) }, [p.messages, p.status])
   const submit = (text: string) => { if (text.trim() && !busy) { p.onSend(text.trim()); p.onInput('') } }
   return <section id="pet-chat" role="dialog" aria-modal="false" aria-labelledby="pet-title" className={`pet-chat glass-panel ${p.personaId === 'elder' ? 'pet-large' : ''}`} onKeyDown={e => { if (e.key === 'Escape') p.onClose() }}>
-    <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3"><div><h2 id="pet-title" className="font-serif text-lg text-accent">栖霞灵猫</h2><p className="text-xs text-muted-foreground">山间向导 · {PERSONA_MAP[p.personaId === 'default' ? 'family' : p.personaId].name}</p></div><div className="flex gap-1">
+    <header data-chat-drag tabIndex={0} title="拖动调整聊天框位置" className="pet-chat-header flex items-center justify-between gap-2 border-b border-border px-4 py-3"><div><h2 id="pet-title" className="font-serif text-lg text-accent">栖霞灵猫</h2><p className="text-xs text-muted-foreground">山间向导 · {PERSONA_MAP[p.personaId === 'default' ? 'family' : p.personaId].name}</p></div><div className="flex gap-1">
+      <button type="button" aria-label="重置聊天框位置和大小" title="恢复默认位置和大小" onClick={e => e.currentTarget.closest('.pet-chat')?.dispatchEvent(new Event('qixia-chat-reset'))} className="pet-icon"><RotateCcw size={16} /></button>
       <button aria-label="灵猫设置" aria-expanded={settings} onClick={() => setSettings(!settings)} className="pet-icon"><Settings size={17} /></button>
       <button aria-label="最小化对话" onClick={p.onClose} className="pet-icon"><Minus size={17} /></button>
       <button aria-label="关闭对话" onClick={p.onClose} className="pet-icon"><X size={17} /></button>
@@ -53,5 +54,6 @@ export function PetChatPanel(p: PetChatProps) {
       <label htmlFor="pet-input" className="sr-only">输入你的问题</label><input ref={input} id="pet-input" maxLength={2000} value={p.input} onChange={e => p.onInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && e.nativeEvent.isComposing) e.preventDefault() }} placeholder="问问灵猫…" className="min-w-0 flex-1 rounded-xl border border-border bg-background/70 px-3 py-2 text-sm focus:outline-accent" />
       {busy ? <button type="button" aria-label="停止回答" onClick={p.onStop} className="pet-icon"><Square size={17} /></button> : <button type="submit" aria-label="发送" disabled={!p.input.trim()} className="pet-icon bg-primary disabled:opacity-40"><ArrowUp size={18} /></button>}
     </form>
+    <button type="button" data-chat-resize className="pet-chat-resize" aria-label="调整聊天框大小" title="拖动缩放，也可使用方向键"><Grip size={16} /></button>
   </section>
 }

@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
  *
  * 列表来自构建期快照（同步读取，切换页签不请求网络）；
  * 面板本身不渲染全屏遮罩，滚动发生在面板内部（列表内部滚动，不触发地图缩放）。
- * 宿主元素 `.kb-panel-host` 由 hero-map 提供；组件根节点是 `.kb-panel`。
+ * 宿主元素 `.kb-tool-popover` 由 hero-map 提供；组件根节点是 `.kb-panel`。
  */
 export interface KbPanelProps {
   activeTab: KbTabKey;

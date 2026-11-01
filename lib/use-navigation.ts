@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LngLat } from "./qixia-data";
 import { gpsToAMap } from "./map-coordinates";
-import { flattenSteps, type FlatNavStep, type RouteSegment } from "./amap";
+import { flattenSteps, isNavigableRoute, type FlatNavStep, type RouteSegment } from "./amap";
 import {
   buildRouteIndex,
   computeProgress,
@@ -98,10 +98,15 @@ export function useNavigation() {
         const data = (await res.json().catch(() => null)) as { segments?: RouteSegment[]; error?: string } | null;
         if (!res.ok) throw new Error(data?.error || (res.status === 404 ? "当前站点不支持在线路线规划，请使用部署了导航 API 的站点" : "路线服务暂时不可用，请稍后重试"));
         if (!data) throw new Error("路线服务返回格式异常，请稍后重试");
-        if (!data.segments?.length) throw new Error("没有可用路线");
+        if (!isNavigableRoute(data.segments)) {
+          throw new Error("未获取到完整的真实步行路线，无法开始导航。请稍后重试或更换起终点；不会使用直线示意路线。");
+        }
 
         const steps = flattenSteps(data.segments);
         const index = buildRouteIndex(steps);
+        if (index.points.length < 2 || !Number.isFinite(index.total) || index.total <= 0) {
+          throw new Error("路线缺少可导航的真实路径，请更换起终点后重试。");
+        }
         setSession({
           target,
           destination,
@@ -113,6 +118,7 @@ export function useNavigation() {
       } catch (e) {
         setError(e instanceof Error ? e.message : "导航启动失败");
         setSession(null);
+        setProgress(null);
       } finally {
         setLoading(false);
       }

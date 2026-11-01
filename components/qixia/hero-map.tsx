@@ -19,6 +19,7 @@ import { PersonaPanel } from "./persona-panel";
 import { PoiCard } from "./poi-card";
 import { NavigationPanel } from "./navigation-panel";
 import { KbPanel } from "./kb-panel";
+import "./kb-panel-layout.css";
 import { KbSpotCard } from "./kb-spot-card";
 import { FOLIAGE, POI_MAP, snapshot, type PersonaId } from "@/lib/qixia-data";
 import { useNavigation } from "@/lib/use-navigation";
@@ -163,14 +164,18 @@ export function HeroMap({
 
   useEffect(() => {
     const close = (e: PointerEvent) => {
-      if (!toolRef.current?.contains(e.target as Node)) {
-        setTool(null);
-        if (kbOpen) {
-          setKbOpen(false);
-          setSelectedKbId(null);
-          setKbNotice(null);
-        }
-      }
+      const target = e.target;
+      if (!(target instanceof Node) || toolRef.current?.contains(target)) return;
+
+      // Cards and MapLibre markers are siblings of the toolbar. Their pointerdown
+      // precedes click: dismissing here would unmount the target before it acts.
+      if (
+        target instanceof Element &&
+        target.closest(".kb-card-host, .kb-marker, .kb-notice")
+      ) return;
+
+      setTool(null);
+      if (kbOpen) closeKb();
     };
     const escape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -188,7 +193,7 @@ export function HeroMap({
       document.removeEventListener("pointerdown", close);
       document.removeEventListener("keydown", escape);
     };
-  }, [kbOpen]);
+  }, [kbOpen, closeKb]);
   const toggleLayer = (key: keyof LayerState) =>
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   const s = snapshot(hour);

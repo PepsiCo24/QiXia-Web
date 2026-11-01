@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { UIMessage } from 'ai'
 import SpriteAnimator from './sprite-animator'
@@ -8,6 +8,7 @@ import { PetChatPanel } from './pet-chat-panel'
 import { defaultPreferences, type PetPreferences } from './pet-settings'
 import { usePetAnimationController, type PetControllerAnimation } from './pet-animation-controller'
 import { usePetDragController } from './pet-drag-controller'
+import { useChatWindow } from './use-chat-window'
 import { mapCommandSchema, type MapCommand } from '@/lib/pet/pet-actions'
 import type { PersonaId } from '@/lib/qixia-data'
 
@@ -26,42 +27,7 @@ export function PetDock({ open, onOpen, messages, status, error, onSend, onStop,
   const button = useRef<HTMLButtonElement>(null)
   const gaze = useRef<HTMLSpanElement>(null)
   const panel = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    if (!open || !loaded || preferences.hidden) return
-    const host = panel.current
-    const dock = button.current?.closest('.pet-dock')
-    const chat = host?.querySelector<HTMLElement>('.pet-chat')
-    if (!host || !dock || !chat) return
-    const place = () => {
-      const viewport = window.visualViewport
-      const vx = viewport?.offsetLeft ?? 0, vy = viewport?.offsetTop ?? 0
-      const vw = viewport?.width ?? innerWidth, vh = viewport?.height ?? innerHeight
-      const pet = dock.getBoundingClientRect()
-      const width = Math.min(355, Math.max(0, vw - 24))
-      const spaceRight = vx + vw - pet.right - 12
-      const spaceLeft = pet.left - vx - 12
-      const left = spaceRight >= width || spaceRight > spaceLeft ? pet.right + 12 : pet.left - width - 12
-      chat.style.width = `${width}px`
-      chat.style.maxHeight = `${Math.max(0, Math.min(590, vh - 24))}px`
-      chat.style.left = `${Math.max(vx + 12, Math.min(left, vx + vw - width - 12))}px`
-      chat.style.top = `${Math.max(vy + 12, Math.min(pet.top + pet.height / 2 - chat.offsetHeight / 2, vy + vh - chat.offsetHeight - 12))}px`
-    }
-    const movement = new MutationObserver(place)
-    movement.observe(dock, { attributes: true, attributeFilter: ['style'] })
-    const size = new ResizeObserver(place)
-    size.observe(chat)
-    size.observe(dock)
-    window.addEventListener('resize', place)
-    window.visualViewport?.addEventListener('resize', place)
-    window.visualViewport?.addEventListener('scroll', place)
-    place()
-    return () => {
-      movement.disconnect(); size.disconnect()
-      window.removeEventListener('resize', place)
-      window.visualViewport?.removeEventListener('resize', place)
-      window.visualViewport?.removeEventListener('scroll', place)
-    }
-  }, [open, loaded, preferences.hidden])
+  useChatWindow(panel, button, open && loaded && !preferences.hidden)
   useEffect(() => {
     if (preferences.hidden || dragController.isDragging || animation !== 'idle') return
     let frame = 0

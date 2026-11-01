@@ -165,3 +165,13 @@ button,a,input{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}bu
 .kb-tool-popover .kb-panel-foot,.kb-tool-popover .kb-source-note{flex:0 0 auto}
 @media(min-width:801px) and (max-height:760px){.kb-tool-popover{height:calc(100dvh - 400px);max-height:calc(100dvh - 400px)}}
 @media(max-width:800px){.kb-tool-popover{height:auto;max-height:calc(100dvh - 430px);min-height:260px}}
+/* Free chat window: header moves, bottom-right handle resizes. */
+.pet-panel-host.pet-panel-follow .pet-chat{box-sizing:border-box;right:auto;bottom:auto;min-height:0;border-radius:18px}
+.pet-chat-header{cursor:grab;touch-action:none;user-select:none;flex-shrink:0}
+.pet-chat-header:active{cursor:grabbing}
+.pet-chat-header button{cursor:pointer}
+.pet-panel-follow .pet-chat>form,.pet-panel-follow .pet-chat>header{flex-shrink:0}
+.pet-panel-follow .pet-messages{min-height:0;flex:1 1 0;overflow-y:auto}
+.pet-panel-follow .pet-chat>form{padding-right:34px}
+.pet-chat-resize{position:absolute;right:2px;bottom:2px;width:28px;height:28px;display:grid;place-items:center;color:var(--muted-foreground);cursor:nwse-resize;touch-action:none;z-index:2}
+.pet-chat-resize:hover{color:var(--accent)}
