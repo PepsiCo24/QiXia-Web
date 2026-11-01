@@ -94,11 +94,12 @@ const SEGMENT_CACHE_MAX = 50;
 const segmentCache = new Map<string, { at: number; segment: RouteSegment }>();
 
 export async function planWalkingSegment(origin: LngLat, destination: LngLat): Promise<RouteSegment> {
-  // 两个环境变量均仅在服务端使用，绝不使用 NEXT_PUBLIC_ 前缀。
-  const key = process.env.AMAP_WEB_SERVICE_KEY?.trim() || process.env.AMAP_KEY?.trim();
+  // AMAP_KEY is the browser JS API key published by next.config.mjs.
+  // Never use it or NEXT_PUBLIC_* for server REST requests.
+  const key = process.env.AMAP_WEB_SERVICE_KEY?.trim();
   if (!key) {
     throw new RoutingError("ROUTING_NOT_CONFIGURED",
-      "在线步行路线尚未配置，请管理员在服务端配置高德 Web 服务密钥 AMAP_WEB_SERVICE_KEY（兼容 AMAP_KEY）后重新部署。", 503);
+      "在线步行路线尚未配置，请管理员在服务端配置高德 Web 服务密钥 AMAP_WEB_SERVICE_KEY 后重新部署；AMAP_KEY 仅用于浏览器 JS API，不能用于步行路线。", 503);
   }
   const round = (value: number) => value.toFixed(5);
   const cacheKey = `${origin.map(round).join(",")}|${destination.map(round).join(",")}`;

@@ -29,8 +29,8 @@ async function scenario(run) {
   const env = { primary: process.env.AMAP_WEB_SERVICE_KEY, fallback: process.env.AMAP_KEY };
   const originalFetch = global.fetch;
   try {
-    delete process.env.AMAP_WEB_SERVICE_KEY;
-    process.env.AMAP_KEY = 'test-fallback-not-a-real-key';
+    process.env.AMAP_WEB_SERVICE_KEY = 'test-server-not-a-real-key';
+    process.env.AMAP_KEY = 'test-browser-not-a-real-key';
     const amap = load('lib/amap.ts');
     await run(amap);
   } finally {
@@ -45,8 +45,11 @@ async function scenario(run) {
 function response(payload) { return new Response(JSON.stringify(payload)); }
 
 test('missing key gives actionable configuration failure without fetch', () => scenario(async (amap) => {
-  delete process.env.AMAP_KEY;
-  global.fetch = () => assert.fail('must not request provider');
+  // A configured JS browser key must never silently become the REST key.
+  delete process.env.AMAP_WEB_SERVICE_KEY;
+  global.fetch = () => assert.fail('must not request provider with browser key');
+  await assert.rejects(amap.planWalkingSegment(origin, destination), { code: 'ROUTING_NOT_CONFIGURED', retryable: false });
+  process.env.AMAP_WEB_SERVICE_KEY = '   ';
   await assert.rejects(amap.planWalkingSegment(origin, destination), { code: 'ROUTING_NOT_CONFIGURED', retryable: false });
 }));
 
@@ -84,6 +87,7 @@ test('real geometry is preserved and preferred Web service key stays on server r
   global.fetch = async (url) => {
     calls++;
     assert.equal(new URL(url).searchParams.get('key'), process.env.AMAP_WEB_SERVICE_KEY);
+    assert.notEqual(new URL(url).searchParams.get('key'), process.env.AMAP_KEY);
     return response(valid);
   };
   const route = await amap.planWalkingSegment(origin, destination);
