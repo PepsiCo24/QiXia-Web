@@ -1,0 +1,32 @@
+/* Text must fit its panel, including unbroken English, URLs and provider codes.
+   Use anywhere instead of break-all so ordinary English words stay readable. */
+:where(.photo-studio, .qixia-viewport, .pet-chat, .kb-card-host) :where(p, h1, h2, h3, h4, li, dd, dt, a, button, label, summary, output) {
+  overflow-wrap: anywhere;
+}
+:where(.photo-studio, .qixia-viewport, .pet-chat, .kb-card-host) :where(button, input, textarea, select) {
+  max-width: 100%;
+}
+:where(.photo-workspace, .photo-controls, .photo-heading, .photo-topbar, .photo-footer, .photo-section-title, .photo-frame-choice, .photo-filter-title, .photo-action-row, .photo-view-header, .photo-view-caption, .photo-steps, .route-metrics, .route-heading, .pet-chat-header, .kb-panel-header) > * {
+  min-width: 0;
+}
+.pet-chat .pet-messages { min-width: 0; overflow-x: hidden; }
+.pet-chat .pet-messages > div > div { min-width: 0; overflow-wrap: anywhere; }
+.pet-chat .pet-chat-header > div:last-child { flex-shrink: 0; }
+.pet-chat .pet-icon svg, .photo-studio button > svg, .photo-studio a > svg { flex-shrink: 0; }
+:where(.kb-panel, .kb-card-host, .tool-popover, .poi-card-host, .route-host) { overflow-wrap: anywhere; }
+.photo-studio :where(.photo-error, .photo-notice, .photo-collection-note p, .photo-frame-choice > span) { min-width: 0; overflow-wrap: anywhere; }
+.photo-studio .photo-frame-choice strong { line-height: 1.5; }
+.photo-studio .photo-frame-choice small { line-height: 1.7; }
+.photo-studio .photo-privacy { flex-shrink: 0; }
+.photo-studio .photo-steps li { min-width: 0; }
+.photo-studio .photo-steps li > span { flex-shrink: 0; }
+@media (max-width: 400px) {
+  .photo-studio .photo-topbar { gap: 8px 14px; }
+  .photo-studio .photo-mode { margin-left: auto; }
+  .photo-studio .photo-frames { grid-template-columns: minmax(0, 1fr); }
+  .photo-studio .photo-heading h1 { font-size: 25px; }
+  .photo-studio .photo-filter-title { flex-wrap: wrap; }
+  .photo-studio .photo-view-caption { flex-wrap: wrap; }
+  .pet-chat .pet-chat-header { padding-inline: 10px; gap: 4px; }
+  .pet-chat .pet-chat-header .pet-icon { min-width: 34px; }
+}

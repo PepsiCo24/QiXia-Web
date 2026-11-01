@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import './immersive.css'
+import './text-layout.css'
 import { LanguageProvider } from '@/components/qixia/language-provider'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
